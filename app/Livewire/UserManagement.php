@@ -3,11 +3,13 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use App\Models\UserWageHistory;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Spatie\Permission\Models\Role;
+use Carbon\Carbon;
 
 class UserManagement extends Component
 {
@@ -16,6 +18,8 @@ class UserManagement extends Component
     public $showCreateModal = false;
     public $showEditModal = false;
     public $showDeleteModal = false;
+    public $showWageHistoryModal = false;
+    public $showEditWageModal = false;
     
     public $userId;
     public $name;
@@ -23,6 +27,15 @@ class UserManagement extends Component
     public $password;
     public $password_confirmation;
     public $selectedRole;
+    
+    // Wage fields
+    public $wageType;
+    public $wageRate;
+    public $wageStartDate;
+    public $wageNotes;
+    public $currentWageHistory = [];
+    public $editingWageId;
+    public $editingWageNotes;
     
     public $search = '';
     public $sortField = 'name';
@@ -45,6 +58,14 @@ class UserManagement extends Component
             $rules['password'] = ['required', 'confirmed', 'min:8'];
         }
 
+        // Wage validation rules (when wage fields are being edited)
+        if ($this->showEditModal || $this->showEditWageModal) {
+            $rules['wageType'] = ['nullable', 'in:hourly,salary'];
+            $rules['wageRate'] = ['nullable', 'numeric', 'min:0', 'max:9999999.99'];
+            $rules['wageStartDate'] = ['nullable', 'date'];
+            $rules['wageNotes'] = ['nullable', 'string', 'max:500'];
+        }
+
         return $rules;
     }
 
@@ -65,7 +86,9 @@ class UserManagement extends Component
 
     public function openCreateModal()
     {
-        $this->reset(['userId', 'name', 'email', 'password', 'password_confirmation', 'selectedRole']);
+        $this->reset(['userId', 'name', 'email', 'password', 'password_confirmation', 'selectedRole', 
+                     'wageType', 'wageRate', 'wageStartDate', 'wageNotes']);
+        $this->wageStartDate = now()->format('Y-m-d');
         $this->resetValidation();
         $this->showCreateModal = true;
     }
@@ -73,7 +96,7 @@ class UserManagement extends Component
     public function openEditModal($userId)
     {
         $this->resetValidation();
-        $user = User::findOrFail($userId);
+        $user = User::with('currentWage')->findOrFail($userId);
         
         $this->userId = $user->id;
         $this->name = $user->name;
@@ -82,6 +105,19 @@ class UserManagement extends Component
         $this->password = '';
         $this->password_confirmation = '';
         
+        // Load current wage information
+        if ($user->currentWage) {
+            $this->wageType = $user->currentWage->wage_type;
+            $this->wageRate = $user->currentWage->wage_rate;
+            $this->wageStartDate = $user->currentWage->start_date->format('Y-m-d');
+            $this->wageNotes = $user->currentWage->notes;
+        } else {
+            $this->wageType = null;
+            $this->wageRate = null;
+            $this->wageStartDate = now()->format('Y-m-d');
+            $this->wageNotes = null;
+        }
+        
         $this->showEditModal = true;
     }
 
@@ -89,6 +125,42 @@ class UserManagement extends Component
     {
         $this->userId = $userId;
         $this->showDeleteModal = true;
+    }
+
+    public function openWageHistoryModal($userId)
+    {
+        $this->userId = $userId;
+        $user = User::with(['wageHistory.createdBy'])->findOrFail($userId);
+        $this->currentWageHistory = $user->wageHistory->toArray();
+        $this->showWageHistoryModal = true;
+    }
+
+    public function openEditWageModal($wageId)
+    {
+        $wage = UserWageHistory::findOrFail($wageId);
+        $this->editingWageId = $wage->id;
+        $this->editingWageNotes = $wage->notes;
+        $this->showEditWageModal = true;
+    }
+
+    public function updateWageNotes()
+    {
+        $this->validate([
+            'editingWageNotes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $wage = UserWageHistory::findOrFail($this->editingWageId);
+        $wage->update([
+            'notes' => $this->editingWageNotes,
+        ]);
+
+        $this->showEditWageModal = false;
+        $this->reset(['editingWageId', 'editingWageNotes']);
+        
+        // Refresh wage history
+        $this->openWageHistoryModal($this->userId);
+        
+        session()->flash('success', 'Wage notes updated successfully.');
     }
 
     public function createUser()
@@ -103,8 +175,20 @@ class UserManagement extends Component
 
         $user->assignRole($this->selectedRole);
 
+        // Set initial wage if provided
+        if ($this->wageType && $this->wageRate) {
+            $user->setWage(
+                $this->wageType,
+                $this->wageRate,
+                $this->wageStartDate,
+                $this->wageNotes,
+                auth()->id()
+            );
+        }
+
         $this->showCreateModal = false;
-        $this->reset(['name', 'email', 'password', 'password_confirmation', 'selectedRole']);
+        $this->reset(['name', 'email', 'password', 'password_confirmation', 'selectedRole',
+                     'wageType', 'wageRate', 'wageStartDate', 'wageNotes']);
         
         session()->flash('success', 'User created successfully.');
     }
@@ -113,7 +197,7 @@ class UserManagement extends Component
     {
         $this->validate();
 
-        $user = User::findOrFail($this->userId);
+        $user = User::with('currentWage')->findOrFail($this->userId);
         
         $user->update([
             'name' => $this->name,
@@ -128,8 +212,33 @@ class UserManagement extends Component
 
         $user->syncRoles([$this->selectedRole]);
 
+        // Update wage if changed
+        if ($this->wageType && $this->wageRate) {
+            $currentWage = $user->currentWage;
+            
+            // Check if wage has actually changed
+            $wageChanged = !$currentWage || 
+                          $currentWage->wage_type != $this->wageType ||
+                          $currentWage->wage_rate != $this->wageRate ||
+                          $currentWage->start_date->format('Y-m-d') != $this->wageStartDate;
+
+            if ($wageChanged) {
+                $user->setWage(
+                    $this->wageType,
+                    $this->wageRate,
+                    $this->wageStartDate,
+                    $this->wageNotes,
+                    auth()->id()
+                );
+            } elseif ($currentWage && $currentWage->notes != $this->wageNotes) {
+                // Just update notes if only notes changed
+                $currentWage->update(['notes' => $this->wageNotes]);
+            }
+        }
+
         $this->showEditModal = false;
-        $this->reset(['userId', 'name', 'email', 'password', 'password_confirmation', 'selectedRole']);
+        $this->reset(['userId', 'name', 'email', 'password', 'password_confirmation', 'selectedRole',
+                     'wageType', 'wageRate', 'wageStartDate', 'wageNotes']);
         
         session()->flash('success', 'User updated successfully.');
     }
@@ -155,7 +264,7 @@ class UserManagement extends Component
 
     public function render()
     {
-        $users = User::with('roles')
+        $users = User::with(['roles', 'currentWage'])
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('email', 'like', '%' . $this->search . '%');

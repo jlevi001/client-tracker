@@ -64,6 +64,9 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Role
                     </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Current Wage
+                    </th>
                     <th wire:click="sortBy('created_at')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                         <div class="flex items-center">
                             Joined
@@ -92,8 +95,8 @@
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-10 w-10">
                                     <img class="h-10 w-10 rounded-full" 
-                                         src="{{ $user->profile_photo_url }}" 
-                                         alt="{{ $user->name }}">
+                                        src="{{ $user->profile_photo_url }}" 
+                                        alt="{{ $user->name }}">
                                 </div>
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900">
@@ -120,6 +123,17 @@
                                 </span>
                             @endif
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {{ $user->formatted_current_wage }}
+                                @if($user->currentWage)
+                                    <button wire:click="openWageHistoryModal({{ $user->id }})" 
+                                        class="ml-2 text-indigo-600 hover:text-indigo-900 text-xs">
+                                        (History)
+                                    </button>
+                                @endif
+                            </div>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $user->created_at->format('M d, Y') }}
                         </td>
@@ -138,7 +152,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                             No users found.
                         </td>
                     </tr>
@@ -193,34 +207,39 @@
                 <x-input-error for="selectedRole" class="mt-2" />
             </div>
 
-            <!-- Simple Wage Fields - Always Visible -->
-            <div class="mt-6 border-t border-gray-200 pt-4">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    Wage Information (Admin Only)
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Wage Information Section -->
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Wage Information (Optional)</h3>
+                
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <x-label for="wage_type" value="Wage Type" />
-                        <select id="wage_type" wire:model="wage_type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                            <option value="">Select Type</option>
+                        <x-label for="wageType" value="Wage Type" />
+                        <select id="wageType" wire:model="wageType" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                            <option value="">Not Set</option>
                             <option value="hourly">Hourly</option>
                             <option value="salary">Salary</option>
                         </select>
-                        <x-input-error for="wage_type" class="mt-2" />
+                        <x-input-error for="wageType" class="mt-2" />
                     </div>
 
                     <div>
-                        <x-label for="wage_rate" value="Rate/Salary" />
-                        <div class="mt-1 relative rounded-md shadow-sm">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 sm:text-sm">$</span>
-                            </div>
-                            <x-input id="wage_rate" type="number" step="0.01" min="0" max="99999999.99" 
-                                     class="pl-7 mt-1 block w-full" wire:model="wage_rate" 
-                                     placeholder="0.00" autocomplete="off" />
-                        </div>
-                        <x-input-error for="wage_rate" class="mt-2" />
+                        <x-label for="wageRate" value="Rate ($)" />
+                        <x-input id="wageRate" type="number" step="0.01" min="0" class="mt-1 block w-full" wire:model="wageRate" />
+                        <x-input-error for="wageRate" class="mt-2" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <x-label for="wageStartDate" value="Start Date" />
+                        <x-input id="wageStartDate" type="date" class="mt-1 block w-full" wire:model="wageStartDate" />
+                        <x-input-error for="wageStartDate" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-label for="wageNotes" value="Notes" />
+                        <x-input id="wageNotes" type="text" class="mt-1 block w-full" wire:model="wageNotes" placeholder="e.g., Initial hire" />
+                        <x-input-error for="wageNotes" class="mt-2" />
                     </div>
                 </div>
             </div>
@@ -278,35 +297,44 @@
                 <x-input-error for="selectedRole" class="mt-2" />
             </div>
 
-            <!-- Simple Wage Fields - Always Visible -->
-            <div class="mt-6 border-t border-gray-200 pt-4">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    Wage Information (Admin Only)
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Wage Information Section -->
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Current Wage Information</h3>
+                
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <x-label for="edit-wage_type" value="Wage Type" />
-                        <select id="edit-wage_type" wire:model="wage_type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                            <option value="">Select Type</option>
+                        <x-label for="edit-wageType" value="Wage Type" />
+                        <select id="edit-wageType" wire:model="wageType" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                            <option value="">Not Set</option>
                             <option value="hourly">Hourly</option>
                             <option value="salary">Salary</option>
                         </select>
-                        <x-input-error for="wage_type" class="mt-2" />
+                        <x-input-error for="wageType" class="mt-2" />
                     </div>
 
                     <div>
-                        <x-label for="edit-wage_rate" value="Rate/Salary" />
-                        <div class="mt-1 relative rounded-md shadow-sm">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 sm:text-sm">$</span>
-                            </div>
-                            <x-input id="edit-wage_rate" type="number" step="0.01" min="0" max="99999999.99" 
-                                     class="pl-7 mt-1 block w-full" wire:model="wage_rate" 
-                                     placeholder="0.00" autocomplete="off" />
-                        </div>
-                        <x-input-error for="wage_rate" class="mt-2" />
+                        <x-label for="edit-wageRate" value="Rate ($)" />
+                        <x-input id="edit-wageRate" type="number" step="0.01" min="0" class="mt-1 block w-full" wire:model="wageRate" />
+                        <x-input-error for="wageRate" class="mt-2" />
                     </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <x-label for="edit-wageStartDate" value="Start Date" />
+                        <x-input id="edit-wageStartDate" type="date" class="mt-1 block w-full" wire:model="wageStartDate" />
+                        <x-input-error for="wageStartDate" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-label for="edit-wageNotes" value="Notes" />
+                        <x-input id="edit-wageNotes" type="text" class="mt-1 block w-full" wire:model="wageNotes" placeholder="e.g., Annual raise" />
+                        <x-input-error for="wageNotes" class="mt-2" />
+                    </div>
+                </div>
+
+                <div class="mt-3 text-sm text-gray-600">
+                    <p>Changing the start date will create a new wage record and close the previous one.</p>
                 </div>
             </div>
         </x-slot>
@@ -318,6 +346,111 @@
 
             <x-button class="ml-3" wire:click="updateUser" wire:loading.attr="disabled">
                 Update User
+            </x-button>
+        </x-slot>
+    </x-dialog-modal>
+
+    <!-- Wage History Modal -->
+    <x-dialog-modal wire:model="showWageHistoryModal" maxWidth="4xl">
+        <x-slot name="title">
+            Wage History
+        </x-slot>
+
+        <x-slot name="content">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Set By</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @forelse($currentWageHistory as $wage)
+                            <tr class="{{ !$wage['end_date'] ? 'bg-green-50' : '' }}">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ ucfirst($wage['wage_type']) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    ${{ number_format($wage['wage_rate'], 2) }}
+                                    @if($wage['wage_type'] === 'hourly')
+                                        /hour
+                                    @else
+                                        /year
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ \Carbon\Carbon::parse($wage['start_date'])->format('M d, Y') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    @if($wage['end_date'])
+                                        {{ \Carbon\Carbon::parse($wage['end_date'])->format('M d, Y') }}
+                                    @else
+                                        <span class="text-green-600 font-semibold">Current</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    {{ $wage['notes'] ?? '-' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $wage['created_by']['name'] ?? 'System' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <button wire:click="openEditWageModal({{ $wage['id'] }})" 
+                                        class="text-indigo-600 hover:text-indigo-900">
+                                        Edit Notes
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                    No wage history found.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </x-slot>
+
+        <x-slot name="footer">
+            <x-button wire:click="$set('showWageHistoryModal', false)" wire:loading.attr="disabled">
+                Close
+            </x-button>
+        </x-slot>
+    </x-dialog-modal>
+
+    <!-- Edit Wage Notes Modal -->
+    <x-dialog-modal wire:model="showEditWageModal">
+        <x-slot name="title">
+            Edit Wage Notes
+        </x-slot>
+
+        <x-slot name="content">
+            <div class="mt-4">
+                <x-label for="editingWageNotes" value="Notes" />
+                <textarea id="editingWageNotes" 
+                    wire:model="editingWageNotes" 
+                    rows="3"
+                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                </textarea>
+                <x-input-error for="editingWageNotes" class="mt-2" />
+            </div>
+        </x-slot>
+
+        <x-slot name="footer">
+            <x-secondary-button wire:click="$set('showEditWageModal', false)" wire:loading.attr="disabled">
+                Cancel
+            </x-secondary-button>
+
+            <x-button class="ml-3" wire:click="updateWageNotes" wire:loading.attr="disabled">
+                Update Notes
             </x-button>
         </x-slot>
     </x-dialog-modal>
