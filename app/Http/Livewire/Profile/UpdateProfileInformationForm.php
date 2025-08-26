@@ -63,12 +63,6 @@ class UpdateProfileInformationForm extends Component
             'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
         ];
 
-        // Add wage validation rules only for admins
-        if ($user->hasRole('Admin')) {
-            $rules['state.wage_type'] = ['nullable', 'in:hourly,salary'];
-            $rules['state.wage_rate'] = ['nullable', 'required_with:state.wage_type', 'numeric', 'min:0', 'max:99999999.99'];
-        }
-
         $this->validate($rules);
 
         if (isset($this->photo)) {
@@ -79,18 +73,10 @@ class UpdateProfileInformationForm extends Component
             $user instanceof MustVerifyEmail) {
             $this->updateVerifiedUser($user, $this->state);
         } else {
-            // Only update wage fields if user is admin
-            $updateData = [
+            $user->forceFill([
                 'name' => $this->state['name'],
                 'email' => $this->state['email'],
-            ];
-
-            if ($user->hasRole('Admin')) {
-                $updateData['wage_type'] = $this->state['wage_type'] ?? null;
-                $updateData['wage_rate'] = $this->state['wage_rate'] ?? null;
-            }
-
-            $user->forceFill($updateData)->save();
+            ])->save();
         }
 
         $this->emit('saved');
@@ -107,19 +93,11 @@ class UpdateProfileInformationForm extends Component
      */
     protected function updateVerifiedUser($user, array $input)
     {
-        $updateData = [
+        $user->forceFill([
             'name' => $input['name'],
             'email' => $input['email'],
             'email_verified_at' => null,
-        ];
-
-        // Only update wage fields if user is admin
-        if ($user->hasRole('Admin')) {
-            $updateData['wage_type'] = $input['wage_type'] ?? null;
-            $updateData['wage_rate'] = $input['wage_rate'] ?? null;
-        }
-
-        $user->forceFill($updateData)->save();
+        ])->save();
 
         $user->sendEmailVerificationNotification();
 

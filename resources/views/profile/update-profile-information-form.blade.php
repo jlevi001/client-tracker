@@ -81,59 +81,6 @@
                 @endif
             @endif
         </div>
-
-        <!-- Wage Information (Admin Only) -->
-        @if(auth()->user()->hasRole('Admin'))
-            <div class="col-span-6">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
-                    {{ __('Wage Information') }}
-                </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    {{ __('This information is only visible to administrators.') }}
-                </p>
-            </div>
-
-            <!-- Wage Type Selection -->
-            <div class="col-span-6 sm:col-span-4">
-                <x-label value="{{ __('Wage Type') }}" />
-                <div class="mt-2 flex items-center space-x-6">
-                    <label class="flex items-center">
-                        <input type="radio" wire:model.live="state.wage_type" value="hourly" 
-                               class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ __('Hourly') }}</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="radio" wire:model.live="state.wage_type" value="salary" 
-                               class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700">
-                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{ __('Salary') }}</span>
-                    </label>
-                </div>
-                <x-input-error for="state.wage_type" class="mt-2" />
-            </div>
-
-            <!-- Wage Rate -->
-            @if($this->state['wage_type'] ?? false)
-            <div class="col-span-6 sm:col-span-4">
-                <x-label for="wage_rate" 
-                         value="{{ $this->state['wage_type'] === 'hourly' ? __('Hourly Rate') : __('Annual Salary') }}" />
-                <div class="mt-1 relative rounded-md shadow-sm">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span class="text-gray-500 dark:text-gray-400 sm:text-sm">$</span>
-                    </div>
-                    <x-input id="wage_rate" type="number" step="0.01" min="0" max="99999999.99" 
-                             class="pl-7 mt-1 block w-full" wire:model.live="state.wage_rate" 
-                             placeholder="{{ $this->state['wage_type'] === 'hourly' ? '0.00' : '0.00' }}" 
-                             autocomplete="off" />
-                </div>
-                <x-input-error for="state.wage_rate" class="mt-2" />
-                @if($this->state['wage_type'] === 'hourly')
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Enter hourly rate (e.g., 25.00)') }}</p>
-                @else
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Enter annual salary (e.g., 52000.00)') }}</p>
-                @endif
-            </div>
-            @endif
-        @endif
     </x-slot>
 
     <x-slot name="actions">

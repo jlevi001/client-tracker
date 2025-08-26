@@ -92,8 +92,8 @@
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-10 w-10">
                                     <img class="h-10 w-10 rounded-full" 
-                                        src="{{ $user->profile_photo_url }}" 
-                                        alt="{{ $user->name }}">
+                                         src="{{ $user->profile_photo_url }}" 
+                                         alt="{{ $user->name }}">
                                 </div>
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900">
@@ -152,7 +152,7 @@
         </div>
     </div>
 
-    <!-- Create/Edit Modal -->
+    <!-- Create Modal -->
     <x-dialog-modal wire:model="showCreateModal">
         <x-slot name="title">
             Create New User
@@ -191,6 +191,38 @@
                     @endforeach
                 </select>
                 <x-input-error for="selectedRole" class="mt-2" />
+            </div>
+
+            <!-- Simple Wage Fields - Always Visible -->
+            <div class="mt-6 border-t border-gray-200 pt-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    Wage Information (Admin Only)
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <x-label for="wage_type" value="Wage Type" />
+                        <select id="wage_type" wire:model="wage_type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                            <option value="">Select Type</option>
+                            <option value="hourly">Hourly</option>
+                            <option value="salary">Salary</option>
+                        </select>
+                        <x-input-error for="wage_type" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-label for="wage_rate" value="Rate/Salary" />
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            <x-input id="wage_rate" type="number" step="0.01" min="0" max="99999999.99" 
+                                     class="pl-7 mt-1 block w-full" wire:model="wage_rate" 
+                                     placeholder="0.00" autocomplete="off" />
+                        </div>
+                        <x-input-error for="wage_rate" class="mt-2" />
+                    </div>
+                </div>
             </div>
         </x-slot>
 
@@ -244,6 +276,38 @@
                     @endforeach
                 </select>
                 <x-input-error for="selectedRole" class="mt-2" />
+            </div>
+
+            <!-- Simple Wage Fields - Always Visible -->
+            <div class="mt-6 border-t border-gray-200 pt-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    Wage Information (Admin Only)
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <x-label for="edit-wage_type" value="Wage Type" />
+                        <select id="edit-wage_type" wire:model="wage_type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                            <option value="">Select Type</option>
+                            <option value="hourly">Hourly</option>
+                            <option value="salary">Salary</option>
+                        </select>
+                        <x-input-error for="wage_type" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-label for="edit-wage_rate" value="Rate/Salary" />
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            <x-input id="edit-wage_rate" type="number" step="0.01" min="0" max="99999999.99" 
+                                     class="pl-7 mt-1 block w-full" wire:model="wage_rate" 
+                                     placeholder="0.00" autocomplete="off" />
+                        </div>
+                        <x-input-error for="wage_rate" class="mt-2" />
+                    </div>
+                </div>
             </div>
         </x-slot>
 
