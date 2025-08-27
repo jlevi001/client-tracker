@@ -351,7 +351,7 @@
     </x-dialog-modal>
 
     <!-- Wage History Modal -->
-    <x-dialog-modal wire:model="showWageHistoryModal" maxWidth="4xl">
+    <x-dialog-modal wire:model="showWageHistoryModal" maxWidth="2xl">
         <x-slot name="title">
             Wage History
         </x-slot>
@@ -420,9 +420,9 @@
         </x-slot>
 
         <x-slot name="footer">
-            <x-button wire:click="$set('showWageHistoryModal', false)" wire:loading.attr="disabled">
+            <x-secondary-button wire:click="$set('showWageHistoryModal', false)" wire:loading.attr="disabled">
                 Close
-            </x-button>
+            </x-secondary-button>
         </x-slot>
     </x-dialog-modal>
 
