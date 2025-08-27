@@ -17,3 +17,15 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Dreamweaver sync files
+**/dwsync.xml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+app/Http/Livewire/Profile/_notes/dwsync.xml
+app/Http/Livewire/Profile/_notes/dwsync.xml
+app/Models/_notes/dwsync.xml
+database/migrations/_notes/dwsync.xml
+resources/views/profile/_notes/dwsync.xml
