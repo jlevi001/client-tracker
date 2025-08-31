@@ -21,6 +21,7 @@ class UserManagement extends Component
     public $showWageHistoryModal = false;
     public $showEditWageModal = false;
     public $showEditCurrentWageForm = false;
+    public $showAddWageForm = false; // Added for toggle functionality
     
     public $userId;
     public $name;
@@ -101,7 +102,7 @@ class UserManagement extends Component
     public function openCreateModal()
     {
         $this->reset(['userId', 'name', 'email', 'password', 'password_confirmation', 'selectedRole', 
-                     'wageType', 'wageRate', 'wageStartDate', 'wageNotes']);
+                      'wageType', 'wageRate', 'wageStartDate', 'wageNotes']);
         $this->wageStartDate = now()->format('Y-m-d');
         $this->resetValidation();
         $this->showCreateModal = true;
@@ -132,9 +133,10 @@ class UserManagement extends Component
             $this->wageNotes = null;
         }
         
-        // Reset new wage fields
+        // Reset new wage fields and forms
         $this->resetNewWageFields();
         $this->showEditCurrentWageForm = false;
+        $this->showAddWageForm = false;
         
         $this->showEditModal = true;
     }
@@ -261,8 +263,9 @@ class UserManagement extends Component
         $this->wageStartDate = $this->newWageStartDate;
         $this->wageNotes = $this->newWageNotes;
 
-        // Clear the new wage form fields
+        // Clear the new wage form fields and hide the form
         $this->resetNewWageFields();
+        $this->showAddWageForm = false;
         
         session()->flash('success', 'New wage added successfully.');
     }
@@ -300,7 +303,7 @@ class UserManagement extends Component
 
         $this->showCreateModal = false;
         $this->reset(['name', 'email', 'password', 'password_confirmation', 'selectedRole',
-                     'wageType', 'wageRate', 'wageStartDate', 'wageNotes']);
+                      'wageType', 'wageRate', 'wageStartDate', 'wageNotes']);
         
         session()->flash('success', 'User created successfully.');
     }
@@ -331,8 +334,8 @@ class UserManagement extends Component
 
         $this->showEditModal = false;
         $this->reset(['userId', 'name', 'email', 'password', 'password_confirmation', 'selectedRole',
-                     'wageType', 'wageRate', 'wageStartDate', 'wageNotes',
-                     'newWageType', 'newWageRate', 'newWageStartDate', 'newWageNotes']);
+                      'wageType', 'wageRate', 'wageStartDate', 'wageNotes',
+                      'newWageType', 'newWageRate', 'newWageStartDate', 'newWageNotes']);
         
         session()->flash('success', 'User updated successfully.');
     }
