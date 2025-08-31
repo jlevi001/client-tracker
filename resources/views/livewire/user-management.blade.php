@@ -16,10 +16,10 @@
     <div class="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div class="w-full sm:w-1/3">
             <input wire:model.live="search" type="text" placeholder="Search users..." 
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         </div>
         <button wire:click="openCreateModal" 
-            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-150 ease-in-out">
+                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-150 ease-in-out">
             Add New User
         </button>
     </div>
@@ -95,8 +95,8 @@
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-10 w-10">
                                     <img class="h-10 w-10 rounded-full" 
-                                        src="{{ $user->profile_photo_url }}" 
-                                        alt="{{ $user->name }}">
+                                         src="{{ $user->profile_photo_url }}" 
+                                         alt="{{ $user->name }}">
                                 </div>
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900">
@@ -128,7 +128,7 @@
                                 {{ $user->formatted_current_wage }}
                                 @if($user->currentWage)
                                     <button wire:click="openWageHistoryModal({{ $user->id }})" 
-                                        class="ml-2 text-indigo-600 hover:text-indigo-900 text-xs">
+                                            class="ml-2 text-indigo-600 hover:text-indigo-900 text-xs">
                                         (History)
                                     </button>
                                 @endif
@@ -139,12 +139,12 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button wire:click="openEditModal({{ $user->id }})" 
-                                class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                    class="text-indigo-600 hover:text-indigo-900 mr-3">
                                 Edit
                             </button>
                             @if($user->id !== auth()->id())
                                 <button wire:click="openDeleteModal({{ $user->id }})" 
-                                    class="text-red-600 hover:text-red-900">
+                                        class="text-red-600 hover:text-red-900">
                                     Delete
                                 </button>
                             @endif
@@ -209,7 +209,7 @@
 
             <!-- Wage Information Section -->
             <div class="mt-6 pt-6 border-t border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Wage Information (Optional)</h3>
+                <h3 class="text-lg font-medium text-gray-300 mb-4">Wage Information (Optional)</h3>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -299,11 +299,11 @@
 
             <!-- Wage Information Section -->
             <div class="mt-6 pt-6 border-t border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Wage Information</h3>
+                <h3 class="text-lg font-medium text-gray-300 mb-4">Wage Information</h3>
                 
                 <!-- Current Wage Display -->
                 @if($wageType && $wageRate)
-                    <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div class="mb-4 p-4 bg-gray-50 rounded-lg">
                         <div class="flex justify-between items-center">
                             <div>
                                 <span class="font-medium text-gray-700">Wage Type:</span>
@@ -326,7 +326,7 @@
                     </div>
                     
                     @if($userId)
-                        <button type="button" wire:click="openWageHistoryModal({{ $userId }})" class="text-sm text-indigo-600 hover:text-indigo-900 mb-4">
+                        <button type="button" wire:click="openWageHistoryModal({{ $userId }})" class="text-sm text-indigo-400 hover:text-indigo-300 mb-4">
                             View Wage History →
                         </button>
                     @endif
@@ -386,7 +386,7 @@
                 <div class="my-4 border-t border-gray-200"></div>
 
                 <!-- Add New Wage Section -->
-                <h4 class="text-md font-medium text-gray-700 mb-3">Add New Wage</h4>
+                <h4 class="text-md font-medium text-gray-300 mb-4 pt-4">Add New Wage</h4>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -426,7 +426,7 @@
                     </button>
                 </div>
                 
-                <div class="mt-3 text-sm text-gray-600">
+                <div class="mt-3 text-sm text-gray-400">
                     <p>Adding a new wage will close the current wage record and create a new one for tracking wage changes.</p>
                 </div>
             </div>
@@ -495,7 +495,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <button wire:click="openEditWageModal({{ $wage['id'] }})" 
-                                        class="text-indigo-600 hover:text-indigo-900">
+                                            class="text-indigo-600 hover:text-indigo-900">
                                         Edit Notes
                                     </button>
                                 </td>
