@@ -16,6 +16,7 @@
     <div class="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div class="w-full sm:w-1/3">
             <input wire:model.live="search" type="text" placeholder="Search users..." 
+                   autocomplete="off"
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         </div>
         <button wire:click="openCreateModal" 
@@ -64,9 +65,6 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Role
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Current Wage
-                    </th>
                     <th wire:click="sortBy('created_at')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                         <div class="flex items-center">
                             Joined
@@ -93,8 +91,8 @@
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <img class="h-10 w-10 rounded-full" 
+                                <div class="flex-shrink-0 h-10 w-10 cursor-pointer" wire:click="openEditModal({{ $user->id }})">
+                                    <img class="h-10 w-10 rounded-full hover:ring-2 hover:ring-indigo-500 transition-all duration-150" 
                                          src="{{ $user->profile_photo_url }}" 
                                          alt="{{ $user->name }}">
                                 </div>
@@ -123,17 +121,6 @@
                                 </span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">
-                                {{ $user->formatted_current_wage }}
-                                @if($user->currentWage)
-                                    <button wire:click="openWageHistoryModal({{ $user->id }})" 
-                                            class="ml-2 text-indigo-600 hover:text-indigo-900 text-xs">
-                                        (History)
-                                    </button>
-                                @endif
-                            </div>
-                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $user->created_at->format('M d, Y') }}
                         </td>
@@ -152,7 +139,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
                             No users found.
                         </td>
                     </tr>
