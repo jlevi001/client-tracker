@@ -284,149 +284,186 @@
                 <x-input-error for="selectedRole" class="mt-2" />
             </div>
 
-            <!-- Wage Information Section -->
-            <div class="mt-6 pt-6 border-t border-gray-200">
-                <h3 class="text-lg font-medium text-gray-300 mb-4">Wage Information</h3>
-                
-                <!-- Current Wage Display -->
-                @if($wageType && $wageRate)
-                    <div class="mb-4 p-2 bg-gray-700 border border-gray-600 rounded-lg">
-                        <div class="flex items-center space-x-6">
-                            <div class="flex items-center space-x-2">
-                                <span class="text-gray-400 text-sm">Wage Type:</span>
-                                <span class="text-white bg-gray-800 px-3 py-1 rounded">{{ ucfirst($wageType) }}</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-gray-400 text-sm">Rate:</span>
-                                <span class="text-white bg-gray-800 px-3 py-1 rounded">${{ number_format($wageRate, 2) }}</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-gray-400 text-sm">Start Date:</span>
-                                <span class="text-white bg-gray-800 px-3 py-1 rounded">{{ \Carbon\Carbon::parse($wageStartDate)->format('m/d/Y') }}</span>
-                            </div>
-                            <button type="button" wire:click="editCurrentWage" class="text-indigo-400 hover:text-indigo-300 ml-auto">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+            <!-- Wage Information Section with Visibility Toggle -->
+            <div class="mt-6 pt-6 border-t border-gray-200" x-data="{ showWageInfo: false }">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-300">Wage Information</h3>
                     
-                    @if($userId)
-                        <button type="button" wire:click="openWageHistoryModal({{ $userId }})" 
-                                class="mb-4 px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">
-                            View Wage History
-                        </button>
-                    @endif
-                @else
-                    <p class="text-gray-500 mb-4">No wage information set</p>
-                @endif
-
-                <!-- Edit Current Wage Form (Hidden by default, shown when editing) -->
-                @if($showEditCurrentWageForm)
-                    <div class="mt-4 p-4 bg-blue-50 rounded-lg">
-                        <h4 class="text-md font-medium text-gray-700 mb-3">Edit Current Wage (Corrections Only)</h4>
-                        <p class="text-sm text-gray-600 mb-4">Use this to correct errors in the current wage record. For actual wage changes, use "Add New Wage" below.</p>
+                    <!-- Eye Toggle Button -->
+                    <button type="button" 
+                            @click="showWageInfo = !showWageInfo"
+                            class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            :class="{ 'bg-gray-100 text-gray-700': showWageInfo }"
+                            :aria-label="showWageInfo ? 'Hide wage information' : 'Show wage information'">
+                        <!-- Eye Icon (Visible) -->
+                        <svg x-show="!showWageInfo" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        <!-- Eye Off Icon (Hidden) -->
+                        <svg x-show="showWageInfo" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Wage Content (Hidden by default) -->
+                <div x-show="showWageInfo" 
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 transform scale-95"
+                     x-transition:enter-end="opacity-100 transform scale-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 transform scale-100"
+                     x-transition:leave-end="opacity-0 transform scale-95">
+                    
+                    <!-- Current Wage Display -->
+                    @if($wageType && $wageRate)
+                        <div class="mb-4 p-3 bg-gray-700 border border-gray-600 rounded-lg">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-gray-400 text-sm">Wage Type:</span>
+                                    <span class="text-white bg-gray-800 px-3 py-1 rounded">{{ ucfirst($wageType) }}</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-gray-400 text-sm">Rate:</span>
+                                    <span class="text-white bg-gray-800 px-3 py-1 rounded">${{ number_format($wageRate, 2) }}</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-gray-400 text-sm">Start Date:</span>
+                                    <span class="text-white bg-gray-800 px-3 py-1 rounded">{{ \Carbon\Carbon::parse($wageStartDate)->format('m/d/Y') }}</span>
+                                </div>
+                                <button type="button" wire:click="editCurrentWage" class="text-indigo-400 hover:text-indigo-300 ml-auto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                         
+                        @if($userId)
+                            <button type="button" wire:click="openWageHistoryModal({{ $userId }})" 
+                                    class="mb-4 px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700">
+                                View Wage History
+                            </button>
+                        @endif
+                    @else
+                        <p class="text-gray-500 mb-4">No wage information set</p>
+                    @endif
+
+                    <!-- Edit Current Wage Form (Hidden by default, shown when editing) -->
+                    @if($showEditCurrentWageForm)
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <h4 class="text-md font-medium text-gray-700 mb-3">Edit Current Wage (Corrections Only)</h4>
+                            <p class="text-sm text-gray-600 mb-4">Use this to correct errors in the current wage record. For actual wage changes, use "Add New Wage" below.</p>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <x-label for="edit-wageType" value="Wage Type" />
+                                    <select id="edit-wageType" wire:model="wageType" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                        <option value="">Not Set</option>
+                                        <option value="hourly">Hourly</option>
+                                        <option value="salary">Salary</option>
+                                    </select>
+                                    <x-input-error for="wageType" class="mt-2" />
+                                </div>
+
+                                <div>
+                                    <x-label for="edit-wageRate" value="Rate ($)" />
+                                    <x-input id="edit-wageRate" type="number" step="0.01" min="0" class="mt-1 block w-full" wire:model="wageRate" />
+                                    <x-input-error for="wageRate" class="mt-2" />
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <x-label for="edit-wageStartDate" value="Start Date" />
+                                    <x-input id="edit-wageStartDate" type="date" class="mt-1 block w-full" wire:model="wageStartDate" />
+                                    <x-input-error for="wageStartDate" class="mt-2" />
+                                </div>
+
+                                <div>
+                                    <x-label for="edit-wageNotes" value="Notes" />
+                                    <x-input id="edit-wageNotes" type="text" class="mt-1 block w-full" wire:model="wageNotes" />
+                                    <x-input-error for="wageNotes" class="mt-2" />
+                                </div>
+                            </div>
+
+                            <div class="mt-4 flex space-x-2">
+                                <button type="button" wire:click="saveCurrentWageEdit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                                    Save Corrections
+                                </button>
+                                <button type="button" wire:click="cancelCurrentWageEdit" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="my-4 border-t border-gray-200"></div>
+
+                    <!-- Add New Wage Section -->
+                    <button type="button" wire:click="$toggle('showAddWageForm')" 
+                            class="mb-4 px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700">
+                        Add New Wage
+                    </button>
+                    
+                    @if($showAddWageForm ?? false)
+                    <div class="p-4 bg-gray-700 border border-gray-600 rounded-lg">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <x-label for="edit-wageType" value="Wage Type" />
-                                <select id="edit-wageType" wire:model="wageType" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    <option value="">Not Set</option>
+                                <x-label for="newWageType" value="Wage Type" />
+                                <select id="newWageType" wire:model="newWageType" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="">Select type</option>
                                     <option value="hourly">Hourly</option>
                                     <option value="salary">Salary</option>
                                 </select>
-                                <x-input-error for="wageType" class="mt-2" />
+                                <x-input-error for="newWageType" class="mt-2" />
                             </div>
 
                             <div>
-                                <x-label for="edit-wageRate" value="Rate ($)" />
-                                <x-input id="edit-wageRate" type="number" step="0.01" min="0" class="mt-1 block w-full" wire:model="wageRate" />
-                                <x-input-error for="wageRate" class="mt-2" />
+                                <x-label for="newWageRate" value="Rate ($)" />
+                                <x-input id="newWageRate" type="number" step="0.01" min="0" class="mt-1 block w-full" wire:model="newWageRate" />
+                                <x-input-error for="newWageRate" class="mt-2" />
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4 mt-4">
                             <div>
-                                <x-label for="edit-wageStartDate" value="Start Date" />
-                                <x-input id="edit-wageStartDate" type="date" class="mt-1 block w-full" wire:model="wageStartDate" />
-                                <x-input-error for="wageStartDate" class="mt-2" />
+                                <x-label for="newWageStartDate" value="Start Date" />
+                                <x-input id="newWageStartDate" type="date" class="mt-1 block w-full" wire:model="newWageStartDate" />
+                                <x-input-error for="newWageStartDate" class="mt-2" />
                             </div>
 
                             <div>
-                                <x-label for="edit-wageNotes" value="Notes" />
-                                <x-input id="edit-wageNotes" type="text" class="mt-1 block w-full" wire:model="wageNotes" />
-                                <x-input-error for="wageNotes" class="mt-2" />
+                                <x-label for="newWageNotes" value="Notes" />
+                                <x-input id="newWageNotes" type="text" class="mt-1 block w-full" wire:model="newWageNotes" placeholder="e.g., Annual raise" />
+                                <x-input-error for="newWageNotes" class="mt-2" />
                             </div>
                         </div>
 
-                        <div class="mt-4 flex space-x-2">
-                            <button type="button" wire:click="saveCurrentWageEdit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-                                Save Corrections
+                        <div class="mt-4">
+                            <button type="button" wire:click="addNewWage" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                                Add Wage
                             </button>
-                            <button type="button" wire:click="cancelCurrentWageEdit" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                            <button type="button" wire:click="$set('showAddWageForm', false)" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
                                 Cancel
                             </button>
                         </div>
-                    </div>
-                @endif
-
-                <div class="my-4 border-t border-gray-200"></div>
-
-                <!-- Add New Wage Section -->
-                <button type="button" wire:click="$toggle('showAddWageForm')" 
-                        class="mb-4 px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700">
-                    Add New Wage
-                </button>
-                
-                @if($showAddWageForm ?? false)
-                <div class="p-4 bg-gray-700 border border-gray-600 rounded-lg">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <x-label for="newWageType" value="Wage Type" />
-                            <select id="newWageType" wire:model="newWageType" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                <option value="">Select type</option>
-                                <option value="hourly">Hourly</option>
-                                <option value="salary">Salary</option>
-                            </select>
-                            <x-input-error for="newWageType" class="mt-2" />
-                        </div>
-
-                        <div>
-                            <x-label for="newWageRate" value="Rate ($)" />
-                            <x-input id="newWageRate" type="number" step="0.01" min="0" class="mt-1 block w-full" wire:model="newWageRate" />
-                            <x-input-error for="newWageRate" class="mt-2" />
+                        
+                        <div class="mt-3 text-sm text-gray-400">
+                            <p>Adding a new wage will close the current wage record and create a new one for tracking wage changes.</p>
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <x-label for="newWageStartDate" value="Start Date" />
-                            <x-input id="newWageStartDate" type="date" class="mt-1 block w-full" wire:model="newWageStartDate" />
-                            <x-input-error for="newWageStartDate" class="mt-2" />
-                        </div>
-
-                        <div>
-                            <x-label for="newWageNotes" value="Notes" />
-                            <x-input id="newWageNotes" type="text" class="mt-1 block w-full" wire:model="newWageNotes" placeholder="e.g., Annual raise" />
-                            <x-input-error for="newWageNotes" class="mt-2" />
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <button type="button" wire:click="addNewWage" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-                            Add Wage
-                        </button>
-                        <button type="button" wire:click="$set('showAddWageForm', false)" class="ml-2 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
-                            Cancel
-                        </button>
-                    </div>
-                    
-                    <div class="mt-3 text-sm text-gray-400">
-                        <p>Adding a new wage will close the current wage record and create a new one for tracking wage changes.</p>
-                    </div>
+                    @endif
                 </div>
-                @endif
+
+                <!-- Hidden Placeholder when wage info is hidden -->
+                <div x-show="!showWageInfo" class="py-4 text-center text-gray-500">
+                    <p class="text-sm">Click the eye icon to view wage information</p>
+                </div>
             </div>
         </x-slot>
 
