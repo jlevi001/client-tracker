@@ -1,6 +1,6 @@
 # Lingo Client Tracker
 
-A comprehensive client and project management system built for internal use at Lingo IT company. This application provides robust client tracking, project management, user administration, and financial tracking capabilities.
+A comprehensive client and project management system built for internal use at Lingo Technologies. This application provides robust client tracking, project management, user administration, and financial tracking capabilities.
 
 ## 🚀 Tech Stack
 
