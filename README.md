@@ -1,126 +1,343 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Lingo Client Tracker
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive client and project management system built for internal use at Lingo IT company. This application provides robust client tracking, project management, user administration, and financial tracking capabilities.
 
-## About Laravel
+## 🚀 Tech Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Backend**: Laravel 12.x with PHP 8.2+
+- **Frontend**: Livewire 3 + Alpine.js
+- **Styling**: Tailwind CSS with **daisyUI 5.0.50** for semantic components
+- **Database**: MySQL 8
+- **Authentication**: Laravel Jetstream (Livewire stack)
+- **Permissions**: Spatie Laravel-Permission
+- **Build Tool**: Vite
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🎨 CRITICAL: Design System & Component Usage
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### ⚠️ USE daisyUI - NOT Raw Tailwind Utilities!
 
-## Learning Laravel
+This application uses **daisyUI** for ALL UI components. We have daisyUI installed specifically to ensure consistency and maintainability.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Design System & Development Standards
-
-This project follows a strict dark theme design system to ensure consistency across all components.
-
-### 📚 Documentation
-- **Design System**: See `/docs/DESIGN_SYSTEM.md` for complete UI/UX standards
-- **AI Instructions**: See `/AI_INSTRUCTIONS.md` for development guidelines
-- **UI Configuration**: See `/config/ui.php` for centralized styling classes
-
-### 🎨 Key Design Principles
-1. **Dark Theme Only** - All interfaces use dark backgrounds (gray-700/800/900)
-2. **Mobile-First** - Every component must be fully responsive
-3. **Consistent Spacing** - Standardized padding and margins throughout
-4. **Accessibility** - WCAG AA compliant with proper focus states
-
-### 🧩 Using Dark Theme Components
-We provide pre-built Blade components that automatically apply our design system:
-
-```blade
-<!-- Dark themed input -->
-<x-dark-input type="email" wire:model="email" placeholder="Enter email" />
-
-<!-- Dark themed select -->
-<x-dark-select wire:model="role">
-    <option value="">Select a role</option>
-    <option value="admin">Admin</option>
-</x-dark-select>
-
-<!-- Dark themed button -->
-<x-dark-button variant="primary" wire:click="save">
-    Save Changes
-</x-dark-button>
-
-<!-- Dark themed label -->
-<x-dark-label for="name" value="Full Name" />
+#### ❌ DO NOT write this:
+```html
+<!-- WRONG - Raw Tailwind utilities -->
+<button class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 
+               focus:outline-none focus:ring-2 focus:ring-indigo-500">
 ```
 
-### 🛠 Development Workflow
-1. Always review `/docs/DESIGN_SYSTEM.md` before creating new components
-2. Use the pre-built dark components when possible
-3. Reference `config('ui.classes.input')` for consistent styling
-4. Test on mobile (375px), tablet (768px), and desktop (1920px)
-5. Ensure all states (hover, focus, disabled) follow the design system
+#### ✅ ALWAYS write this:
+```html
+<!-- CORRECT - daisyUI semantic classes -->
+<button class="btn btn-primary">
+```
 
-### ⚡ Quick Reference
-- **Backgrounds**: `bg-gray-900` (main), `bg-gray-800` (cards), `bg-gray-700` (inputs)
-- **Primary Button**: `bg-indigo-600 hover:bg-indigo-700`
-- **Text Colors**: `text-white` (primary), `text-gray-300` (secondary)
-- **Borders**: `border-gray-600` (default), `border-indigo-500` (focus)
-- **Spacing**: `p-4` or `p-6` for sections, `space-y-4` between fields
+### Component Examples
 
-### 📱 Responsive Breakpoints
-- Mobile: 375px+
-- Tablet: 768px+ (`sm:`)
-- Desktop: 1024px+ (`lg:`)
-- Wide: 1920px+ (`xl:`)
+```html
+<!-- Buttons -->
+<button class="btn btn-primary">Primary</button>
+<button class="btn btn-secondary">Secondary</button>
+<button class="btn btn-error">Delete</button>
+<button class="btn btn-ghost">Cancel</button>
+
+<!-- Inputs -->
+<input class="input input-bordered w-full" />
+<select class="select select-bordered w-full">
+<textarea class="textarea textarea-bordered w-full"></textarea>
+
+<!-- Cards -->
+<div class="card bg-base-200">
+  <div class="card-body">
+    <!-- Content -->
+  </div>
+</div>
+
+<!-- Tables -->
+<table class="table table-zebra">
+  <!-- Table content -->
+</table>
+
+<!-- Alerts -->
+<div class="alert alert-success">Success message</div>
+<div class="alert alert-error">Error message</div>
+```
+
+## 📁 Project Structure
+
+```
+lingo-client-tracker/
+├── app/
+│   ├── Http/
+│   │   └── Livewire/       # Livewire components
+│   └── Models/             # Eloquent models
+├── resources/
+│   ├── views/
+│   │   ├── livewire/       # Livewire blade templates
+│   │   └── components/     # Reusable blade components
+│   └── css/
+│       └── app.css         # Main stylesheet (imports Tailwind/daisyUI)
+├── database/
+│   └── migrations/         # Database migrations
+├── docs/
+│   └── AI_INSTRUCTIONS.md  # Comprehensive development guidelines
+└── config/
+    └── ui.php             # Centralized UI configuration (if exists)
+```
+
+## 🛠️ Installation & Setup
+
+### Prerequisites
+- PHP 8.2 or higher
+- Composer
+- Node.js & NPM
+- MySQL 8
+
+### Local Development Setup
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/jlevi001/client-tracker.git
+cd client-tracker
+```
+
+2. **Install PHP dependencies**
+```bash
+composer install
+```
+
+3. **Install Node dependencies**
+```bash
+npm install
+```
+
+4. **Environment setup**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+5. **Configure your database in `.env`**
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=lingo_client_tracker
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+6. **Run migrations**
+```bash
+php artisan migrate
+```
+
+7. **Seed the database (if seeders exist)**
+```bash
+php artisan db:seed
+```
+
+8. **Build assets**
+```bash
+npm run dev
+# or for production
+npm run build
+```
+
+9. **Start the development server**
+```bash
+php artisan serve
+```
+
+Visit `http://localhost:8000` to view the application.
+
+## 🌑 Dark Theme Configuration
+
+This application uses a **dark theme exclusively**. The theme is configured in `tailwind.config.js`:
+
+```javascript
+// tailwind.config.js
+module.exports = {
+  // ... other config
+  daisyui: {
+    themes: [
+      {
+        dark: {
+          "primary": "#6366f1",      // Indigo
+          "secondary": "#8b5cf6",     // Purple
+          "accent": "#10b981",        // Green
+          "neutral": "#374151",       // Gray
+          "base-100": "#1f2937",      // Background
+          "base-200": "#111827",      // Darker bg
+          "base-300": "#0f172a",      // Darkest bg
+          // ... other colors
+        }
+      }
+    ],
+  }
+}
+```
+
+### Color Usage
+- **Backgrounds**: Use `bg-base-100`, `bg-base-200`, `bg-base-300` (NOT `bg-gray-xxx`)
+- **Primary Actions**: Use `btn-primary` class
+- **Danger Actions**: Use `btn-error` class
+- **Success States**: Use `alert-success` class
+
+## 📱 Mobile Responsiveness
+
+**All components must be mobile-responsive.** Test on these breakpoints:
+- Mobile: 375px
+- Tablet: 768px (`sm:`)
+- Desktop: 1024px (`lg:`)
+- Wide: 1920px (`xl:`)
+
+### Responsive Patterns
+```html
+<!-- Full width on mobile, auto width on larger screens -->
+<button class="btn btn-primary w-full sm:w-auto">Save</button>
+
+<!-- Stack on mobile, side-by-side on desktop -->
+<div class="flex flex-col sm:flex-row gap-4">
+  <!-- Content -->
+</div>
+```
+
+## 👨‍💻 Development Guidelines
+
+### Before Creating Any Component:
+1. **Read `/docs/AI_INSTRUCTIONS.md`** for comprehensive guidelines
+2. **Use daisyUI classes** for all UI components
+3. **Never use raw Tailwind** for component styling
+4. **Test on all breakpoints** (mobile, tablet, desktop)
+5. **Maintain dark theme** consistency
+
+### Creating New Components
+
+When creating new Livewire components:
+
+```php
+// app/Http/Livewire/ComponentName.php
+class ComponentName extends Component
+{
+    // Component logic
+}
+```
+
+```blade
+<!-- resources/views/livewire/component-name.blade.php -->
+<div>
+    <!-- Use daisyUI classes -->
+    <div class="card bg-base-200">
+        <div class="card-body">
+            <button class="btn btn-primary">Action</button>
+        </div>
+    </div>
+</div>
+```
+
+### State Management
+- **Use Livewire properties** for server-side state
+- **Use Alpine.js** for client-side interactions
+- **Never use localStorage/sessionStorage** in development
+
+## 🔑 Key Features
+
+### Currently Implemented
+- ✅ User Management System
+- ✅ Role-based Permissions (Admin, Manager, Employee)
+- ✅ Wage History Tracking
+- ✅ Dark Theme Throughout
+- ✅ Mobile Responsive Design
+
+### Planned Features
+- 🔄 Client Management
+- 🔄 Project Tracking
+- 🔄 Time Tracking
+- 🔄 Invoice Generation
+- 🔄 Reporting Dashboard
+
+## 🚦 Quick Reference
+
+### daisyUI Component Classes
+| Component | Class | Usage |
+|-----------|-------|-------|
+| Primary Button | `btn btn-primary` | Main actions |
+| Secondary Button | `btn btn-secondary` | Secondary actions |
+| Cancel Button | `btn btn-ghost` | Cancel/close actions |
+| Text Input | `input input-bordered` | Form inputs |
+| Select | `select select-bordered` | Dropdowns |
+| Card | `card bg-base-200` | Content containers |
+| Table | `table` | Data tables |
+| Success Alert | `alert alert-success` | Success messages |
+| Error Alert | `alert alert-error` | Error messages |
+
+### Tailwind Utilities (Use ONLY for layout)
+- **Layout**: `flex`, `grid`, `container`
+- **Spacing**: `p-4`, `m-2`, `gap-4`, `space-y-4`
+- **Responsive**: `sm:`, `md:`, `lg:`, `xl:`
+- **Width/Height**: `w-full`, `h-screen`, `max-w-md`
+
+## 📝 Contributing
+
+1. Follow the design system using daisyUI components
+2. Ensure all components are mobile-responsive
+3. Test on multiple screen sizes
+4. Maintain dark theme consistency
+5. Write clean, documented code
+6. Create meaningful commit messages
+
+## 🔒 Production Deployment
+
+### Server Information
+- **Hosting**: Cloudways
+- **Server Path**: `/home/master/applications/fmayejttab/public_html`
+- **PHP Version**: 8.2+
+- **Database**: MySQL 8
+
+### Deployment Steps
+```bash
+# On production server
+git pull origin main
+composer install --optimize-autoloader --no-dev
+npm install
+npm run build
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan migrate --force
+```
+
+## 📚 Documentation
+
+- **AI Development Instructions**: [`/docs/AI_INSTRUCTIONS.md`](./docs/AI_INSTRUCTIONS.md)
+- **daisyUI Documentation**: [https://daisyui.com](https://daisyui.com)
+- **Laravel Documentation**: [https://laravel.com/docs](https://laravel.com/docs)
+- **Livewire Documentation**: [https://livewire.laravel.com](https://livewire.laravel.com)
+
+## 🤖 AI Assistant Development
+
+When working with AI assistants on this project:
+1. Always reference `/docs/AI_INSTRUCTIONS.md`
+2. Emphasize using daisyUI over raw Tailwind
+3. Ensure dark theme compliance
+4. Verify mobile responsiveness
+
+## ⚠️ Important Notes
+
+- **NEVER** use white/light backgrounds
+- **ALWAYS** use daisyUI component classes
+- **ALWAYS** test mobile responsiveness
+- **NEVER** use localStorage or sessionStorage
+- **ALWAYS** follow the dark theme design system
+
+## 📞 Support
+
+For internal support and questions:
+- **Project Lead**: [Contact Information]
+- **GitHub Issues**: [https://github.com/jlevi001/client-tracker/issues](https://github.com/jlevi001/client-tracker/issues)
 
 ---
-**Important**: Never use white/light backgrounds. All components must follow the dark theme design system for consistency.
 
-## Contributing
+**Built with ❤️ for Lingo IT Company**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+*Last Updated: January 2025*
