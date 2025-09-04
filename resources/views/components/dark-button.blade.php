@@ -1,30 +1,83 @@
 @props([
     'type' => 'button',
     'variant' => 'primary',
-    'disabled' => false
+    'size' => 'md',
+    'fullWidthOnMobile' => false,
+    'loading' => false,
+    'disabled' => false,
+    'outline' => false,
+    'ghost' => false,
+    'link' => false,
+    'glass' => false,
+    'noAnimation' => false,
+    'circle' => false,
+    'square' => false,
+    'wide' => false,
+    'block' => false
 ])
 
 @php
-$classes = match($variant) {
-    'primary' => 'px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200',
-    'secondary' => 'px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200',
-    'success' => 'px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200',
-    'danger' => 'px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200',
-    'warning' => 'px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200',
-    'info' => 'px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200',
-    'text' => 'text-indigo-400 hover:text-indigo-300 focus:outline-none focus:underline transition-colors duration-200',
-    default => 'px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200',
+// Variant mapping for daisyUI
+$variantClasses = match($variant) {
+    'primary' => 'btn-primary',
+    'secondary' => 'btn-secondary',
+    'accent' => 'btn-accent',
+    'success' => 'btn-success',
+    'danger', 'error' => 'btn-error',
+    'warning' => 'btn-warning',
+    'info' => 'btn-info',
+    'neutral' => 'btn-neutral',
+    'text' => 'btn-link',
+    default => 'btn-primary',
 };
 
-if ($disabled) {
-    $classes .= ' opacity-50 cursor-not-allowed';
+// Size mapping for daisyUI
+$sizeClasses = match($size) {
+    'xs' => 'btn-xs',
+    'sm' => 'btn-sm',
+    'md' => '', // Default size
+    'lg' => 'btn-lg',
+    default => '',
+};
+
+// Build final classes
+$classes = 'btn';
+
+// Add variant
+if (!$ghost && !$link && !$outline) {
+    $classes .= ' ' . $variantClasses;
 }
+
+// Style modifiers
+if ($outline) $classes .= ' btn-outline ' . $variantClasses;
+if ($ghost) $classes .= ' btn-ghost';
+if ($link) $classes .= ' btn-link';
+if ($glass) $classes .= ' glass';
+
+// Size modifiers
+if ($sizeClasses) $classes .= ' ' . $sizeClasses;
+if ($wide) $classes .= ' btn-wide';
+if ($block) $classes .= ' btn-block';
+if ($circle) $classes .= ' btn-circle';
+if ($square) $classes .= ' btn-square';
+
+// Responsive classes
+if ($fullWidthOnMobile && !$block) {
+    $classes .= ' w-full sm:w-auto';
+}
+
+// State modifiers
+if ($loading) $classes .= ' loading';
+if ($noAnimation) $classes .= ' no-animation';
 @endphp
 
 <button 
     type="{{ $type }}"
     {{ $disabled ? 'disabled' : '' }}
-    {!! $attributes->merge(['class' => $classes]) !!}
+    {{ $attributes->merge(['class' => $classes]) }}
 >
+    @if($loading && !$circle && !$square)
+        <span class="loading loading-spinner loading-sm"></span>
+    @endif
     {{ $slot }}
 </button>

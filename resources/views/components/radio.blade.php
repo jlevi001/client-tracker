@@ -1,10 +1,10 @@
 @props(['disabled' => false, 'error' => false])
 
 <input 
-    type="checkbox" 
+    type="radio" 
     {{ $disabled ? 'disabled' : '' }}
     {!! $attributes->class([
-        'checkbox checkbox-primary',
-        'checkbox-error' => $error,
+        'radio radio-primary',
+        'radio-error' => $error,
     ]) !!}
 />

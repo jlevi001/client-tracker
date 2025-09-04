@@ -1,3 +1,38 @@
-<button {{ $attributes->merge(['type' => 'button', 'class' => 'inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-500 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-25 transition ease-in-out duration-150']) }}>
+@props([
+    'type' => 'button',
+    'size' => 'md',
+    'fullWidthOnMobile' => false,
+    'loading' => false,
+    'disabled' => false
+])
+
+@php
+// Size mapping for daisyUI
+$sizeClasses = match($size) {
+    'xs' => 'btn-xs',
+    'sm' => 'btn-sm',
+    'md' => '', // Default size
+    'lg' => 'btn-lg',
+    default => '',
+};
+
+// Mobile responsive classes
+$responsiveClasses = $fullWidthOnMobile ? 'w-full sm:w-auto' : '';
+
+// Build final classes
+$classes = 'btn btn-secondary';
+if ($sizeClasses) $classes .= ' ' . $sizeClasses;
+if ($responsiveClasses) $classes .= ' ' . $responsiveClasses;
+if ($loading) $classes .= ' loading';
+@endphp
+
+<button 
+    type="{{ $type }}"
+    {{ $disabled ? 'disabled' : '' }}
+    {{ $attributes->merge(['class' => $classes]) }}
+>
+    @if($loading)
+        <span class="loading loading-spinner loading-sm"></span>
+    @endif
     {{ $slot }}
 </button>
