@@ -1,7 +1,287 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
-[x-cloak] {
-    display: none;
+/* 
+ * Custom daisyUI Theme Overrides
+ * These styles enhance the daisyUI components for your specific needs
+ */
+
+@layer base {
+  /* Automatic styling for HTML elements */
+  
+  /* All tables get default styling without needing classes */
+  table:not(.table) {
+    @apply table;
+  }
+  
+  /* All form elements get proper dark theme styling */
+  input[type="text"]:not(.input):not(.file-input),
+  input[type="email"]:not(.input),
+  input[type="password"]:not(.input),
+  input[type="number"]:not(.input),
+  input[type="tel"]:not(.input),
+  input[type="url"]:not(.input),
+  input[type="search"]:not(.input),
+  input[type="date"]:not(.input),
+  input[type="datetime-local"]:not(.input),
+  input[type="time"]:not(.input) {
+    @apply input input-bordered w-full;
+  }
+  
+  textarea:not(.textarea) {
+    @apply textarea textarea-bordered w-full;
+  }
+  
+  select:not(.select) {
+    @apply select select-bordered w-full;
+  }
+  
+  /* Links in content areas */
+  a:not(.btn):not(.link):not(.tab):not(.menu-item) {
+    @apply text-primary hover:text-primary-focus transition-colors;
+  }
+  
+  /* Headings with consistent spacing */
+  h1 { @apply text-4xl font-bold mb-4; }
+  h2 { @apply text-3xl font-bold mb-3; }
+  h3 { @apply text-2xl font-semibold mb-3; }
+  h4 { @apply text-xl font-semibold mb-2; }
+  h5 { @apply text-lg font-medium mb-2; }
+  h6 { @apply text-base font-medium mb-2; }
+  
+  /* Paragraphs with proper spacing */
+  p {
+    @apply mb-4 last:mb-0;
+  }
+}
+
+@layer components {
+  /* 
+   * Custom component classes that combine daisyUI utilities
+   * Use these for consistent patterns across your app
+   */
+  
+  /* Page containers */
+  .page-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8 py-6;
+  }
+  
+  /* Section spacing */
+  .section {
+    @apply space-y-6;
+  }
+  
+  /* Responsive button groups */
+  .btn-group-responsive {
+    @apply flex flex-col sm:flex-row gap-2;
+  }
+  
+  .btn-group-responsive .btn {
+    @apply w-full sm:w-auto;
+  }
+  
+  /* Form layouts */
+  .form-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+  
+  .form-stack {
+    @apply space-y-4;
+  }
+  
+  /* Card hover effects */
+  .card-hover {
+    @apply card hover:shadow-xl transition-shadow duration-200 cursor-pointer;
+  }
+  
+  /* Table responsive wrapper */
+  .table-container {
+    @apply overflow-x-auto rounded-lg;
+  }
+  
+  /* Mobile-first responsive utilities */
+  .mobile-full {
+    @apply w-full sm:w-auto;
+  }
+  
+  .mobile-stack {
+    @apply flex flex-col sm:flex-row gap-4;
+  }
+  
+  /* Status indicators */
+  .status-online {
+    @apply badge badge-success gap-2;
+  }
+  
+  .status-offline {
+    @apply badge badge-ghost gap-2;
+  }
+  
+  .status-busy {
+    @apply badge badge-warning gap-2;
+  }
+  
+  .status-error {
+    @apply badge badge-error gap-2;
+  }
+  
+  /* Loading overlays */
+  .loading-overlay {
+    @apply absolute inset-0 bg-base-300/50 flex items-center justify-center z-50;
+  }
+  
+  /* Dashboard grid layouts */
+  .dashboard-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+  
+  .dashboard-grid-2 {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-4;
+  }
+  
+  /* Sidebar layout */
+  .layout-sidebar {
+    @apply drawer lg:drawer-open;
+  }
+  
+  /* Quick action floating button */
+  .fab {
+    @apply btn btn-circle btn-primary fixed bottom-4 right-4 z-50 shadow-lg;
+  }
+  
+  /* Empty state styling */
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-12 text-base-content/50;
+  }
+  
+  .empty-state-icon {
+    @apply w-16 h-16 mb-4;
+  }
+  
+  .empty-state-title {
+    @apply text-lg font-semibold mb-2;
+  }
+  
+  .empty-state-message {
+    @apply text-sm text-center max-w-md;
+  }
+}
+
+@layer utilities {
+  /* Custom utilities for edge cases */
+  
+  /* Hide on mobile, show on desktop */
+  .desktop-only {
+    @apply hidden sm:block;
+  }
+  
+  /* Show on mobile, hide on desktop */
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+  
+  /* Smooth scrolling */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+  
+  /* Custom animations */
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+  
+  /* Print utilities */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+    
+    .print-only {
+      display: block !important;
+    }
+  }
+}
+
+/* 
+ * Livewire-specific styles
+ */
+.livewire-loading {
+  @apply opacity-50 pointer-events-none;
+}
+
+/* 
+ * Override any Jetstream styles that conflict with daisyUI
+ * This ensures your dark theme works consistently
+ */
+.jetstream-modal {
+  @apply modal;
+}
+
+.jetstream-button {
+  @apply btn btn-primary;
+}
+
+.jetstream-secondary-button {
+  @apply btn btn-ghost;
+}
+
+.jetstream-danger-button {
+  @apply btn btn-error;
+}
+
+.jetstream-input {
+  @apply input input-bordered w-full;
+}
+
+.jetstream-label {
+  @apply label-text;
+}
+
+/* 
+ * Mobile-first responsive design helpers
+ */
+@media (max-width: 639px) {
+  /* Force full width on mobile for better UX */
+  .btn:not(.btn-circle):not(.btn-square) {
+    @apply w-full;
+  }
+  
+  /* Stack navigation items on mobile */
+  .navbar .navbar-center {
+    @apply flex-col;
+  }
+  
+  /* Make cards full width on mobile */
+  .card {
+    @apply rounded-none;
+  }
+  
+  /* Responsive table - converts to cards on mobile */
+  .table-mobile-cards tbody {
+    @apply block;
+  }
+  
+  .table-mobile-cards tbody tr {
+    @apply block card bg-base-200 mb-4 p-4;
+  }
+  
+  .table-mobile-cards tbody td {
+    @apply block text-right;
+  }
+  
+  .table-mobile-cards tbody td:before {
+    @apply content-[attr(data-label)] float-left font-bold;
+  }
 }
