@@ -5,8 +5,10 @@
     </x-section-title>
 
     <div class="mt-5 md:mt-0 md:col-span-2">
-        <div class="px-4 py-5 sm:p-6 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-            {{ $content }}
+        <div class="card bg-base-200 shadow-xl">
+            <div class="card-body">
+                {{ $content }}
+            </div>
         </div>
     </div>
 </div>
