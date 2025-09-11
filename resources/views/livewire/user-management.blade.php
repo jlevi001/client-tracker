@@ -54,28 +54,32 @@
                                     @endif
                                 @endif
                             </div>
-                        </th>
-                        <th wire:click="sortBy('email')" class="cursor-pointer hover:bg-base-300">
+                       </th>
+<th wire:click="sortBy('email')" class="cursor-pointer hover:bg-base-300">
+    <div class="flex items-center gap-1">
+        Email
+        @if($sortField === 'email')
+            @if($sortDirection === 'asc')
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                </svg>
+            @else
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            @endif
+        @endif
+    </div>
+</th>
+                        <th>Role</th>
+                        <th wire:click="sortBy('employment_start_date')" class="cursor-pointer hover:bg-base-300">
                             <div class="flex items-center gap-1">
-                                Email
-                                @if($sortField === 'email')
-                                    @if($sortDirection === 'asc')
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                                        </svg>
-                                    @else
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    @endif
-                                @endif
-                            </div>
-                        </th>
+                                Start Date
                         <th>Role</th>
                         <th wire:click="sortBy('created_at')" class="cursor-pointer hover:bg-base-300">
                             <div class="flex items-center gap-1">
                                 Joined
-                                @if($sortField === 'created_at')
+									@if($sortField === 'employment_start_date')
                                     @if($sortDirection === 'asc')
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
@@ -122,7 +126,13 @@
                                     <span class="badge badge-ghost">No Role</span>
                                 @endif
                             </td>
-                            <td>{{ $user->created_at->format('M d, Y') }}</td>
+                            <td>
+    @if($user->employment_start_date)
+        {{ $user->employment_start_date->format('M d, Y') }}
+    @else
+        <span class="text-base-content/50">Not set</span>
+    @endif
+</td>
                             <td>
                                 <div class="flex gap-2">
                                     <button wire:click="openEditModal({{ $user->id }})" 
@@ -224,7 +234,17 @@
                         </label>
                     @enderror
                 </div>
-
+<div class="form-control w-full">
+    <label class="label">
+        <span class="label-text">Employment Start Date</span>
+    </label>
+    <input type="date" wire:model="employmentStartDate" class="input input-bordered w-full @error('employmentStartDate') input-error @enderror" />
+    @error('employmentStartDate')
+        <label class="label">
+            <span class="label-text-alt text-error">{{ $message }}</span>
+        </label>
+    @enderror
+</div>
                 <!-- Wage Information Section -->
                 <div class="divider">Wage Information (Optional)</div>
 
@@ -347,7 +367,31 @@
                         @enderror
                     </div>
                 </div>
-
+<div class="form-control w-full">
+    <label class="label">
+        <span class="label-text">Employment Start Date</span>
+    </label>
+    @if(auth()->user()->hasRole('Admin'))
+        <input type="date" wire:model="employmentStartDate" class="input input-bordered w-full @error('employmentStartDate') input-error @enderror" />
+        @error('employmentStartDate')
+            <label class="label">
+                <span class="label-text-alt text-error">{{ $message }}</span>
+            </label>
+        @enderror
+    @else
+        {{-- Non-admins see read-only display --}}
+        <div class="px-3 py-2 bg-base-300 rounded-md">
+            @if($employmentStartDate)
+                {{ \Carbon\Carbon::parse($employmentStartDate)->format('M d, Y') }}
+            @else
+                <span class="text-base-content/50">Not set</span>
+            @endif
+        </div>
+        <label class="label">
+            <span class="label-text-alt text-base-content/50">Only administrators can edit this field</span>
+        </label>
+    @endif
+</div>
                 <!-- Wage Information Section with Visibility Toggle -->
                 <div class="divider">Wage Information</div>
                 

@@ -29,6 +29,7 @@ class UserManagement extends Component
     public $password;
     public $password_confirmation;
     public $selectedRole;
+    public $employmentStartDate;
     
     // Current wage fields (for editing/corrections)
     public $wageType;
@@ -55,6 +56,7 @@ class UserManagement extends Component
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'selectedRole' => ['required', 'exists:roles,name'],
+            'employmentStartDate' => ['nullable', 'date'],
         ];
 
         if ($this->userId) {
@@ -102,8 +104,9 @@ class UserManagement extends Component
     public function openCreateModal()
     {
         $this->reset(['userId', 'name', 'email', 'password', 'password_confirmation', 'selectedRole', 
-                      'wageType', 'wageRate', 'wageStartDate', 'wageNotes']);
+                      'employmentStartDate', 'wageType', 'wageRate', 'wageStartDate', 'wageNotes']);
         $this->wageStartDate = now()->format('Y-m-d');
+        $this->employmentStartDate = now()->format('Y-m-d');
         $this->resetValidation();
         $this->showCreateModal = true;
     }
@@ -117,6 +120,7 @@ class UserManagement extends Component
         $this->name = $user->name;
         $this->email = $user->email;
         $this->selectedRole = $user->roles->first()?->name;
+        $this->employmentStartDate = $user->employment_start_date?->format('Y-m-d');
         $this->password = '';
         $this->password_confirmation = '';
         
@@ -286,6 +290,7 @@ class UserManagement extends Component
             'name' => $this->name,
             'email' => $this->email,
             'password' => Hash::make($this->password),
+            'employment_start_date' => $this->employmentStartDate,
         ]);
 
         $user->assignRole($this->selectedRole);
@@ -303,7 +308,7 @@ class UserManagement extends Component
 
         $this->showCreateModal = false;
         $this->reset(['name', 'email', 'password', 'password_confirmation', 'selectedRole',
-                      'wageType', 'wageRate', 'wageStartDate', 'wageNotes']);
+                      'employmentStartDate', 'wageType', 'wageRate', 'wageStartDate', 'wageNotes']);
         
         session()->flash('success', 'User created successfully.');
     }
@@ -315,26 +320,27 @@ class UserManagement extends Component
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->userId],
             'password' => ['nullable', 'confirmed', 'min:8'],
             'selectedRole' => ['required', 'exists:roles,name'],
+            'employmentStartDate' => ['nullable', 'date'],
         ]);
 
         $user = User::findOrFail($this->userId);
         
-        $user->update([
+        $updateData = [
             'name' => $this->name,
             'email' => $this->email,
-        ]);
+            'employment_start_date' => $this->employmentStartDate,
+        ];
 
         if (!empty($this->password)) {
-            $user->update([
-                'password' => Hash::make($this->password),
-            ]);
+            $updateData['password'] = Hash::make($this->password);
         }
 
+        $user->update($updateData);
         $user->syncRoles([$this->selectedRole]);
 
         $this->showEditModal = false;
         $this->reset(['userId', 'name', 'email', 'password', 'password_confirmation', 'selectedRole',
-                      'wageType', 'wageRate', 'wageStartDate', 'wageNotes',
+                      'employmentStartDate', 'wageType', 'wageRate', 'wageStartDate', 'wageNotes',
                       'newWageType', 'newWageRate', 'newWageStartDate', 'newWageNotes']);
         
         session()->flash('success', 'User updated successfully.');
