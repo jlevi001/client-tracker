@@ -1,12 +1,12 @@
 # AI Assistant Instructions for Lingo Client Tracker - COMPREHENSIVE VERSION
 
-## 🎯 PROJECT STATUS: Major daisyUI Migration Complete!
+## 🎯 PROJECT STATUS: daisyUI Migration 100% Complete! ✅
 
-As of January 2025, the application has undergone a comprehensive migration from raw Tailwind utilities to daisyUI semantic components. This migration is **95% complete** with only minor cleanup remaining.
+As of January 2025, the application has successfully completed a comprehensive migration from raw Tailwind utilities to daisyUI semantic components. This migration is **100% complete**.
 
-## ✅ MIGRATION COMPLETED COMPONENTS
+## ✅ FULLY MIGRATED COMPONENTS
 
-### Core Components (100% Complete)
+### All Core Components (100% Complete)
 - **All Button Components**: Using `btn btn-[variant]` classes
 - **All Form Components**: Using `input`, `select`, `textarea` with daisyUI classes
 - **All Modal Components**: Using `modal`, `modal-box`, `modal-action`
@@ -14,6 +14,8 @@ As of January 2025, the application has undergone a comprehensive migration from
 - **Authentication Views**: All auth pages using daisyUI
 - **Profile Management**: Complete migration of all profile forms
 - **API Token Manager**: Using daisyUI for all UI elements
+- **Dashboard & Welcome Pages**: Fully themed with daisyUI
+- **User Management**: Complete with daisyUI tables and modals
 
 ### Specific Files Migrated:
 #### Components (`/resources/views/components/`)
@@ -52,7 +54,7 @@ As of January 2025, the application has undergone a comprehensive migration from
 #### Profile Views (`/resources/views/profile/`)
 - ✅ `update-profile-information-form.blade.php`
 - ✅ `update-password-form.blade.php`
-- ✅ `two-factor-authentication-form.blade.php`
+- ✅ `two-factor-authentication-form.blade.php` (QR code background fixed)
 - ✅ `logout-other-browser-sessions-form.blade.php`
 - ✅ `delete-user-form.blade.php`
 
@@ -66,11 +68,16 @@ As of January 2025, the application has undergone a comprehensive migration from
 - ✅ `navigation-menu.blade.php` - Responsive drawer navigation
 - ✅ `app.blade.php` - Base layout
 - ✅ `guest.blade.php` - Guest layout
+- ✅ `welcome.blade.php` - Welcome page with hero section
+- ✅ `dashboard.blade.php` - Dashboard layout
+
+#### User Views (`/resources/views/users/`)
+- ✅ `index.blade.php` - User management page
 
 ## 🚀 Technology Stack (Current)
 - **Backend**: Laravel 12.x, PHP 8.2+
 - **Frontend**: Livewire 3, Alpine.js
-- **Styling**: Tailwind CSS 3.4.0 with **daisyUI 5.0.50** (ACTIVELY USED!)
+- **Styling**: Tailwind CSS 3.4.0 with **daisyUI 5.0.50** (PRIMARY UI FRAMEWORK)
 - **Database**: MySQL 8
 - **Authentication**: Laravel Jetstream (Livewire stack)
 - **Permissions**: Spatie Laravel-Permission
@@ -340,6 +347,9 @@ All components MUST be mobile-responsive. Standard patterns:
 
 <!-- ❌ WRONG: Manual form styling -->
 <input class="px-3 py-2 bg-gray-700 border border-gray-600">
+
+<!-- ❌ WRONG: Hard-coded white backgrounds -->
+<div class="bg-white">
 ```
 
 ### ALWAYS Do This:
@@ -355,6 +365,9 @@ All components MUST be mobile-responsive. Standard patterns:
 
 <!-- ✅ RIGHT: Combine daisyUI with layout utilities -->
 <button class="btn btn-primary w-full sm:w-auto">
+
+<!-- ✅ RIGHT: Theme-aware contrast backgrounds -->
+<div class="bg-base-100 rounded-lg">
 ```
 
 ## 🔄 Livewire Integration Patterns
@@ -424,10 +437,19 @@ public function closeModal()
 
 When creating new files:
 1. **Components** → `/resources/views/components/[component-name].blade.php`
-2. **Livewire Components** → `/app/Http/Livewire/[ComponentName].php`
+2. **Livewire Components** → `/app/Livewire/[ComponentName].php` (Note: Livewire 3 path - no Http directory)
 3. **Livewire Views** → `/resources/views/livewire/[component-name].blade.php`
 4. **Layouts** → `/resources/views/layouts/[layout-name].blade.php`
 5. **Pages** → `/resources/views/[page-name].blade.php`
+
+## ❌ UI Libraries NOT Used
+The following libraries were considered but are NOT part of this project:
+- **WireUI** - Conflicts with daisyUI component classes
+- **FilamentPHP** - Has its own UI system incompatible with daisyUI
+- **Livewire PowerGrid** - Use daisyUI tables instead
+- **Any other component library** - daisyUI is the sole UI framework
+
+For file uploads, if FilePond is needed, it must be custom-styled to match the daisyUI dark theme.
 
 ## ✅ Quality Checklist
 
@@ -448,13 +470,15 @@ Before submitting any component:
 1. **Using `bg-gray-XXX`** → Use `bg-base-100/200/300` instead
 2. **Using `text-white`** → Use `text-base-content` instead
 3. **Using `text-gray-400`** → Use `text-base-content/70` instead
-4. **Long Tailwind utility chains** → Use daisyUI component classes
-5. **Inline styles** → Use Tailwind/daisyUI classes
-6. **Forgetting mobile responsiveness** → Always test on small screens
-7. **Not using form-control wrapper** → Always wrap form fields properly
-8. **Hardcoding colors** → Use theme variables
-9. **Not including loading states** → Always show loading feedback
-10. **Ignoring error states** → Always handle and display errors
+4. **Using `bg-white`** → Use `bg-base-100` or appropriate theme color
+5. **Long Tailwind utility chains** → Use daisyUI component classes
+6. **Inline styles** → Use Tailwind/daisyUI classes
+7. **Forgetting mobile responsiveness** → Always test on small screens
+8. **Not using form-control wrapper** → Always wrap form fields properly
+9. **Hardcoding colors** → Use theme variables
+10. **Not including loading states** → Always show loading feedback
+11. **Ignoring error states** → Always handle and display errors
+12. **Using conflicting UI libraries** → daisyUI only
 
 ## 🎯 Development Workflow
 
@@ -477,7 +501,7 @@ Before submitting any component:
 - **Livewire Docs**: [https://livewire.laravel.com](https://livewire.laravel.com)
 - **Alpine.js Docs**: [https://alpinejs.dev](https://alpinejs.dev)
 
-## 🎁 Quick Copy-Paste Templates
+## 🎯 Quick Copy-Paste Templates
 
 ### Basic Page Template
 ```blade
@@ -552,7 +576,7 @@ Before submitting any component:
 ## 🏁 FINAL REMINDERS
 
 1. **daisyUI is FULLY INTEGRATED** - Use it for everything component-related
-2. **Dark theme is MANDATORY** - Never use light backgrounds
+2. **Dark theme is MANDATORY** - Never use light backgrounds or hard-coded colors
 3. **Mobile-first is REQUIRED** - Test mobile before desktop
 4. **Components are REUSABLE** - Check existing components first
 5. **Consistency is KEY** - Follow established patterns
@@ -562,4 +586,14 @@ Before submitting any component:
 9. **Testing is CRITICAL** - Verify all functionality works
 10. **Quality over SPEED** - Take time to do it right
 
-**Remember**: The migration to daisyUI is nearly complete. Maintain the standards that have been established and continue using semantic component classes for all new development.
+**Remember**: The migration to daisyUI is 100% complete. Maintain the standards that have been established and continue using semantic component classes for all new development. Do not introduce any conflicting UI libraries.
+
+## 📝 Change Log
+
+### January 2025 - Migration Complete
+- ✅ Fixed QR code background in two-factor authentication form (changed from `bg-white` to `bg-base-100`)
+- ✅ Updated project status to 100% migration complete
+- ✅ Removed references to conflicting UI libraries (WireUI, FilamentPHP, PowerGrid)
+- ✅ Corrected Livewire component path from `/app/Http/Livewire/` to `/app/Livewire/`
+- ✅ Added explicit list of UI libraries NOT to use
+- ✅ Updated all component listings to show complete migration status
