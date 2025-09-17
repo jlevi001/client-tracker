@@ -599,13 +599,12 @@
             </button>
         </x-slot>
     </x-dialog-modal>
-
+	
     <!-- Wage History Modal -->
     <x-dialog-modal wire:model="showWageHistoryModal" maxWidth="4xl">
         <x-slot name="title">
             Wage History
         </x-slot>
-
 
         <x-slot name="content">
             <div class="overflow-x-auto">
@@ -623,7 +622,7 @@
                     </thead>
                     <tbody>
                         @forelse($currentWageHistory as $wage)
-                            <tr class="{{ !$wage['end_date'] ? 'bg-success/10' : '' }}">
+                            <tr class="{{ isset($wage['is_current']) && $wage['is_current'] ? 'bg-success/10' : '' }}">
                                 <td>{{ ucfirst($wage['wage_type']) }}</td>
                                 <td>
                                     ${{ number_format($wage['wage_rate'], 2) }}
@@ -635,10 +634,12 @@
                                 </td>
                                 <td>{{ \Carbon\Carbon::parse($wage['start_date'])->format('M d, Y') }}</td>
                                 <td>
-                                    @if($wage['end_date'])
+                                    @if(isset($wage['is_current']) && $wage['is_current'])
+                                        <span class="badge badge-success">Current</span>
+                                    @elseif($wage['end_date'])
                                         {{ \Carbon\Carbon::parse($wage['end_date'])->format('M d, Y') }}
                                     @else
-                                        <span class="badge badge-success">Current</span>
+                                        <span class="text-base-content/50">-</span>
                                     @endif
                                 </td>
                                 <td>{{ $wage['notes'] ?? '-' }}</td>

@@ -21,7 +21,7 @@ class UserManagement extends Component
     public $showWageHistoryModal = false;
     public $showEditWageModal = false;
     public $showEditCurrentWageForm = false;
-    public $showAddWageForm = false; // Added for toggle functionality
+    public $showAddWageForm = false;
     
     public $userId;
     public $name;
@@ -154,13 +154,24 @@ class UserManagement extends Component
     public function openWageHistoryModal($userId)
     {
         $this->userId = $userId;
-        $user = User::with(['wageHistory' => function($query) {
-            // Sort wage history by start_date descending (newest first)
-            $query->orderBy('start_date', 'desc')
-                  ->with('createdBy');
-        }])->findOrFail($userId);
+        $user = User::with(['wageHistory.createdBy'])->findOrFail($userId);
         
-        $this->currentWageHistory = $user->wageHistory->toArray();
+        // Get wage history ordered by start_date descending (newest first)
+        $wageHistory = $user->wageHistory()->orderBy('start_date', 'desc')->get();
+        
+        // Convert to array and mark the wage with the latest start_date as current
+        $this->currentWageHistory = $wageHistory->map(function($wage) use ($wageHistory) {
+            $wageArray = $wage->toArray();
+            
+            // Find the wage with the latest start_date (should have null end_date)
+            $latestWage = $wageHistory->sortByDesc('start_date')->first();
+            
+            // Mark as current if this is the wage with the latest start_date AND null end_date
+            $wageArray['is_current'] = $wage->id === $latestWage->id && is_null($wage->end_date);
+            
+            return $wageArray;
+        })->toArray();
+        
         $this->showWageHistoryModal = true;
     }
 
@@ -220,27 +231,16 @@ class UserManagement extends Component
             'wageNotes' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $user = User::with('currentWage')->findOrFail($this->userId);
+        $user = User::findOrFail($this->userId);
         
-        if ($user->currentWage) {
-            // Update existing current wage (corrections only)
-            $user->currentWage->update([
-                'wage_type' => $this->wageType,
-                'wage_rate' => $this->wageRate,
-                'start_date' => $this->wageStartDate,
-                'notes' => $this->wageNotes,
-            ]);
-        } else {
-            // Create initial wage if none exists
-            $user->wageHistory()->create([
-                'wage_type' => $this->wageType,
-                'wage_rate' => $this->wageRate,
-                'start_date' => $this->wageStartDate,
-                'end_date' => null,
-                'created_by' => auth()->id(),
-                'notes' => $this->wageNotes,
-            ]);
-        }
+        // Use the setWage method which will handle recalculation
+        $user->setWage(
+            $this->wageType,
+            $this->wageRate,
+            $this->wageStartDate,
+            $this->wageNotes,
+            auth()->id()
+        );
 
         $this->showEditCurrentWageForm = false;
         session()->flash('success', 'Current wage updated successfully.');
@@ -257,7 +257,7 @@ class UserManagement extends Component
 
         $user = User::findOrFail($this->userId);
         
-        // This will automatically close the current wage and create a new one
+        // This will automatically handle closing previous wages and recalculating dates
         $user->setWage(
             $this->newWageType,
             $this->newWageRate,
@@ -266,11 +266,14 @@ class UserManagement extends Component
             auth()->id()
         );
 
-        // Update the current wage display
-        $this->wageType = $this->newWageType;
-        $this->wageRate = $this->newWageRate;
-        $this->wageStartDate = $this->newWageStartDate;
-        $this->wageNotes = $this->newWageNotes;
+        // Update the current wage display with the actual current wage (latest start_date)
+        $user->refresh();
+        if ($user->currentWage) {
+            $this->wageType = $user->currentWage->wage_type;
+            $this->wageRate = $user->currentWage->wage_rate;
+            $this->wageStartDate = $user->currentWage->start_date->format('Y-m-d');
+            $this->wageNotes = $user->currentWage->notes;
+        }
 
         // Clear the new wage form fields and hide the form
         $this->resetNewWageFields();

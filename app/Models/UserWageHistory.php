@@ -92,4 +92,22 @@ class UserWageHistory extends Model
         // Allow full editing for current records
         return $this->end_date === null;
     }
+
+    /**
+     * Check if this is the actual current wage (latest start_date with null end_date)
+     */
+    public function isCurrentWage()
+    {
+        if (!is_null($this->end_date)) {
+            return false;
+        }
+
+        // Check if this is the wage with the latest start_date for this user
+        $latestWage = $this->user->wageHistory()
+            ->whereNull('end_date')
+            ->orderBy('start_date', 'desc')
+            ->first();
+
+        return $latestWage && $latestWage->id === $this->id;
+    }
 }
