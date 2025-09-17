@@ -22,10 +22,13 @@
     <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="w-full sm:w-1/3">
             <input wire:model.live="search" 
-                   type="text" 
-                   placeholder="Search users..." 
-                   autocomplete="off"
-                   class="input input-bordered w-full">
+       			type="search" 
+       			placeholder="Search users..." 
+       			autocomplete="off"
+       			data-lpignore="true"
+       			data-1p-ignore
+       			data-form-type="other"
+       			class="input input-bordered w-full">
         </div>
         <button wire:click="openCreateModal" 
                 class="btn btn-primary w-full sm:w-auto">

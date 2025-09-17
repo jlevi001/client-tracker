@@ -50,6 +50,11 @@ class UserManagement extends Component
     public $search = '';
     public $sortField = 'name';
     public $sortDirection = 'asc';
+	
+	public function mount()
+    {
+        $this->search = '';
+    }
 
     protected function rules()
     {
@@ -157,7 +162,7 @@ class UserManagement extends Component
         $user = User::with(['wageHistory.createdBy'])->findOrFail($userId);
         
         // Get wage history ordered by start_date descending (newest first)
-        $wageHistory = $user->wageHistory()->orderBy('start_date', 'desc')->get();
+        $wageHistory = $user->wageHistory()->with('createdBy')->orderBy('start_date', 'desc')->get();
         
         // Convert to array and mark the wage with the latest start_date as current
         $this->currentWageHistory = $wageHistory->map(function($wage) use ($wageHistory) {
