@@ -31,7 +31,7 @@ class UserManagement extends Component
     public $selectedRole;
     public $employmentStartDate;
     
-    // Current wage fields (for editing/corrections )
+    // Current wage fields (for editing/corrections)
     public $wageType;
     public $wageRate;
     public $wageStartDate;

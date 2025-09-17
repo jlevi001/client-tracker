@@ -33,7 +33,7 @@
         </button>
     </div>
 
-    <!-- Users Tables -->
+    <!-- Users Table -->
     <div class="card bg-base-200 shadow-xl">
         <div class="overflow-x-auto">
             <table class="table table-zebra">
