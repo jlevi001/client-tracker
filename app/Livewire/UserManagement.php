@@ -154,7 +154,12 @@ class UserManagement extends Component
     public function openWageHistoryModal($userId)
     {
         $this->userId = $userId;
-        $user = User::with(['wageHistory.createdBy'])->findOrFail($userId);
+        $user = User::with(['wageHistory' => function($query) {
+            // Sort wage history by start_date descending (newest first)
+            $query->orderBy('start_date', 'desc')
+                  ->with('createdBy');
+        }])->findOrFail($userId);
+        
         $this->currentWageHistory = $user->wageHistory->toArray();
         $this->showWageHistoryModal = true;
     }

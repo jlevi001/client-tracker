@@ -54,32 +54,28 @@
                                     @endif
                                 @endif
                             </div>
-                       </th>
-<th wire:click="sortBy('email')" class="cursor-pointer hover:bg-base-300">
-    <div class="flex items-center gap-1">
-        Email
-        @if($sortField === 'email')
-            @if($sortDirection === 'asc')
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                </svg>
-            @else
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            @endif
-        @endif
-    </div>
-</th>
+                        </th>
+                        <th wire:click="sortBy('email')" class="cursor-pointer hover:bg-base-300">
+                            <div class="flex items-center gap-1">
+                                Email
+                                @if($sortField === 'email')
+                                    @if($sortDirection === 'asc')
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                        </svg>
+                                    @else
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    @endif
+                                @endif
+                            </div>
+                        </th>
                         <th>Role</th>
                         <th wire:click="sortBy('employment_start_date')" class="cursor-pointer hover:bg-base-300">
                             <div class="flex items-center gap-1">
                                 Start Date
-                        <th>Role</th>
-                        <th wire:click="sortBy('created_at')" class="cursor-pointer hover:bg-base-300">
-                            <div class="flex items-center gap-1">
-                                Joined
-									@if($sortField === 'employment_start_date')
+                                @if($sortField === 'employment_start_date')
                                     @if($sortDirection === 'asc')
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
@@ -127,12 +123,12 @@
                                 @endif
                             </td>
                             <td>
-    @if($user->employment_start_date)
-        {{ $user->employment_start_date->format('M d, Y') }}
-    @else
-        <span class="text-base-content/50">Not set</span>
-    @endif
-</td>
+                                @if($user->employment_start_date)
+                                    {{ $user->employment_start_date->format('M d, Y') }}
+                                @else
+                                    <span class="text-base-content/50">Not set</span>
+                                @endif
+                            </td>
                             <td>
                                 <div class="flex gap-2">
                                     <button wire:click="openEditModal({{ $user->id }})" 
