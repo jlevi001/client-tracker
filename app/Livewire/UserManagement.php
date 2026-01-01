@@ -156,7 +156,7 @@ class UserManagement extends Component
         $this->showDeleteModal = true;
     }
 
-    public function openWageHistoryModal($userId)
+ public function openWageHistoryModal($userId)
     {
         $this->userId = $userId;
         $user = User::with(['wageHistory.createdBy'])->findOrFail($userId);
@@ -164,15 +164,26 @@ class UserManagement extends Component
         // Get wage history ordered by start_date descending (newest first)
         $wageHistory = $user->wageHistory()->with('createdBy')->orderBy('start_date', 'desc')->get();
         
-        // Convert to array and mark the wage with the latest start_date as current
+        // Convert to array and mark the current wage
         $this->currentWageHistory = $wageHistory->map(function($wage) use ($wageHistory) {
             $wageArray = $wage->toArray();
             
-            // Find the wage with the latest start_date (should have null end_date)
+            // A wage is current if:
+            // 1. It has no end_date (NULL)
+            // 2. OR it's the wage with the latest start_date AND end_date is in the future
             $latestWage = $wageHistory->sortByDesc('start_date')->first();
+            $isCurrent = false;
             
-            // Mark as current if this is the wage with the latest start_date AND null end_date
-            $wageArray['is_current'] = $wage->id === $latestWage->id && is_null($wage->end_date);
+            if ($wage->id === $latestWage->id) {
+                // This is the most recent wage
+                if (is_null($wage->end_date)) {
+                    $isCurrent = true;
+                } elseif ($wage->end_date && $wage->end_date->isFuture()) {
+                    $isCurrent = true;
+                }
+            }
+            
+            $wageArray['is_current'] = $isCurrent;
             
             return $wageArray;
         })->toArray();
