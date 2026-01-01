@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->date('employment_start_date')->nullable()->after('email');
-        });
+        // Only add employment_start_date if it doesn't already exist
+        if (!Schema::hasColumn('users', 'employment_start_date')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->date('employment_start_date')->nullable()->after('email');
+            });
+        }
     }
 
     /**
@@ -21,8 +24,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('employment_start_date');
-        });
+        // Only drop if it exists
+        if (Schema::hasColumn('users', 'employment_start_date')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('employment_start_date');
+            });
+        }
     }
 };
