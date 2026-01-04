@@ -40,6 +40,7 @@ class Client extends Model
         'billing_country',
         'payment_terms',
         'tax_id',
+        'default_hourly_rate',
         'status',
         'notes',
         'created_by_id',
@@ -53,9 +54,23 @@ class Client extends Model
      */
     protected $casts = [
         'billing_address_same' => 'boolean',
+        'default_hourly_rate' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
+    ];
+
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'default_hourly_rate' => 130.00,
+        'status' => 'active',
+        'country' => 'United States',
+        'billing_address_same' => true,
+        'payment_terms' => 'net30',
     ];
 
     /**
@@ -288,6 +303,24 @@ class Client extends Model
     }
 
     /**
+     * Check if client has any active contracts.
+     *
+     * @return bool
+     */
+    public function hasActiveContracts(): bool
+    {
+        return $this->contracts()->where('status', 'active')->exists();
+    }
+
+    /**
+     * Get active contracts for this client.
+     */
+    public function activeContracts()
+    {
+        return $this->contracts()->where('status', 'active')->get();
+    }
+
+    /**
      * Scope a query to only include active clients.
      */
     public function scopeActive($query)
@@ -373,5 +406,33 @@ class Client extends Model
         }
         
         return $this->company_name;
+    }
+
+    /**
+     * Get the formatted default hourly rate.
+     *
+     * @return string
+     */
+    public function getFormattedRateAttribute(): string
+    {
+        return '$' . number_format($this->default_hourly_rate, 2) . '/hr';
+    }
+
+    /**
+     * Get the payment terms in readable format.
+     *
+     * @return string
+     */
+    public function getPaymentTermsLabelAttribute(): string
+    {
+        $labels = [
+            'net15' => 'Net 15',
+            'net30' => 'Net 30',
+            'net45' => 'Net 45',
+            'net60' => 'Net 60',
+            'due_on_receipt' => 'Due on Receipt',
+        ];
+
+        return $labels[$this->payment_terms] ?? $this->payment_terms;
     }
 }
