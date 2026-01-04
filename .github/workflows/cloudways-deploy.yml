@@ -35,6 +35,5 @@ jobs:
             -d '{
               "server_id": "${{ secrets.CLOUDWAYS_SERVER_ID }}",
               "app_id": "${{ secrets.CLOUDWAYS_APP_ID }}",
-              "branch_name": "${{ secrets.CLOUDWAYS_BRANCH }}",
-              "deploy_path": "${{ secrets.CLOUDWAYS_DEPLOY_PATH }}"
+              "branch_name": "${{ secrets.CLOUDWAYS_BRANCH }}"
             }'
