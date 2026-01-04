@@ -31,4 +31,9 @@ Route::middleware([
     Route::get('/users', function () {
         return view('users.index');
     })->name('users.index')->middleware('can:manage users');
+    
+    // Client Management Routes - Using Livewire Component
+    Route::get('/clients', function () {
+        return view('clients.index');
+    })->name('clients.index')->middleware('can:manage users');
 });

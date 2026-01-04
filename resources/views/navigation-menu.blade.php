@@ -21,6 +21,12 @@
                             {{ __('Users') }}
                         </x-nav-link>
                     @endcan
+                    
+                    @can('manage users')
+                        <x-nav-link href="{{ route('clients.index') }}" :active="request()->routeIs('clients.*')">
+                            {{ __('Clients') }}
+                        </x-nav-link>
+                    @endcan
                 </div>
             </div>
 
@@ -148,6 +154,12 @@
             @can('manage users')
                 <x-responsive-nav-link href="{{ route('users.index') }}" :active="request()->routeIs('users.*')">
                     {{ __('Users') }}
+                </x-responsive-nav-link>
+            @endcan
+            
+            @can('manage users')
+                <x-responsive-nav-link href="{{ route('clients.index') }}" :active="request()->routeIs('clients.*')">
+                    {{ __('Clients') }}
                 </x-responsive-nav-link>
             @endcan
         </div>
