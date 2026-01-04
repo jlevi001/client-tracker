@@ -1,0 +1,40 @@
+name: Deploy to Cloudways
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Get Cloudways OAuth token
+        id: token
+        run: |
+          RESPONSE=$(curl -s -X POST "https://api.cloudways.com/api/v1/oauth/access_token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "email=${{ secrets.CLOUDWAYS_EMAIL }}" \
+            --data-urlencode "api_key=${{ secrets.CLOUDWAYS_API_KEY }}")
+
+          TOKEN=$(echo "$RESPONSE" | jq -r '.access_token')
+          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "Failed to get token. Response: $RESPONSE"
+            exit 1
+          fi
+
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Trigger Cloudways Git Pull
+        run: |
+          curl -s -X POST "https://api.cloudways.com/api/v1/git/pull" \
+            -H "Authorization: Bearer ${{ steps.token.outputs.token }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "server_id": "${{ secrets.CLOUDWAYS_SERVER_ID }}",
+              "app_id": "${{ secrets.CLOUDWAYS_APP_ID }}",
+              "branch_name": "${{ secrets.CLOUDWAYS_BRANCH }}",
+              "deploy_path": "${{ secrets.CLOUDWAYS_DEPLOY_PATH }}"
+            }'
