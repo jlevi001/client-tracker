@@ -305,6 +305,9 @@ class ClientManagement extends Component
         }
 
         try {
+            // Increase execution time for large files
+            set_time_limit(300); // 5 minutes
+            
             $this->isProcessing = true;
             $this->progressCurrent = 0;
             $this->progressTotal = 0;
@@ -345,12 +348,20 @@ class ClientManagement extends Component
                 return;
             }
             
+            // Warn about large files
+            if ($totalRows > 100) {
+                $this->progressMessage = "Large file detected ({$totalRows} rows). This may take a few minutes...";
+                usleep(500000); // Pause half second to show message
+            }
+            
             $this->progressTotal = $totalRows;
             rewind($file);
             fgetcsv($file); // Skip header again
 
-            // Process in chunks of 25
-            $chunkSize = 25;
+            // Track account numbers generated in this batch
+            $generatedAccountNumbers = [];
+            
+            // Process in chunks
             $currentChunk = 0;
             $allPreviewData = [];
             $allErrors = [];
@@ -362,10 +373,9 @@ class ClientManagement extends Component
                 $this->progressCurrent = $currentChunk;
                 $this->progressMessage = "Processing row {$currentChunk} of {$totalRows}...";
                 
-                // Force UI update every 25 records
-                if ($currentChunk % $chunkSize === 0) {
-                    $this->dispatch('progress-update');
-                    usleep(50000); // Increased delay to 50ms for progress bar visibility
+                // Force UI update every 10 records with longer delay
+                if ($currentChunk % 10 === 0) {
+                    usleep(100000); // 100ms delay to allow UI update
                 }
 
                 $rowData = array_combine($header, $row);
@@ -395,7 +405,15 @@ class ClientManagement extends Component
                 } else {
                     $createCount++;
                     $rowData['_action'] = 'create';
-                    $rowData['_preview_account'] = Client::generateAccountNumber($rowData['company_name']);
+                    
+                    // Generate unique account number, checking both database AND this batch
+                    $baseAccountNumber = $this->generateUniqueAccountNumber(
+                        $rowData['company_name'], 
+                        $generatedAccountNumbers
+                    );
+                    
+                    $rowData['_preview_account'] = $baseAccountNumber;
+                    $generatedAccountNumbers[] = $baseAccountNumber; // Track this batch
                 }
 
                 $allPreviewData[] = $rowData;
@@ -418,9 +436,42 @@ class ClientManagement extends Component
         }
     }
 
+    /**
+     * Generate unique account number checking both database and current batch
+     */
+    private function generateUniqueAccountNumber($companyName, $alreadyGenerated = [])
+    {
+        // Remove special characters and convert to uppercase
+        $cleanName = preg_replace('/[^A-Za-z0-9]/', '', $companyName);
+        $cleanName = strtoupper($cleanName);
+        
+        // Get first 8 characters
+        $baseNumber = substr($cleanName, 0, 8);
+        
+        // Pad with zeros if less than 8 characters
+        $baseNumber = str_pad($baseNumber, 8, '0', STR_PAD_RIGHT);
+        
+        // Check for duplicates in database AND in current batch
+        $accountNumber = $baseNumber;
+        $suffix = 2;
+        
+        while (
+            Client::where('account_number', $accountNumber)->exists() || 
+            in_array($accountNumber, $alreadyGenerated)
+        ) {
+            $accountNumber = $baseNumber . $suffix;
+            $suffix++;
+        }
+        
+        return $accountNumber;
+    }
+
     public function confirmImport()
     {
         try {
+            // Increase execution time for large imports
+            set_time_limit(300); // 5 minutes
+            
             $this->isProcessing = true;
             $this->progressCurrent = 0;
             $this->progressTotal = count($this->csvPreviewData);
@@ -435,10 +486,9 @@ class ClientManagement extends Component
                 $this->progressCurrent = $imported;
                 $this->progressMessage = "Importing {$imported} of {$this->progressTotal}...";
                 
-                // Force UI update every 25 records
-                if ($imported % $chunkSize === 0) {
-                    $this->dispatch('progress-update');
-                    usleep(10000);
+                // Force UI update every 10 records
+                if ($imported % 10 === 0) {
+                    usleep(100000); // 100ms delay to allow UI update
                 }
 
                 try {
@@ -490,7 +540,8 @@ class ClientManagement extends Component
                     }
 
                 } catch (\Exception $e) {
-                    $errors[] = "Row " . ($index + 1) . ": " . $e->getMessage();
+                    $companyName = $rowData['company_name'] ?? 'Unknown';
+                    $errors[] = "Row " . ($index + 1) . " ({$companyName}): " . $e->getMessage();
                 }
             }
 

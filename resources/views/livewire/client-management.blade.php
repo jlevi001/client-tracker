@@ -673,7 +673,7 @@
                                     <th>Account #</th>
                                     <th>Company Name</th>
                                     <th>Email</th>
-                                    <th>Phone</th>
+                                    <th>Contact</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -687,9 +687,13 @@
                                             @endif
                                         </td>
                                         <td class="font-mono text-xs">
-                                            {{ $row['_action'] === 'create' ? $row['_preview_account'] : $row['_existing_account'] }}
+                                            @if($row['_action'] === 'create')
+                                                <span class="text-success">{{ $row['_preview_account'] }}</span>
+                                            @else
+                                                {{ $row['_existing_account'] }}
+                                            @endif
                                         </td>
-                                        <td>{{ $row['company_name'] }}</td>
+                                        <td class="font-semibold">{{ $row['company_name'] }}</td>
                                         <td class="text-sm">{{ $row['email'] ?? '—' }}</td>
                                         <td class="text-sm">{{ $row['mobile'] ?? $row['phone'] ?? '—' }}</td>
                                     </tr>
