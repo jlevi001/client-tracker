@@ -3,154 +3,128 @@
 namespace App\Livewire;
 
 use App\Models\Client;
+use App\Models\User;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class ClientManagement extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithFileUploads, WithPagination;
 
-    // Event listeners
-    protected $listeners = ['process-next-batch' => 'processNextBatch'];
+    // Search and filters
+    public $search = '';
+    public $perPage = 10;
+    public $sortField = 'created_at';
+    public $sortDirection = 'desc';
 
-    // Modal states
-    public $showCreateModal = false;
+    // Modal state
+    public $showAddModal = false;
     public $showEditModal = false;
     public $showDeleteModal = false;
     public $showImportModal = false;
-    public $showImportPreview = false;
 
-    // Client form fields
+    // Form fields
     public $clientId;
-    public $accountNumber;
-    public $companyName;
-    public $tradingName;
+    public $account_number;
+    public $company_name;
+    public $trading_name;
     public $website;
     public $email;
     public $phone;
     public $mobile;
-    public $addressLine1;
-    public $addressLine2;
+    public $address_line_1;
+    public $address_line_2;
     public $city;
     public $state;
-    public $zipCode;
+    public $zip_code;
     public $country = 'United States';
-    public $billingAddressSame = true;
-    public $billingAddressLine1;
-    public $billingAddressLine2;
-    public $billingCity;
-    public $billingState;
-    public $billingZipCode;
-    public $billingCountry;
-    public $paymentTerms = 'net30';
-    public $taxId;
-    public $defaultHourlyRate = 130.00;
+    public $billing_address_same = true;
+    public $billing_address_line_1;
+    public $billing_address_line_2;
+    public $billing_city;
+    public $billing_state;
+    public $billing_zip_code;
+    public $billing_country;
+    public $payment_terms = 'net30';
+    public $tax_id;
     public $status = 'active';
     public $notes;
+    public $default_hourly_rate = 130.00;
 
-    // CSV Import fields
+    // Hosting & Domain fields
+    public $hosting_provider;
+    public $hosting_managed_by;
+    public $domain_registrar;
+    public $domain_registrar_other;
+    public $dns_managed_elsewhere = false;
+    public $dns_provider;
+
+    // CSV Import
     public $csvFile;
-    public $importData = [];
-    public $importErrors = [];
-    public $importNewCount = 0;
-    public $importUpdateCount = 0;
-    public $importErrorCount = 0;
-
-    // Batched import progress tracking
-    public $isImporting = false;
-    public $importProgress = 0;
-    public $importTotal = 0;
-    public $importProcessed = 0;
-    public $importCreated = 0;
-    public $importUpdated = 0;
-    public $currentBatchIndex = 0;
-
-    // Search, sort, pagination
-    public $search = '';
-    public $sortField = 'company_name';
-    public $sortDirection = 'asc';
-    public $perPage = 10;
-
-    // Preview for account number
-    public $accountNumberPreview = '';
+    public $csvPreviewData = [];
+    public $csvErrors = [];
+    public $csvCreateCount = 0;
+    public $csvUpdateCount = 0;
+    public $showCsvPreview = false;
+    
+    // Progress tracking
+    public $isProcessing = false;
+    public $progressCurrent = 0;
+    public $progressTotal = 0;
+    public $progressMessage = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
-        'sortField' => ['except' => 'company_name'],
-        'sortDirection' => ['except' => 'asc'],
+        'perPage' => ['except' => 10],
+        'sortField' => ['except' => 'created_at'],
+        'sortDirection' => ['except' => 'desc'],
     ];
-
-    public function mount()
-    {
-        $this->search = '';
-    }
 
     protected function rules()
     {
-        $rules = [
-            'companyName' => ['required', 'string', 'max:255'],
-            'tradingName' => ['nullable', 'string', 'max:255'],
-            'website' => ['nullable', 'url', 'max:255'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'mobile' => ['nullable', 'string', 'max:50'],
-            'addressLine1' => ['nullable', 'string', 'max:255'],
-            'addressLine2' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:255'],
-            'state' => ['nullable', 'string', 'max:100'],
-            'zipCode' => ['nullable', 'string', 'max:20'],
-            'country' => ['nullable', 'string', 'max:100'],
-            'billingAddressSame' => ['boolean'],
-            'billingAddressLine1' => ['nullable', 'string', 'max:255'],
-            'billingAddressLine2' => ['nullable', 'string', 'max:255'],
-            'billingCity' => ['nullable', 'string', 'max:255'],
-            'billingState' => ['nullable', 'string', 'max:100'],
-            'billingZipCode' => ['nullable', 'string', 'max:20'],
-            'billingCountry' => ['nullable', 'string', 'max:100'],
-            'paymentTerms' => ['required', Rule::in(['net15', 'net30', 'net45', 'net60', 'due_on_receipt'])],
-            'taxId' => ['nullable', 'string', 'max:50'],
-            'defaultHourlyRate' => ['required', 'numeric', 'min:0', 'max:9999.99'],
-            'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
-            'notes' => ['nullable', 'string', 'max:5000'],
+        return [
+            'company_name' => 'required|string|max:255',
+            'trading_name' => 'nullable|string|max:255',
+            'website' => 'nullable|url|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:255',
+            'mobile' => 'nullable|string|max:255',
+            'address_line_1' => 'nullable|string|max:255',
+            'address_line_2' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:10',
+            'zip_code' => 'nullable|string|max:20',
+            'country' => 'nullable|string|max:50',
+            'billing_address_line_1' => 'nullable|string|max:255',
+            'billing_address_line_2' => 'nullable|string|max:255',
+            'billing_city' => 'nullable|string|max:255',
+            'billing_state' => 'nullable|string|max:10',
+            'billing_zip_code' => 'nullable|string|max:20',
+            'billing_country' => 'nullable|string|max:50',
+            'payment_terms' => 'required|in:net15,net30,net45,net60,due_on_receipt',
+            'tax_id' => 'nullable|string|max:255',
+            'status' => 'required|in:active,inactive,suspended',
+            'notes' => 'nullable|string',
+            'default_hourly_rate' => 'required|numeric|min:0|max:9999.99',
+            'hosting_provider' => 'nullable|string|max:100',
+            'hosting_managed_by' => 'nullable|in:lingo,client',
+            'domain_registrar' => 'nullable|string|max:100',
+            'domain_registrar_other' => 'nullable|string|max:100',
+            'dns_managed_elsewhere' => 'boolean',
+            'dns_provider' => 'nullable|string|max:100',
         ];
-
-        return $rules;
     }
 
-    protected $messages = [
-        'companyName.required' => 'Company name is required.',
-        'email.email' => 'Please enter a valid email address.',
-        'website.url' => 'Please enter a valid URL (include http:// or https://).',
-        'defaultHourlyRate.required' => 'Default hourly rate is required.',
-        'defaultHourlyRate.numeric' => 'Hourly rate must be a number.',
-        'defaultHourlyRate.min' => 'Hourly rate cannot be negative.',
-    ];
-
-    public function updatingSearch()
+    public function updatedSearch()
     {
         $this->resetPage();
     }
 
-    public function updatedCompanyName($value)
+    public function updatedPerPage()
     {
-        // Generate preview of account number
-        if (!empty($value)) {
-            $this->accountNumberPreview = Client::generateAccountNumber($value);
-        } else {
-            $this->accountNumberPreview = '';
-        }
-    }
-
-    public function updatedCsvFile()
-    {
-        $this->validate([
-            'csvFile' => 'required|file|mimes:csv,txt|max:10240', // 10MB max
-        ]);
-
-        $this->processImportCsv();
+        $this->resetPage();
     }
 
     public function sortBy($field)
@@ -163,367 +137,332 @@ class ClientManagement extends Component
         }
     }
 
-    public function openCreateModal()
+    public function openAddModal()
     {
         $this->resetForm();
-        $this->resetValidation();
-        $this->showCreateModal = true;
+        $this->showAddModal = true;
     }
 
-    public function openEditModal($clientId)
+    public function openEditModal($id)
     {
-        $this->resetValidation();
-        $client = Client::findOrFail($clientId);
-
+        $this->resetForm();
+        $client = Client::findOrFail($id);
+        
         $this->clientId = $client->id;
-        $this->accountNumber = $client->account_number;
-        $this->companyName = $client->company_name;
-        $this->tradingName = $client->trading_name;
+        $this->account_number = $client->account_number;
+        $this->company_name = $client->company_name;
+        $this->trading_name = $client->trading_name;
         $this->website = $client->website;
         $this->email = $client->email;
         $this->phone = $client->phone;
         $this->mobile = $client->mobile;
-        $this->addressLine1 = $client->address_line_1;
-        $this->addressLine2 = $client->address_line_2;
+        $this->address_line_1 = $client->address_line_1;
+        $this->address_line_2 = $client->address_line_2;
         $this->city = $client->city;
         $this->state = $client->state;
-        $this->zipCode = $client->zip_code;
-        $this->country = $client->country ?? 'United States';
-        $this->billingAddressSame = $client->billing_address_same;
-        $this->billingAddressLine1 = $client->billing_address_line_1;
-        $this->billingAddressLine2 = $client->billing_address_line_2;
-        $this->billingCity = $client->billing_city;
-        $this->billingState = $client->billing_state;
-        $this->billingZipCode = $client->billing_zip_code;
-        $this->billingCountry = $client->billing_country;
-        $this->paymentTerms = $client->payment_terms ?? 'net30';
-        $this->taxId = $client->tax_id;
-        $this->defaultHourlyRate = $client->default_hourly_rate ?? 130.00;
-        $this->status = $client->status ?? 'active';
+        $this->zip_code = $client->zip_code;
+        $this->country = $client->country;
+        $this->billing_address_same = $client->billing_address_same;
+        $this->billing_address_line_1 = $client->billing_address_line_1;
+        $this->billing_address_line_2 = $client->billing_address_line_2;
+        $this->billing_city = $client->billing_city;
+        $this->billing_state = $client->billing_state;
+        $this->billing_zip_code = $client->billing_zip_code;
+        $this->billing_country = $client->billing_country;
+        $this->payment_terms = $client->payment_terms;
+        $this->tax_id = $client->tax_id;
+        $this->status = $client->status;
         $this->notes = $client->notes;
-
+        $this->default_hourly_rate = $client->default_hourly_rate;
+        $this->hosting_provider = $client->hosting_provider;
+        $this->hosting_managed_by = $client->hosting_managed_by;
+        $this->domain_registrar = $client->domain_registrar;
+        $this->domain_registrar_other = $client->domain_registrar_other;
+        $this->dns_managed_elsewhere = $client->dns_managed_elsewhere;
+        $this->dns_provider = $client->dns_provider;
+        
         $this->showEditModal = true;
     }
 
-    public function openDeleteModal($clientId)
+    public function openDeleteModal($id)
     {
-        $this->clientId = $clientId;
+        $this->clientId = $id;
         $this->showDeleteModal = true;
+    }
+
+    public function save()
+    {
+        $this->validate();
+
+        try {
+            $data = [
+                'company_name' => $this->company_name,
+                'trading_name' => $this->trading_name,
+                'website' => $this->website,
+                'email' => $this->email,
+                'phone' => $this->phone,
+                'mobile' => $this->mobile,
+                'address_line_1' => $this->address_line_1,
+                'address_line_2' => $this->address_line_2,
+                'city' => $this->city,
+                'state' => $this->state,
+                'zip_code' => $this->zip_code,
+                'country' => $this->country,
+                'billing_address_same' => $this->billing_address_same,
+                'billing_address_line_1' => $this->billing_address_line_1,
+                'billing_address_line_2' => $this->billing_address_line_2,
+                'billing_city' => $this->billing_city,
+                'billing_state' => $this->billing_state,
+                'billing_zip_code' => $this->billing_zip_code,
+                'billing_country' => $this->billing_country,
+                'payment_terms' => $this->payment_terms,
+                'tax_id' => $this->tax_id,
+                'status' => $this->status,
+                'notes' => $this->notes,
+                'default_hourly_rate' => $this->default_hourly_rate,
+                'hosting_provider' => $this->hosting_provider,
+                'hosting_managed_by' => $this->hosting_managed_by,
+                'domain_registrar' => $this->domain_registrar,
+                'domain_registrar_other' => $this->domain_registrar_other,
+                'dns_managed_elsewhere' => $this->dns_managed_elsewhere,
+                'dns_provider' => $this->dns_provider,
+            ];
+
+            if ($this->clientId) {
+                // Update existing client
+                $client = Client::findOrFail($this->clientId);
+                $data['updated_by_id'] = Auth::id();
+                $client->update($data);
+                
+                session()->flash('message', 'Client updated successfully.');
+            } else {
+                // Create new client
+                $data['account_number'] = Client::generateAccountNumber($this->company_name);
+                $data['created_by_id'] = Auth::id();
+                Client::create($data);
+                
+                session()->flash('message', 'Client created successfully.');
+            }
+
+            $this->closeModals();
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error saving client: ' . $e->getMessage());
+        }
+    }
+
+    public function delete()
+    {
+        try {
+            $client = Client::findOrFail($this->clientId);
+            $client->delete();
+            
+            session()->flash('message', 'Client deleted successfully.');
+            $this->closeModals();
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error deleting client: ' . $e->getMessage());
+        }
     }
 
     public function openImportModal()
     {
-        $this->reset(['csvFile', 'importData', 'importErrors', 'importNewCount', 'importUpdateCount', 'importErrorCount']);
-        $this->resetImportProgress();
-        $this->showImportPreview = false;
+        $this->resetImportState();
         $this->showImportModal = true;
     }
 
-    protected function resetImportProgress()
+    public function previewCsv()
     {
-        $this->isImporting = false;
-        $this->importProgress = 0;
-        $this->importTotal = 0;
-        $this->importProcessed = 0;
-        $this->importCreated = 0;
-        $this->importUpdated = 0;
-        $this->currentBatchIndex = 0;
-    }
-
-    public function createClient()
-    {
-        $this->validate();
-
-        $client = Client::create([
-            'company_name' => $this->companyName,
-            'trading_name' => $this->tradingName,
-            'website' => $this->website,
-            'email' => $this->email,
-            'phone' => Client::formatPhoneNumber($this->phone),
-            'mobile' => Client::formatPhoneNumber($this->mobile),
-            'address_line_1' => $this->addressLine1,
-            'address_line_2' => $this->addressLine2,
-            'city' => $this->city,
-            'state' => Client::abbreviateState($this->state, $this->country),
-            'zip_code' => $this->zipCode,
-            'country' => $this->country,
-            'billing_address_same' => $this->billingAddressSame,
-            'billing_address_line_1' => $this->billingAddressLine1,
-            'billing_address_line_2' => $this->billingAddressLine2,
-            'billing_city' => $this->billingCity,
-            'billing_state' => Client::abbreviateState($this->billingState, $this->billingCountry ?? $this->country),
-            'billing_zip_code' => $this->billingZipCode,
-            'billing_country' => $this->billingCountry,
-            'payment_terms' => $this->paymentTerms,
-            'tax_id' => $this->taxId,
-            'default_hourly_rate' => $this->defaultHourlyRate,
-            'status' => $this->status,
-            'notes' => $this->notes,
-            'created_by_id' => Auth::id(),
+        $this->validate([
+            'csvFile' => 'required|file|mimes:csv,txt|max:10240',
         ]);
-
-        $this->showCreateModal = false;
-        $this->resetForm();
-        session()->flash('success', "Client '{$client->company_name}' created successfully.");
-    }
-
-    public function updateClient()
-    {
-        $this->validate();
-
-        $client = Client::findOrFail($this->clientId);
-
-        $client->update([
-            'company_name' => $this->companyName,
-            'trading_name' => $this->tradingName,
-            'website' => $this->website,
-            'email' => $this->email,
-            'phone' => Client::formatPhoneNumber($this->phone),
-            'mobile' => Client::formatPhoneNumber($this->mobile),
-            'address_line_1' => $this->addressLine1,
-            'address_line_2' => $this->addressLine2,
-            'city' => $this->city,
-            'state' => Client::abbreviateState($this->state, $this->country),
-            'zip_code' => $this->zipCode,
-            'country' => $this->country,
-            'billing_address_same' => $this->billingAddressSame,
-            'billing_address_line_1' => $this->billingAddressLine1,
-            'billing_address_line_2' => $this->billingAddressLine2,
-            'billing_city' => $this->billingCity,
-            'billing_state' => Client::abbreviateState($this->billingState, $this->billingCountry ?? $this->country),
-            'billing_zip_code' => $this->billingZipCode,
-            'billing_country' => $this->billingCountry,
-            'payment_terms' => $this->paymentTerms,
-            'tax_id' => $this->taxId,
-            'default_hourly_rate' => $this->defaultHourlyRate,
-            'status' => $this->status,
-            'notes' => $this->notes,
-            'updated_by_id' => Auth::id(),
-        ]);
-
-        $this->showEditModal = false;
-        $this->resetForm();
-        session()->flash('success', "Client '{$client->company_name}' updated successfully.");
-    }
-
-    public function deleteClient()
-    {
-        $client = Client::findOrFail($this->clientId);
-        $companyName = $client->company_name;
-
-        $client->delete();
-
-        $this->showDeleteModal = false;
-        $this->clientId = null;
-        session()->flash('success', "Client '{$companyName}' deleted successfully.");
-    }
-
-    public function processImportCsv()
-    {
-        if (!$this->csvFile) {
-            return;
-        }
-
-        $this->importData = [];
-        $this->importErrors = [];
-        $this->importNewCount = 0;
-        $this->importUpdateCount = 0;
-        $this->importErrorCount = 0;
 
         try {
+            $this->isProcessing = true;
+            $this->progressCurrent = 0;
+            $this->progressTotal = 0;
+            $this->progressMessage = 'Analyzing file...';
+            
             $path = $this->csvFile->getRealPath();
             $file = fopen($path, 'r');
-
-            // Get headers
-            $headers = fgetcsv($file);
-            if (!$headers) {
-                $this->addError('csvFile', 'Invalid CSV file: no headers found.');
+            
+            // Read header row
+            $header = fgetcsv($file);
+            
+            if (!$header || !in_array('company_name', $header)) {
+                fclose($file);
+                session()->flash('error', 'Invalid CSV format. Required column: company_name');
+                $this->isProcessing = false;
                 return;
             }
 
-            // Normalize headers
-            $headers = array_map('trim', $headers);
-            $headers = array_map('strtolower', $headers);
-
-            // Required column
-            if (!in_array('company_name', $headers)) {
-                $this->addError('csvFile', 'CSV must contain a "company_name" column.');
-                return;
+            // Count total rows
+            $totalRows = 0;
+            while (fgetcsv($file) !== false) {
+                $totalRows++;
             }
+            
+            $this->progressTotal = $totalRows;
+            rewind($file);
+            fgetcsv($file); // Skip header again
 
-            $rowNumber = 1; // Start at 1 (header is row 0)
+            // Process in chunks of 25
+            $chunkSize = 25;
+            $currentChunk = 0;
+            $allPreviewData = [];
+            $allErrors = [];
+            $createCount = 0;
+            $updateCount = 0;
+
             while (($row = fgetcsv($file)) !== false) {
-                $rowNumber++;
+                $currentChunk++;
+                $this->progressCurrent = $currentChunk;
+                $this->progressMessage = "Processing row {$currentChunk} of {$totalRows}...";
+                
+                // Force UI update every 25 records
+                if ($currentChunk % $chunkSize === 0) {
+                    $this->dispatch('progress-update');
+                    usleep(10000); // Small delay to allow progress bar to update
+                }
 
-                // Skip empty rows
-                if (empty(array_filter($row))) {
+                $rowData = array_combine($header, $row);
+                
+                // Validate company_name (required)
+                if (empty($rowData['company_name'])) {
+                    $allErrors[] = "Row {$currentChunk}: Missing required field 'company_name'";
                     continue;
                 }
 
-                // Map row to associative array
-                $data = array_combine($headers, $row);
-
-                // Validate required field
-                if (empty($data['company_name'])) {
-                    $this->importErrors[] = [
-                        'row' => $rowNumber,
-                        'message' => 'Missing required field: company_name'
-                    ];
-                    $this->importErrorCount++;
-                    continue;
+                // Check if client exists - match by account_number OR company_name
+                $existing = null;
+                
+                if (!empty($rowData['account_number'])) {
+                    $existing = Client::where('account_number', $rowData['account_number'])->first();
+                }
+                
+                if (!$existing && !empty($rowData['company_name'])) {
+                    // Case-sensitive company name match
+                    $existing = Client::where('company_name', $rowData['company_name'])->first();
                 }
 
-                // Check if this is an update or create
-                $isUpdate = false;
-                $existingId = null;
-
-                if (!empty($data['account_number'])) {
-                    $existing = Client::where('account_number', trim($data['account_number']))->first();
-                    if ($existing) {
-                        $isUpdate = true;
-                        $existingId = $existing->id;
-                    }
-                }
-
-                // Add to import data
-                $this->importData[] = array_merge($data, [
-                    'row_number' => $rowNumber,
-                    'is_update' => $isUpdate,
-                    'existing_id' => $existingId,
-                ]);
-
-                if ($isUpdate) {
-                    $this->importUpdateCount++;
+                if ($existing) {
+                    $updateCount++;
+                    $rowData['_action'] = 'update';
+                    $rowData['_existing_account'] = $existing->account_number;
                 } else {
-                    $this->importNewCount++;
+                    $createCount++;
+                    $rowData['_action'] = 'create';
+                    $rowData['_preview_account'] = Client::generateAccountNumber($rowData['company_name']);
                 }
+
+                $allPreviewData[] = $rowData;
             }
 
             fclose($file);
 
-            // Show preview
-            $this->showImportPreview = true;
+            $this->csvPreviewData = $allPreviewData;
+            $this->csvErrors = $allErrors;
+            $this->csvCreateCount = $createCount;
+            $this->csvUpdateCount = $updateCount;
+            $this->showCsvPreview = true;
+            $this->isProcessing = false;
+            $this->progressMessage = 'Preview complete!';
 
         } catch (\Exception $e) {
-            $this->addError('csvFile', 'Error processing CSV: ' . $e->getMessage());
+            $this->isProcessing = false;
+            session()->flash('error', 'Error parsing CSV: ' . $e->getMessage());
         }
     }
 
     public function confirmImport()
     {
-        if (empty($this->importData)) {
-            session()->flash('error', 'No valid data to import.');
-            return;
-        }
+        try {
+            $this->isProcessing = true;
+            $this->progressCurrent = 0;
+            $this->progressTotal = count($this->csvPreviewData);
+            $this->progressMessage = 'Starting import...';
 
-        // Initialize progress tracking
-        $this->importTotal = count($this->importData);
-        $this->importProcessed = 0;
-        $this->importCreated = 0;
-        $this->importUpdated = 0;
-        $this->currentBatchIndex = 0;
-        $this->isImporting = true;
-        $this->importProgress = 0;
+            $chunkSize = 25;
+            $imported = 0;
+            $errors = [];
 
-        // Start processing first batch
-        $this->processNextBatch();
-    }
-
-    public function processNextBatch()
-    {
-        if (!$this->isImporting) {
-            return;
-        }
-
-        $batchSize = 25;
-        $startIndex = $this->currentBatchIndex * $batchSize;
-        $batch = array_slice($this->importData, $startIndex, $batchSize);
-
-        if (empty($batch)) {
-            // All batches processed - complete the import
-            $this->completeImport();
-            return;
-        }
-
-        foreach ($batch as $data) {
-            // Prepare the data for database
-            $clientData = [
-                'company_name' => $data['company_name'],
-                'trading_name' => $data['trading_name'] ?? null,
-                'email' => $data['email'] ?? null,
-                'phone' => !empty($data['phone']) ? Client::formatPhoneNumber($data['phone']) : null,
-                'mobile' => !empty($data['mobile']) ? Client::formatPhoneNumber($data['mobile']) : null,
-                'website' => $data['website'] ?? null,
-                'address_line_1' => $data['address_line_1'] ?? null,
-                'address_line_2' => $data['address_line_2'] ?? null,
-                'city' => $data['city'] ?? null,
-                'state' => !empty($data['state']) ? Client::abbreviateState($data['state'], $data['country'] ?? 'United States') : null,
-                'zip_code' => $data['zip_code'] ?? null,
-                'country' => $data['country'] ?? 'United States',
-                'billing_address_same' => isset($data['billing_address_same']) ? filter_var($data['billing_address_same'], FILTER_VALIDATE_BOOLEAN) : true,
-                'billing_address_line_1' => $data['billing_address_line_1'] ?? null,
-                'billing_address_line_2' => $data['billing_address_line_2'] ?? null,
-                'billing_city' => $data['billing_city'] ?? null,
-                'billing_state' => !empty($data['billing_state']) ? Client::abbreviateState($data['billing_state'], $data['billing_country'] ?? $data['country'] ?? 'United States') : null,
-                'billing_zip_code' => $data['billing_zip_code'] ?? null,
-                'billing_country' => $data['billing_country'] ?? null,
-                'payment_terms' => !empty($data['payment_terms']) ? strtolower($data['payment_terms']) : 'net30',
-                'tax_id' => $data['tax_id'] ?? null,
-                'default_hourly_rate' => !empty($data['default_hourly_rate']) ? (float) $data['default_hourly_rate'] : 130.00,
-                'notes' => $data['notes'] ?? null,
-            ];
-
-            if ($data['is_update'] && isset($data['existing_id'])) {
-                // Update existing client
-                $client = Client::find($data['existing_id']);
-                if ($client) {
-                    $clientData['updated_by_id'] = Auth::id();
-                    $client->update($clientData);
-                    $this->importUpdated++;
+            foreach ($this->csvPreviewData as $index => $rowData) {
+                $imported++;
+                $this->progressCurrent = $imported;
+                $this->progressMessage = "Importing {$imported} of {$this->progressTotal}...";
+                
+                // Force UI update every 25 records
+                if ($imported % $chunkSize === 0) {
+                    $this->dispatch('progress-update');
+                    usleep(10000);
                 }
-            } else {
-                // Create new client
-                $clientData['status'] = 'active';
-                $clientData['created_by_id'] = Auth::id();
-                Client::create($clientData);
-                $this->importCreated++;
+
+                try {
+                    $clientData = [
+                        'company_name' => $rowData['company_name'] ?? null,
+                        'trading_name' => $rowData['trading_name'] ?? null,
+                        'website' => $rowData['website'] ?? null,
+                        'email' => $rowData['email'] ?? null,
+                        'phone' => $rowData['phone'] ?? null,
+                        'mobile' => $rowData['mobile'] ?? null,
+                        'address_line_1' => $rowData['address_line_1'] ?? null,
+                        'address_line_2' => $rowData['address_line_2'] ?? null,
+                        'city' => $rowData['city'] ?? null,
+                        'state' => $rowData['state'] ?? null,
+                        'zip_code' => $rowData['zip_code'] ?? null,
+                        'country' => $rowData['country'] ?? 'United States',
+                        'billing_address_same' => filter_var($rowData['billing_address_same'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                        'billing_address_line_1' => $rowData['billing_address_line_1'] ?? null,
+                        'billing_address_line_2' => $rowData['billing_address_line_2'] ?? null,
+                        'billing_city' => $rowData['billing_city'] ?? null,
+                        'billing_state' => $rowData['billing_state'] ?? null,
+                        'billing_zip_code' => $rowData['billing_zip_code'] ?? null,
+                        'billing_country' => $rowData['billing_country'] ?? null,
+                        'payment_terms' => $rowData['payment_terms'] ?? 'net30',
+                        'tax_id' => $rowData['tax_id'] ?? null,
+                        'status' => $rowData['status'] ?? 'active',
+                        'notes' => $rowData['notes'] ?? null,
+                        'default_hourly_rate' => $rowData['default_hourly_rate'] ?? 130.00,
+                        'hosting_provider' => $rowData['hosting_provider'] ?? null,
+                        'hosting_managed_by' => $rowData['hosting_managed_by'] ?? null,
+                        'domain_registrar' => $rowData['domain_registrar'] ?? null,
+                        'domain_registrar_other' => $rowData['domain_registrar_other'] ?? null,
+                        'dns_managed_elsewhere' => filter_var($rowData['dns_managed_elsewhere'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                        'dns_provider' => $rowData['dns_provider'] ?? null,
+                    ];
+
+                    if ($rowData['_action'] === 'update') {
+                        // Update existing client
+                        $client = Client::where('account_number', $rowData['_existing_account'])->first();
+                        if ($client) {
+                            $clientData['updated_by_id'] = Auth::id();
+                            $client->update($clientData);
+                        }
+                    } else {
+                        // Create new client
+                        $clientData['account_number'] = $rowData['_preview_account'];
+                        $clientData['created_by_id'] = Auth::id();
+                        Client::create($clientData);
+                    }
+
+                } catch (\Exception $e) {
+                    $errors[] = "Row " . ($index + 1) . ": " . $e->getMessage();
+                }
             }
 
-            $this->importProcessed++;
+            $this->isProcessing = false;
+            $this->progressMessage = 'Import complete!';
+
+            if (empty($errors)) {
+                session()->flash('message', "CSV imported successfully! Created: {$this->csvCreateCount}, Updated: {$this->csvUpdateCount}");
+            } else {
+                session()->flash('error', 'Import completed with errors: ' . implode(', ', $errors));
+            }
+
+            $this->closeModals();
+            
+        } catch (\Exception $e) {
+            $this->isProcessing = false;
+            session()->flash('error', 'Error importing CSV: ' . $e->getMessage());
         }
-
-        // Update progress
-        $this->importProgress = round(($this->importProcessed / $this->importTotal) * 100);
-        $this->currentBatchIndex++;
-
-        // Check if there are more batches
-        if ($this->importProcessed < $this->importTotal) {
-            // Dispatch next batch processing (allows UI to update)
-            $this->dispatch('process-next-batch');
-        } else {
-            $this->completeImport();
-        }
-    }
-
-    protected function completeImport()
-    {
-        $created = $this->importCreated;
-        $updated = $this->importUpdated;
-
-        $this->showImportModal = false;
-        $this->showImportPreview = false;
-        $this->reset(['csvFile', 'importData', 'importErrors', 'importNewCount', 'importUpdateCount', 'importErrorCount']);
-        $this->resetImportProgress();
-
-        session()->flash('success', "Import completed: {$created} clients created, {$updated} clients updated.");
-    }
-
-    public function cancelImport()
-    {
-        $this->isImporting = false;
-        $this->showImportPreview = false;
-        $this->reset(['csvFile', 'importData', 'importErrors', 'importNewCount', 'importUpdateCount', 'importErrorCount']);
-        $this->resetImportProgress();
     }
 
     public function downloadTemplate()
@@ -552,80 +491,130 @@ class ClientManagement extends Component
             'payment_terms',
             'tax_id',
             'default_hourly_rate',
+            'hosting_provider',
+            'hosting_managed_by',
+            'domain_registrar',
+            'domain_registrar_other',
+            'dns_managed_elsewhere',
+            'dns_provider',
             'notes',
         ];
 
+        $filename = 'client_import_template.csv';
+        $handle = fopen('php://temp', 'r+');
+        fputcsv($handle, $headers);
+        
+        // Add example row
         $exampleRow = [
-            '', // account_number (leave blank for new)
-            'Example Company LLC',
-            'Example Co',
-            'contact@example.com',
-            '555-123-4567',
-            '555-987-6543',
-            'https://example.com',
-            '123 Main Street',
-            'Suite 100',
-            'Dallas',
-            'Texas',
-            '75201',
-            'United States',
-            'true',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            'net30',
-            '12-3456789',
-            '130.00',
-            'Example client notes',
+            'ACME0001', // account_number (optional - will auto-generate if blank)
+            'ACME Corporation', // company_name (required)
+            'ACME Co', // trading_name
+            'contact@acme.com', // email
+            '214-555-1234', // phone
+            '214-555-5678', // mobile
+            'https://www.acme.com', // website
+            '123 Main Street', // address_line_1
+            'Suite 100', // address_line_2
+            'Dallas', // city
+            'Texas', // state (will be abbreviated to TX)
+            '75201', // zip_code
+            'United States', // country
+            'true', // billing_address_same
+            '', // billing_address_line_1
+            '', // billing_address_line_2
+            '', // billing_city
+            '', // billing_state
+            '', // billing_zip_code
+            '', // billing_country
+            'net30', // payment_terms (net15, net30, net45, net60, due_on_receipt)
+            '12-3456789', // tax_id
+            '130.00', // default_hourly_rate
+            'cloudways', // hosting_provider
+            'lingo', // hosting_managed_by (lingo or client)
+            'godaddy', // domain_registrar
+            '', // domain_registrar_other
+            'false', // dns_managed_elsewhere
+            '', // dns_provider
+            'Example client record', // notes
         ];
+        fputcsv($handle, $exampleRow);
+        
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
 
-        $callback = function () use ($headers, $exampleRow) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $headers);
-            fputcsv($file, $exampleRow);
-            fclose($file);
-        };
-
-        return response()->streamDownload($callback, 'client_import_template.csv', [
+        return response()->streamDownload(function () use ($csv) {
+            echo $csv;
+        }, $filename, [
             'Content-Type' => 'text/csv',
         ]);
     }
 
-    protected function resetForm()
+    private function resetForm()
     {
         $this->reset([
             'clientId',
-            'accountNumber',
-            'companyName',
-            'tradingName',
+            'account_number',
+            'company_name',
+            'trading_name',
             'website',
             'email',
             'phone',
             'mobile',
-            'addressLine1',
-            'addressLine2',
+            'address_line_1',
+            'address_line_2',
             'city',
             'state',
-            'zipCode',
-            'billingAddressLine1',
-            'billingAddressLine2',
-            'billingCity',
-            'billingState',
-            'billingZipCode',
-            'billingCountry',
-            'taxId',
+            'zip_code',
+            'billing_address_line_1',
+            'billing_address_line_2',
+            'billing_city',
+            'billing_state',
+            'billing_zip_code',
+            'billing_country',
+            'tax_id',
             'notes',
-            'accountNumberPreview',
+            'hosting_provider',
+            'hosting_managed_by',
+            'domain_registrar',
+            'domain_registrar_other',
+            'dns_managed_elsewhere',
+            'dns_provider',
         ]);
-
+        
         $this->country = 'United States';
-        $this->billingAddressSame = true;
-        $this->paymentTerms = 'net30';
-        $this->defaultHourlyRate = 130.00;
+        $this->billing_address_same = true;
+        $this->payment_terms = 'net30';
         $this->status = 'active';
+        $this->default_hourly_rate = 130.00;
+        
+        $this->resetErrorBag();
+    }
+
+    private function resetImportState()
+    {
+        $this->reset([
+            'csvFile',
+            'csvPreviewData',
+            'csvErrors',
+            'csvCreateCount',
+            'csvUpdateCount',
+            'showCsvPreview',
+            'isProcessing',
+            'progressCurrent',
+            'progressTotal',
+            'progressMessage',
+        ]);
+    }
+
+    private function closeModals()
+    {
+        $this->showAddModal = false;
+        $this->showEditModal = false;
+        $this->showDeleteModal = false;
+        $this->showImportModal = false;
+        $this->resetForm();
+        $this->resetImportState();
     }
 
     public function render()
@@ -639,6 +628,8 @@ class ClientManagement extends Component
 
         return view('livewire.client-management', [
             'clients' => $clients,
+            'hostingProviders' => Client::$hostingProviders,
+            'domainRegistrars' => Client::$domainRegistrars,
         ]);
     }
 }

@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends Model
@@ -40,9 +38,15 @@ class Client extends Model
         'billing_country',
         'payment_terms',
         'tax_id',
-        'default_hourly_rate',
         'status',
         'notes',
+        'default_hourly_rate',
+        'hosting_provider',
+        'hosting_managed_by',
+        'domain_registrar',
+        'domain_registrar_other',
+        'dns_managed_elsewhere',
+        'dns_provider',
         'created_by_id',
         'updated_by_id',
     ];
@@ -54,150 +58,107 @@ class Client extends Model
      */
     protected $casts = [
         'billing_address_same' => 'boolean',
+        'dns_managed_elsewhere' => 'boolean',
         'default_hourly_rate' => 'decimal:2',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
     /**
-     * The model's default values for attributes.
-     *
-     * @var array
+     * State abbreviation mapping
      */
-    protected $attributes = [
-        'default_hourly_rate' => 130.00,
-        'status' => 'active',
-        'country' => 'United States',
-        'billing_address_same' => true,
-        'payment_terms' => 'net30',
+    public static $stateAbbreviations = [
+        // US States
+        'alabama' => 'AL', 'alaska' => 'AK', 'arizona' => 'AZ', 'arkansas' => 'AR',
+        'california' => 'CA', 'colorado' => 'CO', 'connecticut' => 'CT', 'delaware' => 'DE',
+        'florida' => 'FL', 'georgia' => 'GA', 'hawaii' => 'HI', 'idaho' => 'ID',
+        'illinois' => 'IL', 'indiana' => 'IN', 'iowa' => 'IA', 'kansas' => 'KS',
+        'kentucky' => 'KY', 'louisiana' => 'LA', 'maine' => 'ME', 'maryland' => 'MD',
+        'massachusetts' => 'MA', 'michigan' => 'MI', 'minnesota' => 'MN', 'mississippi' => 'MS',
+        'missouri' => 'MO', 'montana' => 'MT', 'nebraska' => 'NE', 'nevada' => 'NV',
+        'new hampshire' => 'NH', 'new jersey' => 'NJ', 'new mexico' => 'NM', 'new york' => 'NY',
+        'north carolina' => 'NC', 'north dakota' => 'ND', 'ohio' => 'OH', 'oklahoma' => 'OK',
+        'oregon' => 'OR', 'pennsylvania' => 'PA', 'rhode island' => 'RI', 'south carolina' => 'SC',
+        'south dakota' => 'SD', 'tennessee' => 'TN', 'texas' => 'TX', 'utah' => 'UT',
+        'vermont' => 'VT', 'virginia' => 'VA', 'washington' => 'WA', 'west virginia' => 'WV',
+        'wisconsin' => 'WI', 'wyoming' => 'WY',
+        // Canadian Provinces
+        'alberta' => 'AB', 'british columbia' => 'BC', 'manitoba' => 'MB', 'new brunswick' => 'NB',
+        'newfoundland and labrador' => 'NL', 'northwest territories' => 'NT', 'nova scotia' => 'NS',
+        'nunavut' => 'NU', 'ontario' => 'ON', 'prince edward island' => 'PE', 'quebec' => 'QC',
+        'saskatchewan' => 'SK', 'yukon' => 'YT',
     ];
 
     /**
-     * US State abbreviations mapping.
+     * Hosting provider options
      */
-    public const US_STATES = [
-        'Alabama' => 'AL', 'Alaska' => 'AK', 'Arizona' => 'AZ', 'Arkansas' => 'AR',
-        'California' => 'CA', 'Colorado' => 'CO', 'Connecticut' => 'CT', 'Delaware' => 'DE',
-        'Florida' => 'FL', 'Georgia' => 'GA', 'Hawaii' => 'HI', 'Idaho' => 'ID',
-        'Illinois' => 'IL', 'Indiana' => 'IN', 'Iowa' => 'IA', 'Kansas' => 'KS',
-        'Kentucky' => 'KY', 'Louisiana' => 'LA', 'Maine' => 'ME', 'Maryland' => 'MD',
-        'Massachusetts' => 'MA', 'Michigan' => 'MI', 'Minnesota' => 'MN', 'Mississippi' => 'MS',
-        'Missouri' => 'MO', 'Montana' => 'MT', 'Nebraska' => 'NE', 'Nevada' => 'NV',
-        'New Hampshire' => 'NH', 'New Jersey' => 'NJ', 'New Mexico' => 'NM', 'New York' => 'NY',
-        'North Carolina' => 'NC', 'North Dakota' => 'ND', 'Ohio' => 'OH', 'Oklahoma' => 'OK',
-        'Oregon' => 'OR', 'Pennsylvania' => 'PA', 'Rhode Island' => 'RI', 'South Carolina' => 'SC',
-        'South Dakota' => 'SD', 'Tennessee' => 'TN', 'Texas' => 'TX', 'Utah' => 'UT',
-        'Vermont' => 'VT', 'Virginia' => 'VA', 'Washington' => 'WA', 'West Virginia' => 'WV',
-        'Wisconsin' => 'WI', 'Wyoming' => 'WY', 'District of Columbia' => 'DC',
+    public static $hostingProviders = [
+        '' => 'Select...',
+        'bluehost' => 'Bluehost',
+        'godaddy' => 'GoDaddy',
+        'siteground' => 'SiteGround',
+        'hostgator' => 'HostGator',
+        'dreamhost' => 'DreamHost',
+        'a2hosting' => 'A2 Hosting',
+        'inmotion' => 'InMotion',
+        'cloudways' => 'Cloudways',
+        'aws' => 'AWS',
+        'digitalocean' => 'DigitalOcean',
+        'linode' => 'Linode',
+        'vultr' => 'Vultr',
+        'wpengine' => 'WP Engine',
+        'kinsta' => 'Kinsta',
+        'flywheel' => 'Flywheel',
+        'other' => 'Other',
+        'none' => 'None',
+        'unknown' => 'Unknown',
     ];
 
     /**
-     * Canadian Province abbreviations mapping.
+     * Domain registrar options
      */
-    public const CA_PROVINCES = [
-        'Alberta' => 'AB', 'British Columbia' => 'BC', 'Manitoba' => 'MB',
-        'New Brunswick' => 'NB', 'Newfoundland and Labrador' => 'NL',
-        'Northwest Territories' => 'NT', 'Nova Scotia' => 'NS', 'Nunavut' => 'NU',
-        'Ontario' => 'ON', 'Prince Edward Island' => 'PE', 'Quebec' => 'QC',
-        'Saskatchewan' => 'SK', 'Yukon' => 'YT',
+    public static $domainRegistrars = [
+        '' => 'Select...',
+        'godaddy' => 'GoDaddy',
+        'namecheap' => 'Namecheap',
+        'namesilo' => 'Namesilo',
+        'google' => 'Google Domains',
+        'cloudflare' => 'Cloudflare',
+        'networksolutions' => 'Network Solutions',
+        'hover' => 'Hover',
+        'namecom' => 'Name.com',
+        'wix' => 'Wix',
+        'other' => 'Other',
+        'unknown' => 'Unknown',
     ];
 
     /**
-     * Boot the model.
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function (Client $client) {
-            // Auto-generate account number if not provided
-            if (empty($client->account_number)) {
-                $client->account_number = static::generateAccountNumber($client->company_name);
-            }
-        });
-    }
-
-    /**
-     * Generate account number from company name.
-     * Takes first 8 alphanumeric characters, uppercase.
-     * Appends number suffix if duplicate exists.
-     *
-     * @param string $companyName
-     * @return string
+     * Generate account number from company name
      */
     public static function generateAccountNumber(string $companyName): string
     {
-        // Remove all non-alphanumeric characters and convert to uppercase
-        $cleaned = preg_replace('/[^A-Za-z0-9]/', '', $companyName);
-        $baseNumber = strtoupper(substr($cleaned, 0, 8));
+        // Remove special characters and convert to uppercase
+        $cleanName = preg_replace('/[^A-Za-z0-9]/', '', $companyName);
+        $cleanName = strtoupper($cleanName);
         
-        // Handle empty or very short names
-        if (strlen($baseNumber) < 3) {
-            $baseNumber = str_pad($baseNumber, 3, 'X');
-        }
-
-        // Check for duplicates and append suffix if needed
+        // Get first 8 characters
+        $baseNumber = substr($cleanName, 0, 8);
+        
+        // Pad with zeros if less than 8 characters
+        $baseNumber = str_pad($baseNumber, 8, '0', STR_PAD_RIGHT);
+        
+        // Check for duplicates and add suffix if needed
         $accountNumber = $baseNumber;
-        $suffix = 1;
+        $suffix = 2;
         
-        while (static::withTrashed()->where('account_number', $accountNumber)->exists()) {
+        while (self::where('account_number', $accountNumber)->exists()) {
+            $accountNumber = $baseNumber . $suffix;
             $suffix++;
-            // Ensure we don't exceed 10 characters
-            $maxBaseLength = 10 - strlen((string)$suffix);
-            $accountNumber = substr($baseNumber, 0, $maxBaseLength) . $suffix;
         }
-
+        
         return $accountNumber;
     }
 
     /**
-     * Convert state/province name to abbreviation.
-     *
-     * @param string|null $stateName
-     * @param string $country
-     * @return string|null
-     */
-    public static function abbreviateState(?string $stateName, string $country = 'United States'): ?string
-    {
-        if (empty($stateName)) {
-            return null;
-        }
-
-        $stateName = trim($stateName);
-        
-        // If already abbreviated (2-3 chars), return as-is (uppercase)
-        if (strlen($stateName) <= 3) {
-            return strtoupper($stateName);
-        }
-
-        // Check US states
-        if (stripos($country, 'United States') !== false || stripos($country, 'USA') !== false) {
-            foreach (self::US_STATES as $name => $abbr) {
-                if (strcasecmp($name, $stateName) === 0) {
-                    return $abbr;
-                }
-            }
-        }
-
-        // Check Canadian provinces
-        if (stripos($country, 'Canada') !== false) {
-            foreach (self::CA_PROVINCES as $name => $abbr) {
-                if (strcasecmp($name, $stateName) === 0) {
-                    return $abbr;
-                }
-            }
-        }
-
-        // Return first 2 characters uppercase as fallback
-        return strtoupper(substr($stateName, 0, 2));
-    }
-
-    /**
-     * Format phone number to +1 AAA BBB CCCC format.
-     *
-     * @param string|null $phone
-     * @return string|null
+     * Format phone number to: +1 XXX XXX XXXX
      */
     public static function formatPhoneNumber(?string $phone): ?string
     {
@@ -205,234 +166,142 @@ class Client extends Model
             return null;
         }
 
-        // Remove all non-numeric characters except + at the beginning
+        // Remove all non-numeric characters
         $cleaned = preg_replace('/[^0-9]/', '', $phone);
         
-        // Handle numbers that already start with country code
-        if (strlen($cleaned) === 11 && $cleaned[0] === '1') {
-            $cleaned = substr($cleaned, 1);
+        // Handle different lengths
+        if (strlen($cleaned) === 10) {
+            // US number without country code
+            return '+1 ' . substr($cleaned, 0, 3) . ' ' . substr($cleaned, 3, 3) . ' ' . substr($cleaned, 6, 4);
+        } elseif (strlen($cleaned) === 11 && $cleaned[0] === '1') {
+            // US number with country code
+            return '+1 ' . substr($cleaned, 1, 3) . ' ' . substr($cleaned, 4, 3) . ' ' . substr($cleaned, 7, 4);
         }
         
-        // If we don't have exactly 10 digits, return cleaned version
-        if (strlen($cleaned) !== 10) {
-            // Still try to format if we have enough digits
-            if (strlen($cleaned) >= 10) {
-                $cleaned = substr($cleaned, -10); // Take last 10 digits
-            } else {
-                return $phone; // Return original if can't format
-            }
-        }
-
-        // Format as +1 AAA BBB CCCC
-        return sprintf('+1 %s %s %s',
-            substr($cleaned, 0, 3),
-            substr($cleaned, 3, 3),
-            substr($cleaned, 6, 4)
-        );
+        // Return original if format not recognized
+        return $phone;
     }
 
     /**
-     * Format Canadian postal code.
-     *
-     * @param string|null $postalCode
-     * @return string|null
+     * Abbreviate state name
      */
-    public static function formatCanadianPostalCode(?string $postalCode): ?string
+    public static function abbreviateState(?string $state): ?string
     {
-        if (empty($postalCode)) {
+        if (empty($state)) {
             return null;
         }
 
-        // Remove all spaces and convert to uppercase
-        $cleaned = strtoupper(preg_replace('/\s+/', '', $postalCode));
+        $stateLower = strtolower(trim($state));
         
-        // If it's 6 characters (Canadian format), add space in middle
-        if (strlen($cleaned) === 6 && preg_match('/^[A-Z]\d[A-Z]\d[A-Z]\d$/', $cleaned)) {
-            return substr($cleaned, 0, 3) . ' ' . substr($cleaned, 3, 3);
+        // If already abbreviated (2 characters), return uppercase
+        if (strlen($state) === 2) {
+            return strtoupper($state);
         }
-
-        return $postalCode;
+        
+        // Look up abbreviation
+        return self::$stateAbbreviations[$stateLower] ?? $state;
     }
 
     /**
-     * Get the user who created this client.
+     * Mutator for phone
      */
-    public function createdBy(): BelongsTo
+    public function setPhoneAttribute($value): void
+    {
+        $this->attributes['phone'] = self::formatPhoneNumber($value);
+    }
+
+    /**
+     * Mutator for mobile
+     */
+    public function setMobileAttribute($value): void
+    {
+        $this->attributes['mobile'] = self::formatPhoneNumber($value);
+    }
+
+    /**
+     * Mutator for state
+     */
+    public function setStateAttribute($value): void
+    {
+        $this->attributes['state'] = self::abbreviateState($value);
+    }
+
+    /**
+     * Mutator for billing_state
+     */
+    public function setBillingStateAttribute($value): void
+    {
+        $this->attributes['billing_state'] = self::abbreviateState($value);
+    }
+
+    /**
+     * Get formatted contact information for display
+     */
+    public function getFormattedContactAttribute(): string
+    {
+        if (!empty($this->mobile)) {
+            return 'm: ' . $this->mobile;
+        } elseif (!empty($this->phone)) {
+            return 'o: ' . $this->phone;
+        }
+        return '—';
+    }
+
+    /**
+     * Get display name for hosting provider
+     */
+    public function getHostingProviderDisplayAttribute(): string
+    {
+        if (empty($this->hosting_provider)) {
+            return '—';
+        }
+        return self::$hostingProviders[$this->hosting_provider] ?? ucfirst($this->hosting_provider);
+    }
+
+    /**
+     * Get display name for domain registrar
+     */
+    public function getDomainRegistrarDisplayAttribute(): string
+    {
+        if (empty($this->domain_registrar)) {
+            return '—';
+        }
+        
+        if ($this->domain_registrar === 'other' && !empty($this->domain_registrar_other)) {
+            return $this->domain_registrar_other;
+        }
+        
+        return self::$domainRegistrars[$this->domain_registrar] ?? ucfirst($this->domain_registrar);
+    }
+
+    /**
+     * Relationships
+     */
+    public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by_id');
     }
 
-    /**
-     * Get the user who last updated this client.
-     */
-    public function updatedBy(): BelongsTo
+    public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by_id');
     }
 
     /**
-     * Get the contacts for this client.
-     */
-    public function contacts(): HasMany
-    {
-        return $this->hasMany(ClientContact::class);
-    }
-
-    /**
-     * Get the primary contact for this client.
-     */
-    public function primaryContact()
-    {
-        return $this->contacts()->where('is_primary', true)->first();
-    }
-
-    /**
-     * Get the contracts for this client.
-     */
-    public function contracts(): HasMany
-    {
-        return $this->hasMany(Contract::class);
-    }
-
-    /**
-     * Get the work logs for this client.
-     */
-    public function workLogs(): HasMany
-    {
-        return $this->hasMany(WorkLog::class);
-    }
-
-    /**
-     * Check if client has any active contracts.
-     *
-     * @return bool
-     */
-    public function hasActiveContracts(): bool
-    {
-        return $this->contracts()->where('status', 'active')->exists();
-    }
-
-    /**
-     * Get active contracts for this client.
-     */
-    public function activeContracts()
-    {
-        return $this->contracts()->where('status', 'active')->get();
-    }
-
-    /**
-     * Scope a query to only include active clients.
+     * Scopes
      */
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
     }
 
-    /**
-     * Scope a query to only include inactive clients.
-     */
-    public function scopeInactive($query)
-    {
-        return $query->where('status', 'inactive');
-    }
-
-    /**
-     * Scope a query to search by company name or account number.
-     */
-    public function scopeSearch($query, string $search)
+    public function scopeSearch($query, $search)
     {
         return $query->where(function ($q) use ($search) {
-            $q->where('company_name', 'like', "%{$search}%")
-              ->orWhere('account_number', 'like', "%{$search}%")
-              ->orWhere('trading_name', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%");
+            $q->where('company_name', 'like', '%' . $search . '%')
+              ->orWhere('account_number', 'like', '%' . $search . '%')
+              ->orWhere('email', 'like', '%' . $search . '%')
+              ->orWhere('trading_name', 'like', '%' . $search . '%');
         });
-    }
-
-    /**
-     * Get the full address as a formatted string.
-     */
-    public function getFullAddressAttribute(): ?string
-    {
-        $parts = array_filter([
-            $this->address_line_1,
-            $this->address_line_2,
-            $this->city,
-            $this->state,
-            $this->zip_code,
-            $this->country,
-        ]);
-
-        return !empty($parts) ? implode(', ', $parts) : null;
-    }
-
-    /**
-     * Get the billing address as a formatted string.
-     */
-    public function getBillingAddressAttribute(): ?string
-    {
-        if ($this->billing_address_same) {
-            return $this->full_address;
-        }
-
-        $parts = array_filter([
-            $this->billing_address_line_1,
-            $this->billing_address_line_2,
-            $this->billing_city,
-            $this->billing_state,
-            $this->billing_zip_code,
-            $this->billing_country,
-        ]);
-
-        return !empty($parts) ? implode(', ', $parts) : null;
-    }
-
-    /**
-     * Check if this client can be deleted.
-     * Cannot delete if there are associated contracts or work logs.
-     */
-    public function canBeDeleted(): bool
-    {
-        return $this->contracts()->count() === 0 && $this->workLogs()->count() === 0;
-    }
-
-    /**
-     * Get display name (company name with trading name if different).
-     */
-    public function getDisplayNameAttribute(): string
-    {
-        if ($this->trading_name && $this->trading_name !== $this->company_name) {
-            return "{$this->company_name} (DBA: {$this->trading_name})";
-        }
-        
-        return $this->company_name;
-    }
-
-    /**
-     * Get the formatted default hourly rate.
-     *
-     * @return string
-     */
-    public function getFormattedRateAttribute(): string
-    {
-        return '$' . number_format($this->default_hourly_rate, 2) . '/hr';
-    }
-
-    /**
-     * Get the payment terms in readable format.
-     *
-     * @return string
-     */
-    public function getPaymentTermsLabelAttribute(): string
-    {
-        $labels = [
-            'net15' => 'Net 15',
-            'net30' => 'Net 30',
-            'net45' => 'Net 45',
-            'net60' => 'Net 60',
-            'due_on_receipt' => 'Due on Receipt',
-        ];
-
-        return $labels[$this->payment_terms] ?? $this->payment_terms;
     }
 }
