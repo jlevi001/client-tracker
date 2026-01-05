@@ -13,6 +13,9 @@ class ClientManagement extends Component
 {
     use WithPagination, WithFileUploads;
 
+    // Event listeners
+    protected $listeners = ['process-next-batch' => 'processNextBatch'];
+
     // Modal states
     public $showCreateModal = false;
     public $showEditModal = false;
@@ -141,6 +144,15 @@ class ClientManagement extends Component
         }
     }
 
+    public function updatedCsvFile()
+    {
+        $this->validate([
+            'csvFile' => 'required|file|mimes:csv,txt|max:10240', // 10MB max
+        ]);
+
+        $this->processImportCsv();
+    }
+
     public function sortBy($field)
     {
         if ($this->sortField === $field) {
@@ -232,16 +244,16 @@ class ClientManagement extends Component
             'address_line_1' => $this->addressLine1,
             'address_line_2' => $this->addressLine2,
             'city' => $this->city,
-            'state' => Client::abbreviateState($this->state, $this->country ?? 'United States'),
+            'state' => Client::abbreviateState($this->state, $this->country),
             'zip_code' => $this->zipCode,
-            'country' => $this->country ?? 'United States',
+            'country' => $this->country,
             'billing_address_same' => $this->billingAddressSame,
-            'billing_address_line_1' => $this->billingAddressSame ? null : $this->billingAddressLine1,
-            'billing_address_line_2' => $this->billingAddressSame ? null : $this->billingAddressLine2,
-            'billing_city' => $this->billingAddressSame ? null : $this->billingCity,
-            'billing_state' => $this->billingAddressSame ? null : Client::abbreviateState($this->billingState, $this->billingCountry ?? $this->country ?? 'United States'),
-            'billing_zip_code' => $this->billingAddressSame ? null : $this->billingZipCode,
-            'billing_country' => $this->billingAddressSame ? null : $this->billingCountry,
+            'billing_address_line_1' => $this->billingAddressLine1,
+            'billing_address_line_2' => $this->billingAddressLine2,
+            'billing_city' => $this->billingCity,
+            'billing_state' => Client::abbreviateState($this->billingState, $this->billingCountry ?? $this->country),
+            'billing_zip_code' => $this->billingZipCode,
+            'billing_country' => $this->billingCountry,
             'payment_terms' => $this->paymentTerms,
             'tax_id' => $this->taxId,
             'default_hourly_rate' => $this->defaultHourlyRate,
@@ -252,8 +264,7 @@ class ClientManagement extends Component
 
         $this->showCreateModal = false;
         $this->resetForm();
-
-        session()->flash('success', 'Client "' . $client->company_name . '" created successfully. Account #: ' . $client->account_number);
+        session()->flash('success', "Client '{$client->company_name}' created successfully.");
     }
 
     public function updateClient()
@@ -272,16 +283,16 @@ class ClientManagement extends Component
             'address_line_1' => $this->addressLine1,
             'address_line_2' => $this->addressLine2,
             'city' => $this->city,
-            'state' => Client::abbreviateState($this->state, $this->country ?? 'United States'),
+            'state' => Client::abbreviateState($this->state, $this->country),
             'zip_code' => $this->zipCode,
-            'country' => $this->country ?? 'United States',
+            'country' => $this->country,
             'billing_address_same' => $this->billingAddressSame,
-            'billing_address_line_1' => $this->billingAddressSame ? null : $this->billingAddressLine1,
-            'billing_address_line_2' => $this->billingAddressSame ? null : $this->billingAddressLine2,
-            'billing_city' => $this->billingAddressSame ? null : $this->billingCity,
-            'billing_state' => $this->billingAddressSame ? null : Client::abbreviateState($this->billingState, $this->billingCountry ?? $this->country ?? 'United States'),
-            'billing_zip_code' => $this->billingAddressSame ? null : $this->billingZipCode,
-            'billing_country' => $this->billingAddressSame ? null : $this->billingCountry,
+            'billing_address_line_1' => $this->billingAddressLine1,
+            'billing_address_line_2' => $this->billingAddressLine2,
+            'billing_city' => $this->billingCity,
+            'billing_state' => Client::abbreviateState($this->billingState, $this->billingCountry ?? $this->country),
+            'billing_zip_code' => $this->billingZipCode,
+            'billing_country' => $this->billingCountry,
             'payment_terms' => $this->paymentTerms,
             'tax_id' => $this->taxId,
             'default_hourly_rate' => $this->defaultHourlyRate,
@@ -292,181 +303,110 @@ class ClientManagement extends Component
 
         $this->showEditModal = false;
         $this->resetForm();
-
-        session()->flash('success', 'Client "' . $client->company_name . '" updated successfully.');
+        session()->flash('success', "Client '{$client->company_name}' updated successfully.");
     }
 
     public function deleteClient()
     {
         $client = Client::findOrFail($this->clientId);
+        $companyName = $client->company_name;
 
-        // Check if client can be deleted (no contracts or work logs)
-        if (!$client->canBeDeleted()) {
-            session()->flash('error', 'Cannot delete this client. They have associated contracts or work logs. Consider setting status to "Inactive" instead.');
-            $this->showDeleteModal = false;
-            return;
-        }
-
-        $clientName = $client->company_name;
         $client->delete();
 
         $this->showDeleteModal = false;
-        $this->reset(['clientId']);
-
-        session()->flash('success', 'Client "' . $clientName . '" deleted successfully.');
+        $this->clientId = null;
+        session()->flash('success', "Client '{$companyName}' deleted successfully.");
     }
 
-    public function updatedCsvFile()
+    public function processImportCsv()
     {
-        $this->validate([
-            'csvFile' => ['required', 'file', 'mimes:csv,txt', 'max:5120'], // 5MB max
-        ]);
+        if (!$this->csvFile) {
+            return;
+        }
 
-        $this->parseCSV();
-    }
-
-    protected function parseCSV()
-    {
         $this->importData = [];
         $this->importErrors = [];
         $this->importNewCount = 0;
         $this->importUpdateCount = 0;
         $this->importErrorCount = 0;
 
-        $path = $this->csvFile->getRealPath();
-        $handle = fopen($path, 'r');
+        try {
+            $path = $this->csvFile->getRealPath();
+            $file = fopen($path, 'r');
 
-        if ($handle === false) {
-            $this->importErrors[] = ['row' => 0, 'message' => 'Unable to read the CSV file.'];
-            return;
-        }
-
-        // Read header row
-        $headers = fgetcsv($handle);
-        if ($headers === false) {
-            $this->importErrors[] = ['row' => 0, 'message' => 'CSV file is empty or invalid.'];
-            fclose($handle);
-            return;
-        }
-
-        // Normalize headers (lowercase, trim, replace spaces with underscores)
-        $headers = array_map(function ($h) {
-            return strtolower(trim(str_replace(' ', '_', $h)));
-        }, $headers);
-
-        // Expected columns mapping
-        $columnMap = [
-            'account_number' => 'account_number',
-            'company_name' => 'company_name',
-            'trading_name' => 'trading_name',
-            'email' => 'email',
-            'phone' => 'phone',
-            'mobile' => 'mobile',
-            'website' => 'website',
-            'address_line_1' => 'address_line_1',
-            'address_line_2' => 'address_line_2',
-            'city' => 'city',
-            'state' => 'state',
-            'zip_code' => 'zip_code',
-            'country' => 'country',
-            'billing_address_same' => 'billing_address_same',
-            'billing_address_line_1' => 'billing_address_line_1',
-            'billing_address_line_2' => 'billing_address_line_2',
-            'billing_city' => 'billing_city',
-            'billing_state' => 'billing_state',
-            'billing_zip_code' => 'billing_zip_code',
-            'billing_country' => 'billing_country',
-            'payment_terms' => 'payment_terms',
-            'tax_id' => 'tax_id',
-            'default_hourly_rate' => 'default_hourly_rate',
-            'notes' => 'notes',
-        ];
-
-        // Check if company_name column exists
-        if (!in_array('company_name', $headers)) {
-            $this->importErrors[] = ['row' => 0, 'message' => 'Required column "company_name" not found in CSV.'];
-            fclose($handle);
-            return;
-        }
-
-        // Pre-fetch all existing account numbers for efficient lookup
-        $existingClients = Client::pluck('id', 'account_number')->toArray();
-
-        $rowNumber = 1;
-        while (($row = fgetcsv($handle)) !== false) {
-            $rowNumber++;
-
-            // Skip empty rows
-            if (empty(array_filter($row))) {
-                continue;
+            // Get headers
+            $headers = fgetcsv($file);
+            if (!$headers) {
+                $this->addError('csvFile', 'Invalid CSV file: no headers found.');
+                return;
             }
 
-            // Map CSV columns to data
-            $data = [];
-            foreach ($headers as $index => $header) {
-                if (isset($columnMap[$header]) && isset($row[$index])) {
-                    $data[$columnMap[$header]] = trim($row[$index]);
+            // Normalize headers
+            $headers = array_map('trim', $headers);
+            $headers = array_map('strtolower', $headers);
+
+            // Required column
+            if (!in_array('company_name', $headers)) {
+                $this->addError('csvFile', 'CSV must contain a "company_name" column.');
+                return;
+            }
+
+            $rowNumber = 1; // Start at 1 (header is row 0)
+            while (($row = fgetcsv($file)) !== false) {
+                $rowNumber++;
+
+                // Skip empty rows
+                if (empty(array_filter($row))) {
+                    continue;
+                }
+
+                // Map row to associative array
+                $data = array_combine($headers, $row);
+
+                // Validate required field
+                if (empty($data['company_name'])) {
+                    $this->importErrors[] = [
+                        'row' => $rowNumber,
+                        'message' => 'Missing required field: company_name'
+                    ];
+                    $this->importErrorCount++;
+                    continue;
+                }
+
+                // Check if this is an update or create
+                $isUpdate = false;
+                $existingId = null;
+
+                if (!empty($data['account_number'])) {
+                    $existing = Client::where('account_number', trim($data['account_number']))->first();
+                    if ($existing) {
+                        $isUpdate = true;
+                        $existingId = $existing->id;
+                    }
+                }
+
+                // Add to import data
+                $this->importData[] = array_merge($data, [
+                    'row_number' => $rowNumber,
+                    'is_update' => $isUpdate,
+                    'existing_id' => $existingId,
+                ]);
+
+                if ($isUpdate) {
+                    $this->importUpdateCount++;
+                } else {
+                    $this->importNewCount++;
                 }
             }
 
-            // Validate required field
-            if (empty($data['company_name'])) {
-                $this->importErrors[] = [
-                    'row' => $rowNumber,
-                    'message' => 'Missing required field: company_name',
-                ];
-                $this->importErrorCount++;
-                continue;
-            }
+            fclose($file);
 
-            // Validate email format if provided
-            if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-                $this->importErrors[] = [
-                    'row' => $rowNumber,
-                    'message' => 'Invalid email format: ' . $data['email'],
-                ];
-                $this->importErrorCount++;
-                continue;
-            }
+            // Show preview
+            $this->showImportPreview = true;
 
-            // Validate payment terms if provided
-            $validPaymentTerms = ['net15', 'net30', 'net45', 'net60', 'due_on_receipt'];
-            if (!empty($data['payment_terms']) && !in_array(strtolower($data['payment_terms']), $validPaymentTerms)) {
-                $this->importErrors[] = [
-                    'row' => $rowNumber,
-                    'message' => 'Invalid payment_terms: ' . $data['payment_terms'] . '. Must be one of: ' . implode(', ', $validPaymentTerms),
-                ];
-                $this->importErrorCount++;
-                continue;
-            }
-
-            // Validate default_hourly_rate if provided
-            if (!empty($data['default_hourly_rate']) && !is_numeric($data['default_hourly_rate'])) {
-                $this->importErrors[] = [
-                    'row' => $rowNumber,
-                    'message' => 'Invalid default_hourly_rate: ' . $data['default_hourly_rate'] . '. Must be a number.',
-                ];
-                $this->importErrorCount++;
-                continue;
-            }
-
-            // Check if this is an update or new record using pre-fetched data
-            $isUpdate = false;
-            if (!empty($data['account_number']) && isset($existingClients[$data['account_number']])) {
-                $isUpdate = true;
-                $data['existing_id'] = $existingClients[$data['account_number']];
-                $this->importUpdateCount++;
-            } else {
-                $this->importNewCount++;
-            }
-
-            $data['is_update'] = $isUpdate;
-            $data['row_number'] = $rowNumber;
-            $this->importData[] = $data;
+        } catch (\Exception $e) {
+            $this->addError('csvFile', 'Error processing CSV: ' . $e->getMessage());
         }
-
-        fclose($handle);
-        $this->showImportPreview = true;
     }
 
     public function confirmImport()

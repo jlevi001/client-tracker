@@ -139,392 +139,257 @@
                                     @if($client->phone)
                                         <span class="text-base-content/60">{{ $client->phone }}</span>
                                     @endif
-                                    @if(!$client->email && !$client->phone)
-                                        <span class="text-base-content/50">No contact info</span>
-                                    @endif
                                 </div>
                             </td>
                             <td>
-                                <span class="font-mono">${{ number_format($client->default_hourly_rate, 2) }}/hr</span>
+                                <span class="font-mono text-sm">${{ number_format($client->default_hourly_rate, 2) }}</span>
                             </td>
                             <td>
-                                <span class="badge 
-                                    @if($client->status === 'active') badge-success
-                                    @elseif($client->status === 'inactive') badge-warning
-                                    @else badge-error
-                                    @endif">
-                                    {{ ucfirst($client->status) }}
-                                </span>
-                            </td>
-                            <td>
-                                @if($client->created_at)
-                                    {{ $client->created_at->format('M d, Y') }}
+                                @if($client->status === 'active')
+                                    <span class="badge badge-success badge-sm">Active</span>
+                                @elseif($client->status === 'inactive')
+                                    <span class="badge badge-ghost badge-sm">Inactive</span>
                                 @else
-                                    <span class="text-base-content/50">-</span>
+                                    <span class="badge badge-warning badge-sm">Suspended</span>
                                 @endif
+                            </td>
+                            <td>
+                                <span class="text-sm text-base-content/60">{{ $client->created_at->format('M d, Y') }}</span>
                             </td>
                             <td>
                                 <div class="flex gap-2">
                                     <button wire:click="openEditModal({{ $client->id }})" 
-                                            class="btn btn-ghost btn-xs text-primary">
-                                        Edit
+                                            class="btn btn-ghost btn-xs" 
+                                            title="Edit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
                                     </button>
                                     <button wire:click="openDeleteModal({{ $client->id }})" 
-                                            class="btn btn-ghost btn-xs text-error">
-                                        Delete
+                                            class="btn btn-error btn-xs" 
+                                            title="Delete">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
                                     </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center">
-                                <div class="py-8 text-base-content/50">
-                                    @if($search)
-                                        No clients found matching "{{ $search }}".
-                                    @else
-                                        No clients yet. Click "Add Client" to create one.
-                                    @endif
-                                </div>
+                            <td colspan="7" class="text-center text-base-content/50 py-8">
+                                No clients found. Click "Add Client" to create your first client.
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        
-        <!-- Pagination -->
-        <div class="card-body">
-            {{ $clients->links() }}
-        </div>
     </div>
 
-    <!-- Create/Edit Modal -->
+    <!-- Pagination -->
+    <div class="mt-4">
+        {{ $clients->links() }}
+    </div>
+
+    <!-- Create Client Modal -->
     <x-dialog-modal wire:model="showCreateModal" maxWidth="4xl">
         <x-slot name="title">
-            Create New Client
+            Add New Client
         </x-slot>
 
         <x-slot name="content">
-            <div class="space-y-6 max-h-[70vh] overflow-y-auto px-1">
-                <!-- Basic Information Section -->
-                <div class="divider">Basic Information</div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-control w-full md:col-span-2">
-                        <label class="label">
-                            <span class="label-text">Company Name <span class="text-error">*</span></span>
-                        </label>
-                        <input type="text" 
-                               wire:model.live.debounce.500ms="companyName" 
-                               class="input input-bordered w-full @error('companyName') input-error @enderror" 
-                               placeholder="Enter company name" />
-                        @error('companyName')
+            <div class="space-y-6">
+                <!-- Company Information -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-base-content border-b border-base-300 pb-2">Company Information</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
+                                <span class="label-text">Company Name <span class="text-error">*</span></span>
                             </label>
-                        @enderror
-                        @if($accountNumberPreview)
+                            <input type="text" 
+                                   wire:model.live.debounce.300ms="companyName"
+                                   class="input input-bordered w-full @error('companyName') input-error @enderror" />
+                            @error('companyName')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                            @if($accountNumberPreview)
+                                <label class="label">
+                                    <span class="label-text-alt text-info">Account #: {{ $accountNumberPreview }}</span>
+                                </label>
+                            @endif
+                        </div>
+
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-info">Account # will be: <strong>{{ $accountNumberPreview }}</strong></span>
+                                <span class="label-text">Trading Name (DBA)</span>
                             </label>
-                        @endif
+                            <input type="text" 
+                                   wire:model.defer="tradingName"
+                                   class="input input-bordered w-full @error('tradingName') input-error @enderror" />
+                            @error('tradingName')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
                     </div>
 
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Trading Name (DBA)</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="tradingName" 
-                               class="input input-bordered w-full @error('tradingName') input-error @enderror" 
-                               placeholder="Doing Business As" />
-                        @error('tradingName')
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
+                                <span class="label-text">Email</span>
                             </label>
-                        @enderror
+                            <input type="email" 
+                                   wire:model.defer="email"
+                                   class="input input-bordered w-full @error('email') input-error @enderror" />
+                            @error('email')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Website</span>
+                            </label>
+                            <input type="url" 
+                                   wire:model.defer="website"
+                                   placeholder="https://example.com"
+                                   class="input input-bordered w-full @error('website') input-error @enderror" />
+                            @error('website')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
                     </div>
 
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Website</span>
-                        </label>
-                        <input type="url" 
-                               wire:model="website" 
-                               class="input input-bordered w-full @error('website') input-error @enderror" 
-                               placeholder="https://example.com" />
-                        @error('website')
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
+                                <span class="label-text">Phone</span>
                             </label>
-                        @enderror
+                            <input type="tel" 
+                                   wire:model.defer="phone"
+                                   placeholder="+1 555-123-4567"
+                                   class="input input-bordered w-full @error('phone') input-error @enderror" />
+                            @error('phone')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Mobile</span>
+                            </label>
+                            <input type="tel" 
+                                   wire:model.defer="mobile"
+                                   placeholder="+1 555-987-6543"
+                                   class="input input-bordered w-full @error('mobile') input-error @enderror" />
+                            @error('mobile')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
                     </div>
                 </div>
 
-                <!-- Contact Information Section -->
-                <div class="divider">Contact Information</div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Email</span>
-                        </label>
-                        <input type="email" 
-                               wire:model="email" 
-                               class="input input-bordered w-full @error('email') input-error @enderror" 
-                               placeholder="contact@company.com" />
-                        @error('email')
+                <!-- Business Address -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-base-content border-b border-base-300 pb-2">Business Address</h3>
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
+                                <span class="label-text">Address Line 1</span>
                             </label>
-                        @enderror
-                    </div>
+                            <input type="text" 
+                                   wire:model.defer="addressLine1"
+                                   class="input input-bordered w-full @error('addressLine1') input-error @enderror" />
+                            @error('addressLine1')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
 
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Phone</span>
-                        </label>
-                        <input type="tel" 
-                               wire:model="phone" 
-                               class="input input-bordered w-full @error('phone') input-error @enderror" 
-                               placeholder="555-123-4567" />
-                        @error('phone')
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
+                                <span class="label-text">Address Line 2</span>
                             </label>
-                        @enderror
-                        <label class="label">
-                            <span class="label-text-alt text-base-content/50">Will be formatted as +1 XXX XXX XXXX</span>
-                        </label>
+                            <input type="text" 
+                                   wire:model.defer="addressLine2"
+                                   class="input input-bordered w-full @error('addressLine2') input-error @enderror" />
+                            @error('addressLine2')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
                     </div>
 
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Mobile</span>
-                        </label>
-                        <input type="tel" 
-                               wire:model="mobile" 
-                               class="input input-bordered w-full @error('mobile') input-error @enderror" 
-                               placeholder="555-987-6543" />
-                        @error('mobile')
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
+                                <span class="label-text">City</span>
                             </label>
-                        @enderror
-                    </div>
-                </div>
+                            <input type="text" 
+                                   wire:model.defer="city"
+                                   class="input input-bordered w-full @error('city') input-error @enderror" />
+                            @error('city')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
 
-                <!-- Address Section -->
-                <div class="divider">Address</div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Address Line 1</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="addressLine1" 
-                               class="input input-bordered w-full @error('addressLine1') input-error @enderror" 
-                               placeholder="Street address" />
-                    </div>
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">State/Province</span>
+                            </label>
+                            <input type="text" 
+                                   wire:model.defer="state"
+                                   placeholder="TX"
+                                   class="input input-bordered w-full @error('state') input-error @enderror" />
+                            @error('state')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
 
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Address Line 2</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="addressLine2" 
-                               class="input input-bordered w-full @error('addressLine2') input-error @enderror" 
-                               placeholder="Suite, unit, etc." />
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">City</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="city" 
-                               class="input input-bordered w-full @error('city') input-error @enderror" />
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">State/Province</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="state" 
-                               class="input input-bordered w-full @error('state') input-error @enderror" 
-                               placeholder="Texas or TX" />
-                        <label class="label">
-                            <span class="label-text-alt text-base-content/50">Will be abbreviated (e.g., Texas → TX)</span>
-                        </label>
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">ZIP/Postal Code</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="zipCode" 
-                               class="input input-bordered w-full @error('zipCode') input-error @enderror" />
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">ZIP/Postal Code</span>
+                            </label>
+                            <input type="text" 
+                                   wire:model.defer="zipCode"
+                                   class="input input-bordered w-full @error('zipCode') input-error @enderror" />
+                            @error('zipCode')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="form-control w-full">
                         <label class="label">
                             <span class="label-text">Country</span>
                         </label>
-                        <select wire:model="country" class="select select-bordered w-full @error('country') select-error @enderror">
-                            <option value="United States">United States</option>
-                            <option value="Canada">Canada</option>
-                            <option value="Mexico">Mexico</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Billing Address Section -->
-                <div class="divider">Billing Address</div>
-                
-                <div class="form-control">
-                    <label class="label cursor-pointer justify-start gap-4">
-                        <input type="checkbox" 
-                               wire:model.live="billingAddressSame" 
-                               class="checkbox checkbox-primary" />
-                        <span class="label-text">Same as main address</span>
-                    </label>
-                </div>
-
-                @if(!$billingAddressSame)
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing Address Line 1</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="billingAddressLine1" 
-                                   class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing Address Line 2</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="billingAddressLine2" 
-                                   class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing City</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="billingCity" 
-                                   class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing State/Province</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="billingState" 
-                                   class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing ZIP/Postal Code</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="billingZipCode" 
-                                   class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing Country</span>
-                            </label>
-                            <select wire:model="billingCountry" class="select select-bordered w-full">
-                                <option value="">Same as main</option>
-                                <option value="United States">United States</option>
-                                <option value="Canada">Canada</option>
-                                <option value="Mexico">Mexico</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-                @endif
-
-                <!-- Billing & Rate Section -->
-                <div class="divider">Billing Information</div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Payment Terms <span class="text-error">*</span></span>
-                        </label>
-                        <select wire:model="paymentTerms" class="select select-bordered w-full @error('paymentTerms') select-error @enderror">
-                            <option value="due_on_receipt">Due on Receipt</option>
-                            <option value="net15">Net 15</option>
-                            <option value="net30">Net 30</option>
-                            <option value="net45">Net 45</option>
-                            <option value="net60">Net 60</option>
-                        </select>
-                        @error('paymentTerms')
-                            <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
-                            </label>
-                        @enderror
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Default Hourly Rate <span class="text-error">*</span></span>
-                        </label>
-                        <label class="input input-bordered flex items-center gap-2 @error('defaultHourlyRate') input-error @enderror">
-                            <span class="text-base-content/50">$</span>
-                            <input type="number" 
-                                   step="0.01" 
-                                   min="0" 
-                                   wire:model="defaultHourlyRate" 
-                                   class="grow bg-transparent border-0 focus:outline-none focus:ring-0" 
-                                   placeholder="130.00" />
-                            <span class="text-base-content/50">/hr</span>
-                        </label>
-                        @error('defaultHourlyRate')
-                            <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
-                            </label>
-                        @enderror
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Tax ID</span>
-                        </label>
                         <input type="text" 
-                               wire:model="taxId" 
-                               class="input input-bordered w-full @error('taxId') input-error @enderror" 
-                               placeholder="XX-XXXXXXX" />
-                    </div>
-                </div>
-
-                <!-- Status Section -->
-                <div class="divider">Status</div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Client Status <span class="text-error">*</span></span>
-                        </label>
-                        <select wire:model="status" class="select select-bordered w-full @error('status') select-error @enderror">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="suspended">Suspended</option>
-                        </select>
-                        @error('status')
+                               wire:model.defer="country"
+                               class="input input-bordered w-full @error('country') input-error @enderror" />
+                        @error('country')
                             <label class="label">
                                 <span class="label-text-alt text-error">{{ $message }}</span>
                             </label>
@@ -532,22 +397,203 @@
                     </div>
                 </div>
 
-                <!-- Notes Section -->
-                <div class="divider">Notes</div>
-                
-                <div class="form-control w-full">
-                    <label class="label">
-                        <span class="label-text">Internal Notes</span>
-                    </label>
-                    <textarea wire:model="notes" 
-                              rows="3"
-                              class="textarea textarea-bordered w-full @error('notes') textarea-error @enderror" 
-                              placeholder="Any additional notes about this client..."></textarea>
-                    @error('notes')
+                <!-- Billing Address -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between border-b border-base-300 pb-2">
+                        <h3 class="text-lg font-semibold text-base-content">Billing Address</h3>
+                        <div class="form-control">
+                            <label class="label cursor-pointer gap-2">
+                                <span class="label-text">Same as business address</span>
+                                <input type="checkbox" 
+                                       wire:model.live="billingAddressSame"
+                                       class="toggle toggle-primary" />
+                            </label>
+                        </div>
+                    </div>
+
+                    @if(!$billingAddressSame)
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">Address Line 1</span>
+                                </label>
+                                <input type="text" 
+                                       wire:model.defer="billingAddressLine1"
+                                       class="input input-bordered w-full @error('billingAddressLine1') input-error @enderror" />
+                                @error('billingAddressLine1')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">Address Line 2</span>
+                                </label>
+                                <input type="text" 
+                                       wire:model.defer="billingAddressLine2"
+                                       class="input input-bordered w-full @error('billingAddressLine2') input-error @enderror" />
+                                @error('billingAddressLine2')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">City</span>
+                                </label>
+                                <input type="text" 
+                                       wire:model.defer="billingCity"
+                                       class="input input-bordered w-full @error('billingCity') input-error @enderror" />
+                                @error('billingCity')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">State/Province</span>
+                                </label>
+                                <input type="text" 
+                                       wire:model.defer="billingState"
+                                       placeholder="TX"
+                                       class="input input-bordered w-full @error('billingState') input-error @enderror" />
+                                @error('billingState')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">ZIP/Postal Code</span>
+                                </label>
+                                <input type="text" 
+                                       wire:model.defer="billingZipCode"
+                                       class="input input-bordered w-full @error('billingZipCode') input-error @enderror" />
+                                @error('billingZipCode')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Country</span>
+                            </label>
+                            <input type="text" 
+                                   wire:model.defer="billingCountry"
+                                   class="input input-bordered w-full @error('billingCountry') input-error @enderror" />
+                            @error('billingCountry')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Business Details -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-base-content border-b border-base-300 pb-2">Business Details</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Payment Terms <span class="text-error">*</span></span>
+                            </label>
+                            <select wire:model.defer="paymentTerms"
+                                    class="select select-bordered w-full @error('paymentTerms') select-error @enderror">
+                                <option value="net15">Net 15</option>
+                                <option value="net30">Net 30</option>
+                                <option value="net45">Net 45</option>
+                                <option value="net60">Net 60</option>
+                                <option value="due_on_receipt">Due on Receipt</option>
+                            </select>
+                            @error('paymentTerms')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Tax ID</span>
+                            </label>
+                            <input type="text" 
+                                   wire:model.defer="taxId"
+                                   placeholder="12-3456789"
+                                   class="input input-bordered w-full @error('taxId') input-error @enderror" />
+                            @error('taxId')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Default Hourly Rate <span class="text-error">*</span></span>
+                            </label>
+                            <label class="input-group">
+                                <span>$</span>
+                                <input type="number" 
+                                       wire:model.defer="defaultHourlyRate"
+                                       step="0.01"
+                                       min="0"
+                                       class="input input-bordered w-full @error('defaultHourlyRate') input-error @enderror" />
+                            </label>
+                            @error('defaultHourlyRate')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Status <span class="text-error">*</span></span>
+                            </label>
+                            <select wire:model.defer="status"
+                                    class="select select-bordered w-full @error('status') select-error @enderror">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                            @error('status')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-control w-full">
                         <label class="label">
-                            <span class="label-text-alt text-error">{{ $message }}</span>
+                            <span class="label-text">Notes</span>
                         </label>
-                    @enderror
+                        <textarea wire:model.defer="notes"
+                                  rows="3"
+                                  class="textarea textarea-bordered w-full @error('notes') textarea-error @enderror"></textarea>
+                        @error('notes')
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ $message }}</span>
+                            </label>
+                        @enderror
+                    </div>
                 </div>
             </div>
         </x-slot>
@@ -563,333 +609,206 @@
         </x-slot>
     </x-dialog-modal>
 
-    <!-- Edit Modal -->
+    <!-- Edit Client Modal -->
     <x-dialog-modal wire:model="showEditModal" maxWidth="4xl">
         <x-slot name="title">
             Edit Client
         </x-slot>
 
         <x-slot name="content">
-            <div class="space-y-6 max-h-[70vh] overflow-y-auto px-1">
-                <!-- Account Number Display (Read Only) -->
-                <div class="alert alert-info">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <div>
-                        <span class="font-semibold">Account Number:</span> 
-                        <span class="font-mono">{{ $accountNumber }}</span>
-                        <span class="text-sm opacity-70">(cannot be changed)</span>
+            <div class="space-y-6">
+                <!-- Company Information -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-base-content border-b border-base-300 pb-2">Company Information</h3>
+                    
+                    <div class="alert alert-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Account Number: <strong class="font-mono">{{ $accountNumber }}</strong> (cannot be changed)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Company Name <span class="text-error">*</span></span>
+                            </label>
+                            <input type="text" 
+                                   wire:model.defer="companyName"
+                                   class="input input-bordered w-full @error('companyName') input-error @enderror" />
+                            @error('companyName')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Trading Name (DBA)</span>
+                            </label>
+                            <input type="text" 
+                                   wire:model.defer="tradingName"
+                                   class="input input-bordered w-full @error('tradingName') input-error @enderror" />
+                            @error('tradingName')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Email</span>
+                            </label>
+                            <input type="email" 
+                                   wire:model.defer="email"
+                                   class="input input-bordered w-full @error('email') input-error @enderror" />
+                            @error('email')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Website</span>
+                            </label>
+                            <input type="url" 
+                                   wire:model.defer="website"
+                                   placeholder="https://example.com"
+                                   class="input input-bordered w-full @error('website') input-error @enderror" />
+                            @error('website')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Phone</span>
+                            </label>
+                            <input type="tel" 
+                                   wire:model.defer="phone"
+                                   placeholder="+1 555-123-4567"
+                                   class="input input-bordered w-full @error('phone') input-error @enderror" />
+                            @error('phone')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Mobile</span>
+                            </label>
+                            <input type="tel" 
+                                   wire:model.defer="mobile"
+                                   placeholder="+1 555-987-6543"
+                                   class="input input-bordered w-full @error('mobile') input-error @enderror" />
+                            @error('mobile')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
                     </div>
                 </div>
 
-                <!-- Basic Information Section -->
-                <div class="divider">Basic Information</div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-control w-full md:col-span-2">
-                        <label class="label">
-                            <span class="label-text">Company Name <span class="text-error">*</span></span>
-                        </label>
-                        <input type="text" 
-                               wire:model="companyName" 
-                               class="input input-bordered w-full @error('companyName') input-error @enderror" 
-                               placeholder="Enter company name" />
-                        @error('companyName')
+                <!-- Business Address -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-base-content border-b border-base-300 pb-2">Business Address</h3>
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
+                                <span class="label-text">Address Line 1</span>
                             </label>
-                        @enderror
-                    </div>
+                            <input type="text" 
+                                   wire:model.defer="addressLine1"
+                                   class="input input-bordered w-full @error('addressLine1') input-error @enderror" />
+                            @error('addressLine1')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
 
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Trading Name (DBA)</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="tradingName" 
-                               class="input input-bordered w-full @error('tradingName') input-error @enderror" 
-                               placeholder="Doing Business As" />
-                        @error('tradingName')
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
+                                <span class="label-text">Address Line 2</span>
                             </label>
-                        @enderror
+                            <input type="text" 
+                                   wire:model.defer="addressLine2"
+                                   class="input input-bordered w-full @error('addressLine2') input-error @enderror" />
+                            @error('addressLine2')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
                     </div>
 
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Website</span>
-                        </label>
-                        <input type="url" 
-                               wire:model="website" 
-                               class="input input-bordered w-full @error('website') input-error @enderror" 
-                               placeholder="https://example.com" />
-                        @error('website')
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
+                                <span class="label-text">City</span>
                             </label>
-                        @enderror
-                    </div>
-                </div>
+                            <input type="text" 
+                                   wire:model.defer="city"
+                                   class="input input-bordered w-full @error('city') input-error @enderror" />
+                            @error('city')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
 
-                <!-- Contact Information Section -->
-                <div class="divider">Contact Information</div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Email</span>
-                        </label>
-                        <input type="email" 
-                               wire:model="email" 
-                               class="input input-bordered w-full @error('email') input-error @enderror" 
-                               placeholder="contact@company.com" />
-                        @error('email')
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
+                                <span class="label-text">State/Province</span>
                             </label>
-                        @enderror
-                    </div>
+                            <input type="text" 
+                                   wire:model.defer="state"
+                                   placeholder="TX"
+                                   class="input input-bordered w-full @error('state') input-error @enderror" />
+                            @error('state')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
 
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Phone</span>
-                        </label>
-                        <input type="tel" 
-                               wire:model="phone" 
-                               class="input input-bordered w-full @error('phone') input-error @enderror" 
-                               placeholder="555-123-4567" />
-                        @error('phone')
+                        <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
+                                <span class="label-text">ZIP/Postal Code</span>
                             </label>
-                        @enderror
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Mobile</span>
-                        </label>
-                        <input type="tel" 
-                               wire:model="mobile" 
-                               class="input input-bordered w-full @error('mobile') input-error @enderror" 
-                               placeholder="555-987-6543" />
-                        @error('mobile')
-                            <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
-                            </label>
-                        @enderror
-                    </div>
-                </div>
-
-                <!-- Address Section -->
-                <div class="divider">Address</div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Address Line 1</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="addressLine1" 
-                               class="input input-bordered w-full" 
-                               placeholder="Street address" />
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Address Line 2</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="addressLine2" 
-                               class="input input-bordered w-full" 
-                               placeholder="Suite, unit, etc." />
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">City</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="city" 
-                               class="input input-bordered w-full" />
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">State/Province</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="state" 
-                               class="input input-bordered w-full" 
-                               placeholder="Texas or TX" />
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">ZIP/Postal Code</span>
-                        </label>
-                        <input type="text" 
-                               wire:model="zipCode" 
-                               class="input input-bordered w-full" />
+                            <input type="text" 
+                                   wire:model.defer="zipCode"
+                                   class="input input-bordered w-full @error('zipCode') input-error @enderror" />
+                            @error('zipCode')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="form-control w-full">
                         <label class="label">
                             <span class="label-text">Country</span>
                         </label>
-                        <select wire:model="country" class="select select-bordered w-full">
-                            <option value="United States">United States</option>
-                            <option value="Canada">Canada</option>
-                            <option value="Mexico">Mexico</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Billing Address Section -->
-                <div class="divider">Billing Address</div>
-                
-                <div class="form-control">
-                    <label class="label cursor-pointer justify-start gap-4">
-                        <input type="checkbox" 
-                               wire:model.live="billingAddressSame" 
-                               class="checkbox checkbox-primary" />
-                        <span class="label-text">Same as main address</span>
-                    </label>
-                </div>
-
-                @if(!$billingAddressSame)
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing Address Line 1</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="billingAddressLine1" 
-                                   class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing Address Line 2</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="billingAddressLine2" 
-                                   class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing City</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="billingCity" 
-                                   class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing State/Province</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="billingState" 
-                                   class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing ZIP/Postal Code</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="billingZipCode" 
-                                   class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text">Billing Country</span>
-                            </label>
-                            <select wire:model="billingCountry" class="select select-bordered w-full">
-                                <option value="">Same as main</option>
-                                <option value="United States">United States</option>
-                                <option value="Canada">Canada</option>
-                                <option value="Mexico">Mexico</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-                @endif
-
-                <!-- Billing & Rate Section -->
-                <div class="divider">Billing Information</div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Payment Terms <span class="text-error">*</span></span>
-                        </label>
-                        <select wire:model="paymentTerms" class="select select-bordered w-full @error('paymentTerms') select-error @enderror">
-                            <option value="due_on_receipt">Due on Receipt</option>
-                            <option value="net15">Net 15</option>
-                            <option value="net30">Net 30</option>
-                            <option value="net45">Net 45</option>
-                            <option value="net60">Net 60</option>
-                        </select>
-                        @error('paymentTerms')
-                            <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
-                            </label>
-                        @enderror
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Default Hourly Rate <span class="text-error">*</span></span>
-                        </label>
-                        <label class="input input-bordered flex items-center gap-2 @error('defaultHourlyRate') input-error @enderror">
-                            <span class="text-base-content/50">$</span>
-                            <input type="number" 
-                                   step="0.01" 
-                                   min="0" 
-                                   wire:model="defaultHourlyRate" 
-                                   class="grow bg-transparent border-0 focus:outline-none focus:ring-0" 
-                                   placeholder="130.00" />
-                            <span class="text-base-content/50">/hr</span>
-                        </label>
-                        @error('defaultHourlyRate')
-                            <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
-                            </label>
-                        @enderror
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Tax ID</span>
-                        </label>
                         <input type="text" 
-                               wire:model="taxId" 
-                               class="input input-bordered w-full @error('taxId') input-error @enderror" 
-                               placeholder="XX-XXXXXXX" />
-                    </div>
-                </div>
-
-                <!-- Status Section -->
-                <div class="divider">Status</div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-control w-full">
-                        <label class="label">
-                            <span class="label-text">Client Status <span class="text-error">*</span></span>
-                        </label>
-                        <select wire:model="status" class="select select-bordered w-full @error('status') select-error @enderror">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="suspended">Suspended</option>
-                        </select>
-                        @error('status')
+                               wire:model.defer="country"
+                               class="input input-bordered w-full @error('country') input-error @enderror" />
+                        @error('country')
                             <label class="label">
                                 <span class="label-text-alt text-error">{{ $message }}</span>
                             </label>
@@ -897,22 +816,203 @@
                     </div>
                 </div>
 
-                <!-- Notes Section -->
-                <div class="divider">Notes</div>
-                
-                <div class="form-control w-full">
-                    <label class="label">
-                        <span class="label-text">Internal Notes</span>
-                    </label>
-                    <textarea wire:model="notes" 
-                              rows="3"
-                              class="textarea textarea-bordered w-full @error('notes') textarea-error @enderror" 
-                              placeholder="Any additional notes about this client..."></textarea>
-                    @error('notes')
+                <!-- Billing Address -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between border-b border-base-300 pb-2">
+                        <h3 class="text-lg font-semibold text-base-content">Billing Address</h3>
+                        <div class="form-control">
+                            <label class="label cursor-pointer gap-2">
+                                <span class="label-text">Same as business address</span>
+                                <input type="checkbox" 
+                                       wire:model.live="billingAddressSame"
+                                       class="toggle toggle-primary" />
+                            </label>
+                        </div>
+                    </div>
+
+                    @if(!$billingAddressSame)
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">Address Line 1</span>
+                                </label>
+                                <input type="text" 
+                                       wire:model.defer="billingAddressLine1"
+                                       class="input input-bordered w-full @error('billingAddressLine1') input-error @enderror" />
+                                @error('billingAddressLine1')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">Address Line 2</span>
+                                </label>
+                                <input type="text" 
+                                       wire:model.defer="billingAddressLine2"
+                                       class="input input-bordered w-full @error('billingAddressLine2') input-error @enderror" />
+                                @error('billingAddressLine2')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">City</span>
+                                </label>
+                                <input type="text" 
+                                       wire:model.defer="billingCity"
+                                       class="input input-bordered w-full @error('billingCity') input-error @enderror" />
+                                @error('billingCity')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">State/Province</span>
+                                </label>
+                                <input type="text" 
+                                       wire:model.defer="billingState"
+                                       placeholder="TX"
+                                       class="input input-bordered w-full @error('billingState') input-error @enderror" />
+                                @error('billingState')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">ZIP/Postal Code</span>
+                                </label>
+                                <input type="text" 
+                                       wire:model.defer="billingZipCode"
+                                       class="input input-bordered w-full @error('billingZipCode') input-error @enderror" />
+                                @error('billingZipCode')
+                                    <label class="label">
+                                        <span class="label-text-alt text-error">{{ $message }}</span>
+                                    </label>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Country</span>
+                            </label>
+                            <input type="text" 
+                                   wire:model.defer="billingCountry"
+                                   class="input input-bordered w-full @error('billingCountry') input-error @enderror" />
+                            @error('billingCountry')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Business Details -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-base-content border-b border-base-300 pb-2">Business Details</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Payment Terms <span class="text-error">*</span></span>
+                            </label>
+                            <select wire:model.defer="paymentTerms"
+                                    class="select select-bordered w-full @error('paymentTerms') select-error @enderror">
+                                <option value="net15">Net 15</option>
+                                <option value="net30">Net 30</option>
+                                <option value="net45">Net 45</option>
+                                <option value="net60">Net 60</option>
+                                <option value="due_on_receipt">Due on Receipt</option>
+                            </select>
+                            @error('paymentTerms')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Tax ID</span>
+                            </label>
+                            <input type="text" 
+                                   wire:model.defer="taxId"
+                                   placeholder="12-3456789"
+                                   class="input input-bordered w-full @error('taxId') input-error @enderror" />
+                            @error('taxId')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Default Hourly Rate <span class="text-error">*</span></span>
+                            </label>
+                            <label class="input-group">
+                                <span>$</span>
+                                <input type="number" 
+                                       wire:model.defer="defaultHourlyRate"
+                                       step="0.01"
+                                       min="0"
+                                       class="input input-bordered w-full @error('defaultHourlyRate') input-error @enderror" />
+                            </label>
+                            @error('defaultHourlyRate')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Status <span class="text-error">*</span></span>
+                            </label>
+                            <select wire:model.defer="status"
+                                    class="select select-bordered w-full @error('status') select-error @enderror">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                            @error('status')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-control w-full">
                         <label class="label">
-                            <span class="label-text-alt text-error">{{ $message }}</span>
+                            <span class="label-text">Notes</span>
                         </label>
-                    @enderror
+                        <textarea wire:model.defer="notes"
+                                  rows="3"
+                                  class="textarea textarea-bordered w-full @error('notes') textarea-error @enderror"></textarea>
+                        @error('notes')
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ $message }}</span>
+                            </label>
+                        @enderror
+                    </div>
                 </div>
             </div>
         </x-slot>
@@ -935,10 +1035,7 @@
         </x-slot>
 
         <x-slot name="content">
-            <div class="text-base-content/80">
-                <p>Are you sure you want to delete this client?</p>
-                <p class="mt-2 text-sm text-warning">Note: Clients with contracts or work logs cannot be deleted. Consider setting status to "Inactive" instead.</p>
-            </div>
+            Are you sure you want to delete this client? This action cannot be undone.
         </x-slot>
 
         <x-slot name="footer">
@@ -952,7 +1049,7 @@
         </x-slot>
     </x-confirmation-modal>
 
-    <!-- Import Modal -->
+    <!-- CSV Import Modal -->
     <x-dialog-modal wire:model="showImportModal" maxWidth="4xl">
         <x-slot name="title">
             Import Clients from CSV
@@ -960,16 +1057,18 @@
 
         <x-slot name="content">
             @if($isImporting)
-                <!-- Import Progress Step -->
-                <div class="space-y-6" wire:poll.500ms="processNextBatch">
+                <!-- Import Progress Display -->
+                <div class="space-y-6">
                     <div class="text-center">
-                        <h3 class="text-lg font-semibold mb-2">Importing Clients...</h3>
-                        <p class="text-base-content/70 text-sm">Please wait while your clients are being imported.</p>
+                        <h3 class="font-bold text-lg mb-4">Importing Clients...</h3>
+                        <p class="text-sm text-base-content/70 mb-2">
+                            Processing {{ $importProcessed }} of {{ $importTotal }} clients
+                        </p>
                     </div>
 
                     <!-- Progress Bar -->
                     <div class="w-full">
-                        <div class="flex justify-between mb-2">
+                        <div class="flex justify-between mb-1">
                             <span class="text-sm font-medium">Progress</span>
                             <span class="text-sm font-medium">{{ $importProgress }}%</span>
                         </div>
@@ -977,32 +1076,30 @@
                     </div>
 
                     <!-- Import Stats -->
-                    <div class="stats stats-vertical lg:stats-horizontal shadow w-full bg-base-300">
-                        <div class="stat">
-                            <div class="stat-title">Processed</div>
-                            <div class="stat-value text-lg">{{ $importProcessed }} / {{ $importTotal }}</div>
-                            <div class="stat-desc">Records</div>
-                        </div>
-                        <div class="stat">
+                    <div class="stats stats-horizontal shadow w-full bg-base-300">
+                        <div class="stat place-items-center">
                             <div class="stat-title">Created</div>
-                            <div class="stat-value text-lg text-success">{{ $importCreated }}</div>
-                            <div class="stat-desc">New clients</div>
+                            <div class="stat-value text-success text-2xl">{{ $importCreated }}</div>
                         </div>
-                        <div class="stat">
+                        <div class="stat place-items-center">
                             <div class="stat-title">Updated</div>
-                            <div class="stat-value text-lg text-info">{{ $importUpdated }}</div>
-                            <div class="stat-desc">Existing clients</div>
+                            <div class="stat-value text-info text-2xl">{{ $importUpdated }}</div>
+                        </div>
+                        <div class="stat place-items-center">
+                            <div class="stat-title">Remaining</div>
+                            <div class="stat-value text-2xl">{{ $importTotal - $importProcessed }}</div>
                         </div>
                     </div>
 
-                    <!-- Processing Indicator -->
-                    <div class="flex items-center justify-center gap-3 text-base-content/70">
-                        <span class="loading loading-spinner loading-md"></span>
-                        <span>Processing batch {{ $currentBatchIndex + 1 }}...</span>
+                    <div class="alert alert-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Please do not close this window while importing...</span>
                     </div>
                 </div>
             @elseif(!$showImportPreview)
-                <!-- Upload Step -->
+                <!-- File Upload Step -->
                 <div class="space-y-4">
                     <div class="alert alert-info">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
@@ -1144,4 +1241,16 @@
             @endif
         </x-slot>
     </x-dialog-modal>
+
+    <!-- Livewire Script for Batch Processing -->
+    @script
+    <script>
+        $wire.on('process-next-batch', () => {
+            // Small delay to allow UI to update before next batch
+            setTimeout(() => {
+                $wire.processNextBatch();
+            }, 100);
+        });
+    </script>
+    @endscript
 </div>
