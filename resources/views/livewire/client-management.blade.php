@@ -959,7 +959,49 @@
         </x-slot>
 
         <x-slot name="content">
-            @if(!$showImportPreview)
+            @if($isImporting)
+                <!-- Import Progress Step -->
+                <div class="space-y-6" wire:poll.500ms="processNextBatch">
+                    <div class="text-center">
+                        <h3 class="text-lg font-semibold mb-2">Importing Clients...</h3>
+                        <p class="text-base-content/70 text-sm">Please wait while your clients are being imported.</p>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-medium">Progress</span>
+                            <span class="text-sm font-medium">{{ $importProgress }}%</span>
+                        </div>
+                        <progress class="progress progress-primary w-full" value="{{ $importProgress }}" max="100"></progress>
+                    </div>
+
+                    <!-- Import Stats -->
+                    <div class="stats stats-vertical lg:stats-horizontal shadow w-full bg-base-300">
+                        <div class="stat">
+                            <div class="stat-title">Processed</div>
+                            <div class="stat-value text-lg">{{ $importProcessed }} / {{ $importTotal }}</div>
+                            <div class="stat-desc">Records</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-title">Created</div>
+                            <div class="stat-value text-lg text-success">{{ $importCreated }}</div>
+                            <div class="stat-desc">New clients</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-title">Updated</div>
+                            <div class="stat-value text-lg text-info">{{ $importUpdated }}</div>
+                            <div class="stat-desc">Existing clients</div>
+                        </div>
+                    </div>
+
+                    <!-- Processing Indicator -->
+                    <div class="flex items-center justify-center gap-3 text-base-content/70">
+                        <span class="loading loading-spinner loading-md"></span>
+                        <span>Processing batch {{ $currentBatchIndex + 1 }}...</span>
+                    </div>
+                </div>
+            @elseif(!$showImportPreview)
                 <!-- Upload Step -->
                 <div class="space-y-4">
                     <div class="alert alert-info">
@@ -1081,7 +1123,11 @@
         </x-slot>
 
         <x-slot name="footer">
-            @if(!$showImportPreview)
+            @if($isImporting)
+                <button class="btn btn-error" wire:click="cancelImport">
+                    Cancel Import
+                </button>
+            @elseif(!$showImportPreview)
                 <button class="btn btn-ghost" wire:click="$set('showImportModal', false)" wire:loading.attr="disabled">
                     Cancel
                 </button>
