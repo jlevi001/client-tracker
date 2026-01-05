@@ -12,15 +12,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('clients', function (Blueprint $table) {
-            // Hosting Information
-            $table->string('hosting_provider', 100)->nullable()->after('default_hourly_rate');
-            $table->enum('hosting_managed_by', ['lingo', 'client'])->nullable()->after('hosting_provider');
-            
-            // Domain Information
-            $table->string('domain_registrar', 100)->nullable()->after('hosting_managed_by');
-            $table->string('domain_registrar_other', 100)->nullable()->after('domain_registrar');
-            $table->boolean('dns_managed_elsewhere')->default(false)->after('domain_registrar_other');
-            $table->string('dns_provider', 100)->nullable()->after('dns_managed_elsewhere');
+            // Check if columns don't exist before adding (prevents duplicate column errors)
+            if (!Schema::hasColumn('clients', 'hosting_provider')) {
+                $table->string('hosting_provider', 100)->nullable();
+            }
+            if (!Schema::hasColumn('clients', 'hosting_managed_by')) {
+                $table->enum('hosting_managed_by', ['lingo', 'client'])->nullable();
+            }
+            if (!Schema::hasColumn('clients', 'domain_registrar')) {
+                $table->string('domain_registrar', 100)->nullable();
+            }
+            if (!Schema::hasColumn('clients', 'domain_registrar_other')) {
+                $table->string('domain_registrar_other', 100)->nullable();
+            }
+            if (!Schema::hasColumn('clients', 'dns_managed_elsewhere')) {
+                $table->boolean('dns_managed_elsewhere')->default(false);
+            }
+            if (!Schema::hasColumn('clients', 'dns_provider')) {
+                $table->string('dns_provider', 100)->nullable();
+            }
         });
     }
 

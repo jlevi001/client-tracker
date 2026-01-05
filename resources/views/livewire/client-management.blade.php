@@ -364,7 +364,7 @@
 
                     <div class="form-control md:col-span-2">
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" wire:model="dns_managed_elsewhere" class="checkbox checkbox-primary" />
+                            <input type="checkbox" wire:model.live="dns_managed_elsewhere" class="checkbox checkbox-primary" />
                             <span class="label-text">DNS Managed Elsewhere</span>
                         </label>
                     </div>
@@ -434,7 +434,7 @@
 
                 <div class="form-control">
                     <label class="label cursor-pointer justify-start gap-2">
-                        <input type="checkbox" wire:model="billing_address_same" class="checkbox checkbox-primary" />
+                        <input type="checkbox" wire:model.live="billing_address_same" class="checkbox checkbox-primary" />
                         <span class="label-text">Same as main address</span>
                     </label>
                 </div>
@@ -508,10 +508,12 @@
 
                 <!-- Modal Actions -->
                 <div class="modal-action">
-                    <button type="button" wire:click="$set('showAddModal', false); $set('showEditModal', false)" class="btn btn-ghost">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                    @if($showAddModal)
+                        <button type="button" wire:click="closeAddModal" class="btn btn-ghost">Cancel</button>
+                    @else
+                        <button type="button" wire:click="closeEditModal" class="btn btn-ghost">Cancel</button>
+                    @endif
+                    <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" wire:target="save">
                         <span wire:loading.remove wire:target="save">
                             {{ $clientId ? 'Update Client' : 'Create Client' }}
                         </span>
@@ -521,7 +523,11 @@
             </form>
         </div>
         <form method="dialog" class="modal-backdrop">
-            <button wire:click="$set('showAddModal', false); $set('showEditModal', false)">close</button>
+            @if($showAddModal)
+                <button wire:click="closeAddModal" type="button">close</button>
+            @else
+                <button wire:click="closeEditModal" type="button">close</button>
+            @endif
         </form>
     </div>
 
@@ -532,15 +538,15 @@
             <p class="py-4">Are you sure you want to delete this client? This action cannot be undone.</p>
             
             <div class="modal-action">
-                <button wire:click="$set('showDeleteModal', false)" class="btn btn-ghost">Cancel</button>
-                <button wire:click="delete" class="btn btn-error" wire:loading.attr="disabled">
+                <button wire:click="closeDeleteModal" class="btn btn-ghost">Cancel</button>
+                <button wire:click="delete" class="btn btn-error" wire:loading.attr="disabled" wire:target="delete">
                     <span wire:loading.remove wire:target="delete">Delete Client</span>
                     <span wire:loading wire:target="delete" class="loading loading-spinner loading-sm"></span>
                 </button>
             </div>
         </div>
         <form method="dialog" class="modal-backdrop">
-            <button wire:click="$set('showDeleteModal', false)">close</button>
+            <button wire:click="closeDeleteModal" type="button">close</button>
         </form>
     </div>
 
@@ -577,6 +583,11 @@
                                 <span class="label-text-alt text-error">{{ $message }}</span>
                             </label>
                         @enderror
+                        @if($csvFile)
+                            <label class="label">
+                                <span class="label-text-alt text-success">✓ File selected: {{ $csvFile->getClientOriginalName() }}</span>
+                            </label>
+                        @endif
                     </div>
 
                     @if($isProcessing)
@@ -590,12 +601,27 @@
                     @endif
 
                     <div class="modal-action">
-                        <button wire:click="$set('showImportModal', false)" class="btn btn-ghost" :disabled="$isProcessing">
+                        <button wire:click="closeImportModal" class="btn btn-ghost" wire:loading.attr="disabled" wire:target="previewCsv">
                             Cancel
                         </button>
-                        <button wire:click="previewCsv" class="btn btn-primary" wire:loading.attr="disabled" :disabled="!$csvFile || $isProcessing">
-                            <span wire:loading.remove wire:target="previewCsv">Preview Import</span>
-                            <span wire:loading wire:target="previewCsv" class="loading loading-spinner loading-sm"></span>
+                        <button 
+                            wire:click="previewCsv" 
+                            class="btn btn-primary" 
+                            wire:loading.attr="disabled" 
+                            wire:target="previewCsv"
+                            @if(!$csvFile) disabled @endif
+                        >
+                            <span wire:loading.remove wire:target="previewCsv">
+                                @if($csvFile)
+                                    Preview Import
+                                @else
+                                    Select a file first
+                                @endif
+                            </span>
+                            <span wire:loading wire:target="previewCsv">
+                                <span class="loading loading-spinner loading-sm"></span>
+                                Processing...
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -677,10 +703,10 @@
                     @endif
 
                     <div class="modal-action">
-                        <button wire:click="$set('showCsvPreview', false); $set('showImportModal', false)" class="btn btn-ghost" :disabled="$isProcessing">
+                        <button wire:click="closeImportModal" class="btn btn-ghost" wire:loading.attr="disabled" wire:target="confirmImport">
                             Cancel
                         </button>
-                        <button wire:click="confirmImport" class="btn btn-primary" wire:loading.attr="disabled" :disabled="$isProcessing">
+                        <button wire:click="confirmImport" class="btn btn-primary" wire:loading.attr="disabled" wire:target="confirmImport">
                             <span wire:loading.remove wire:target="confirmImport">Confirm Import</span>
                             <span wire:loading wire:target="confirmImport" class="loading loading-spinner loading-sm"></span>
                         </button>
@@ -689,7 +715,7 @@
             @endif
         </div>
         <form method="dialog" class="modal-backdrop">
-            <button wire:click="$set('showImportModal', false)">close</button>
+            <button wire:click="closeImportModal" type="button">close</button>
         </form>
     </div>
 </div>

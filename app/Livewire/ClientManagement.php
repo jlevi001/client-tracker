@@ -143,6 +143,30 @@ class ClientManagement extends Component
         $this->showAddModal = true;
     }
 
+    public function closeAddModal()
+    {
+        $this->showAddModal = false;
+        $this->resetForm();
+    }
+
+    public function closeEditModal()
+    {
+        $this->showEditModal = false;
+        $this->resetForm();
+    }
+
+    public function closeDeleteModal()
+    {
+        $this->showDeleteModal = false;
+        $this->clientId = null;
+    }
+
+    public function closeImportModal()
+    {
+        $this->showImportModal = false;
+        $this->resetImportState();
+    }
+
     public function openEditModal($id)
     {
         $this->resetForm();
@@ -275,6 +299,11 @@ class ClientManagement extends Component
             'csvFile' => 'required|file|mimes:csv,txt|max:10240',
         ]);
 
+        if (!$this->csvFile) {
+            session()->flash('error', 'Please select a CSV file to upload.');
+            return;
+        }
+
         try {
             $this->isProcessing = true;
             $this->progressCurrent = 0;
@@ -282,7 +311,16 @@ class ClientManagement extends Component
             $this->progressMessage = 'Analyzing file...';
             
             $path = $this->csvFile->getRealPath();
+            
+            if (!file_exists($path) || !is_readable($path)) {
+                throw new \Exception('Unable to read uploaded file');
+            }
+            
             $file = fopen($path, 'r');
+            
+            if ($file === false) {
+                throw new \Exception('Failed to open CSV file');
+            }
             
             // Read header row
             $header = fgetcsv($file);
@@ -298,6 +336,13 @@ class ClientManagement extends Component
             $totalRows = 0;
             while (fgetcsv($file) !== false) {
                 $totalRows++;
+            }
+            
+            if ($totalRows === 0) {
+                fclose($file);
+                session()->flash('error', 'CSV file is empty');
+                $this->isProcessing = false;
+                return;
             }
             
             $this->progressTotal = $totalRows;
@@ -320,7 +365,7 @@ class ClientManagement extends Component
                 // Force UI update every 25 records
                 if ($currentChunk % $chunkSize === 0) {
                     $this->dispatch('progress-update');
-                    usleep(10000); // Small delay to allow progress bar to update
+                    usleep(50000); // Increased delay to 50ms for progress bar visibility
                 }
 
                 $rowData = array_combine($header, $row);
@@ -368,6 +413,7 @@ class ClientManagement extends Component
 
         } catch (\Exception $e) {
             $this->isProcessing = false;
+            $this->progressMessage = '';
             session()->flash('error', 'Error parsing CSV: ' . $e->getMessage());
         }
     }
@@ -605,6 +651,11 @@ class ClientManagement extends Component
             'progressTotal',
             'progressMessage',
         ]);
+    }
+
+    public function getCsvFileUploadedProperty()
+    {
+        return $this->csvFile !== null;
     }
 
     private function closeModals()
