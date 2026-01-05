@@ -729,3 +729,17 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        // Listen for the process-next-batch event
+        Livewire.on('process-next-batch', () => {
+            // Small delay to allow UI to update
+            setTimeout(() => {
+                @this.call('processNextBatch');
+            }, 100);
+        });
+    });
+</script>
+@endpush

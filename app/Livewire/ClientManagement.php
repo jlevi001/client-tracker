@@ -293,6 +293,13 @@ class ClientManagement extends Component
         $this->showImportModal = true;
     }
 
+    // CSV batch processing properties
+    public $csvBatchSize = 25;
+    public $csvCurrentBatch = 0;
+    public $csvTotalBatches = 0;
+    public $csvTempPath = null;
+    public $csvHeader = [];
+    
     public function previewCsv()
     {
         $this->validate([
@@ -305,143 +312,205 @@ class ClientManagement extends Component
         }
 
         try {
-            // Increase execution time for large files
-            set_time_limit(300); // 5 minutes
+            // Save file temporarily
+            $tempPath = $this->csvFile->store('temp-csv', 'local');
+            $fullPath = storage_path('app/' . $tempPath);
             
-            $this->isProcessing = true;
-            $this->progressCurrent = 0;
-            $this->progressTotal = 0;
-            $this->progressMessage = 'Analyzing file...';
-            
-            $path = $this->csvFile->getRealPath();
-            
-            if (!file_exists($path) || !is_readable($path)) {
-                throw new \Exception('Unable to read uploaded file');
+            if (!file_exists($fullPath)) {
+                throw new \Exception('Failed to save uploaded file');
             }
             
-            $file = fopen($path, 'r');
+            $this->csvTempPath = $tempPath;
             
+            // Read header and count rows
+            $file = fopen($fullPath, 'r');
             if ($file === false) {
                 throw new \Exception('Failed to open CSV file');
             }
             
-            // Read header row
             $header = fgetcsv($file);
-            
             if (!$header || !in_array('company_name', $header)) {
                 fclose($file);
+                @unlink($fullPath);
                 session()->flash('error', 'Invalid CSV format. Required column: company_name');
-                $this->isProcessing = false;
                 return;
             }
-
-            // Count total rows
+            
+            $this->csvHeader = $header;
+            
+            // Count rows efficiently
             $totalRows = 0;
-            while (fgetcsv($file) !== false) {
+            while (fgets($file) !== false) {
                 $totalRows++;
             }
+            fclose($file);
             
             if ($totalRows === 0) {
-                fclose($file);
+                @unlink($fullPath);
                 session()->flash('error', 'CSV file is empty');
-                $this->isProcessing = false;
                 return;
             }
             
-            // Warn about large files
-            if ($totalRows > 100) {
-                $this->progressMessage = "Large file detected ({$totalRows} rows). This may take a few minutes...";
-                usleep(500000); // Pause half second to show message
-            }
-            
+            // Calculate batches
+            $this->csvTotalBatches = ceil($totalRows / $this->csvBatchSize);
             $this->progressTotal = $totalRows;
-            rewind($file);
-            fgetcsv($file); // Skip header again
-
-            // Track account numbers generated in this batch
-            $generatedAccountNumbers = [];
+            $this->progressCurrent = 0;
+            $this->csvCurrentBatch = 0;
             
-            // Process in chunks
-            $currentChunk = 0;
-            $allPreviewData = [];
-            $allErrors = [];
-            $createCount = 0;
-            $updateCount = 0;
-
-            while (($row = fgetcsv($file)) !== false) {
-                $currentChunk++;
-                $this->progressCurrent = $currentChunk;
-                $this->progressMessage = "Processing row {$currentChunk} of {$totalRows}...";
-                
-                // Force UI update every 10 records with longer delay
-                if ($currentChunk % 10 === 0) {
-                    usleep(100000); // 100ms delay to allow UI update
-                }
-
-                $rowData = array_combine($header, $row);
-                
-                // Validate company_name (required)
-                if (empty($rowData['company_name'])) {
-                    $allErrors[] = "Row {$currentChunk}: Missing required field 'company_name'";
-                    continue;
-                }
-
-                // Check if client exists - match by account_number OR company_name
-                $existing = null;
-                
-                if (!empty($rowData['account_number'])) {
-                    $existing = Client::where('account_number', $rowData['account_number'])->first();
-                }
-                
-                if (!$existing && !empty($rowData['company_name'])) {
-                    // Case-sensitive company name match
-                    $existing = Client::where('company_name', $rowData['company_name'])->first();
-                }
-
-                if ($existing) {
-                    $updateCount++;
-                    $rowData['_action'] = 'update';
-                    $rowData['_existing_account'] = $existing->account_number;
-                } else {
-                    $createCount++;
-                    $rowData['_action'] = 'create';
-                    
-                    // Generate unique account number, checking both database AND this batch
-                    $baseAccountNumber = $this->generateUniqueAccountNumber(
-                        $rowData['company_name'], 
-                        $generatedAccountNumbers
-                    );
-                    
-                    $rowData['_preview_account'] = $baseAccountNumber;
-                    $generatedAccountNumbers[] = $baseAccountNumber; // Track this batch
-                }
-
-                $allPreviewData[] = $rowData;
-            }
-
-            fclose($file);
-
-            $this->csvPreviewData = $allPreviewData;
-            $this->csvErrors = $allErrors;
-            $this->csvCreateCount = $createCount;
-            $this->csvUpdateCount = $updateCount;
-            $this->showCsvPreview = true;
-            $this->isProcessing = false;
-            $this->progressMessage = 'Preview complete!';
-
+            // Reset preview data
+            $this->csvPreviewData = [];
+            $this->csvErrors = [];
+            $this->csvCreateCount = 0;
+            $this->csvUpdateCount = 0;
+            
+            // Start processing
+            $this->isProcessing = true;
+            $this->progressMessage = "Processing batch 1 of {$this->csvTotalBatches}...";
+            
+            // Trigger first batch
+            $this->dispatch('process-next-batch');
+            
         } catch (\Exception $e) {
             $this->isProcessing = false;
-            $this->progressMessage = '';
-            session()->flash('error', 'Error parsing CSV: ' . $e->getMessage());
+            session()->flash('error', 'Error preparing CSV: ' . $e->getMessage());
+        }
+    }
+    
+    public function processNextBatch()
+    {
+        if (!$this->csvTempPath || $this->csvCurrentBatch >= $this->csvTotalBatches) {
+            $this->finalizeCsvPreview();
+            return;
+        }
+        
+        try {
+            $fullPath = storage_path('app/' . $this->csvTempPath);
+            
+            if (!file_exists($fullPath)) {
+                throw new \Exception('Temporary file not found');
+            }
+            
+            $file = fopen($fullPath, 'r');
+            if ($file === false) {
+                throw new \Exception('Failed to open CSV file');
+            }
+            
+            // Skip to current position
+            fgetcsv($file); // Skip header
+            $startRow = $this->csvCurrentBatch * $this->csvBatchSize;
+            
+            for ($i = 0; $i < $startRow; $i++) {
+                fgetcsv($file);
+            }
+            
+            // Pre-fetch existing clients once per batch
+            $existingClients = Client::pluck('account_number', 'company_name')->toArray();
+            $existingAccountNumbers = array_values($existingClients);
+            
+            // Get already generated account numbers from previous batches
+            $generatedAccountNumbers = array_column(
+                array_filter($this->csvPreviewData, fn($row) => isset($row['_preview_account'])),
+                '_preview_account'
+            );
+            
+            // Process this batch
+            $batchCount = 0;
+            $rowNumber = $startRow;
+            
+            while ($batchCount < $this->csvBatchSize && ($row = fgetcsv($file)) !== false) {
+                $rowNumber++;
+                $this->progressCurrent = $rowNumber;
+                
+                try {
+                    $rowData = array_combine($this->csvHeader, $row);
+                    
+                    // Validate company_name
+                    if (empty($rowData['company_name'])) {
+                        $this->csvErrors[] = "Row {$rowNumber}: Missing required field 'company_name'";
+                        $batchCount++;
+                        continue;
+                    }
+                    
+                    // Check if exists by account_number first
+                    if (!empty($rowData['account_number']) && in_array($rowData['account_number'], $existingAccountNumbers)) {
+                        $rowData['_action'] = 'update';
+                        $rowData['_existing_account'] = $rowData['account_number'];
+                        $this->csvUpdateCount++;
+                    }
+                    // Check by company_name (case-sensitive)
+                    else if (isset($existingClients[$rowData['company_name']])) {
+                        $rowData['_action'] = 'update';
+                        $rowData['_existing_account'] = $existingClients[$rowData['company_name']];
+                        $this->csvUpdateCount++;
+                    }
+                    else {
+                        // Generate account number
+                        $accountNumber = $this->generateUniqueAccountNumber(
+                            $rowData['company_name'],
+                            array_merge($existingAccountNumbers, $generatedAccountNumbers)
+                        );
+                        
+                        $rowData['_action'] = 'create';
+                        $rowData['_preview_account'] = $accountNumber;
+                        $generatedAccountNumbers[] = $accountNumber;
+                        $this->csvCreateCount++;
+                    }
+                    
+                    $this->csvPreviewData[] = $rowData;
+                    
+                } catch (\Exception $e) {
+                    $this->csvErrors[] = "Row {$rowNumber}: " . $e->getMessage();
+                }
+                
+                $batchCount++;
+            }
+            
+            fclose($file);
+            
+            // Update progress
+            $this->csvCurrentBatch++;
+            $this->progressMessage = "Processing batch {$this->csvCurrentBatch} of {$this->csvTotalBatches}...";
+            
+            // Trigger next batch or finalize
+            if ($this->csvCurrentBatch < $this->csvTotalBatches) {
+                $this->dispatch('process-next-batch');
+            } else {
+                $this->finalizeCsvPreview();
+            }
+            
+        } catch (\Exception $e) {
+            $this->isProcessing = false;
+            $this->progressMessage = 'Error: ' . $e->getMessage();
+            session()->flash('error', 'Error processing batch: ' . $e->getMessage());
+            $this->cleanupTempCsvFile();
+        }
+    }
+    
+    private function finalizeCsvPreview()
+    {
+        $this->isProcessing = false;
+        $this->showCsvPreview = true;
+        $this->progressMessage = 'Preview complete!';
+        // Keep temp file for import - will be cleaned up after import
+    }
+    
+    private function cleanupTempCsvFile()
+    {
+        if ($this->csvTempPath) {
+            $fullPath = storage_path('app/' . $this->csvTempPath);
+            if (file_exists($fullPath)) {
+                @unlink($fullPath);
+            }
+            $this->csvTempPath = null;
         }
     }
 
     /**
-     * Generate unique account number checking both database and current batch
+     * Generate unique account number checking existing numbers
      * Uses first 4 letters of first word + first 4 letters of second word
      * Example: "Arkansas Man Camp" -> "ARKAMANC"
      */
-    private function generateUniqueAccountNumber($companyName, $alreadyGenerated = [])
+    private function generateUniqueAccountNumber($companyName, $existingNumbers = [])
     {
         // Remove special characters and convert to uppercase
         $cleanName = preg_replace('/[^A-Za-z0-9\s]/', '', $companyName);
@@ -449,7 +518,7 @@ class ClientManagement extends Component
         
         // Split into words
         $words = preg_split('/\s+/', $cleanName);
-        $words = array_filter($words); // Remove empty elements
+        $words = array_filter($words);
         
         $baseNumber = '';
         
@@ -462,22 +531,18 @@ class ClientManagement extends Component
             // Single word - use first 8 characters
             $baseNumber = substr($words[0], 0, 8);
         } else {
-            // Fallback - just use first 8 characters of cleaned name
+            // Fallback
             $baseNumber = substr(preg_replace('/[^A-Za-z0-9]/', '', $cleanName), 0, 8);
         }
         
         // Pad with zeros if less than 8 characters
         $baseNumber = str_pad($baseNumber, 8, '0', STR_PAD_RIGHT);
         
-        // Check for duplicates in database AND in current batch
+        // Check for duplicates
         $accountNumber = $baseNumber;
         $suffix = 2;
         
-        while (
-            Client::where('account_number', $accountNumber)->exists() || 
-            in_array($accountNumber, $alreadyGenerated)
-        ) {
-            // Add numeric suffix to the 8-character base
+        while (in_array($accountNumber, $existingNumbers)) {
             $accountNumber = $baseNumber . $suffix;
             $suffix++;
         }
@@ -564,6 +629,9 @@ class ClientManagement extends Component
                 }
             }
 
+            // Clean up temp file
+            $this->cleanupTempCsvFile();
+
             $this->isProcessing = false;
             $this->progressMessage = 'Import complete!';
 
@@ -577,6 +645,7 @@ class ClientManagement extends Component
             
         } catch (\Exception $e) {
             $this->isProcessing = false;
+            $this->cleanupTempCsvFile();
             session()->flash('error', 'Error importing CSV: ' . $e->getMessage());
         }
     }
