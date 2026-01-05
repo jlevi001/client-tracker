@@ -56,6 +56,15 @@ class ClientManagement extends Component
     public $importUpdateCount = 0;
     public $importErrorCount = 0;
 
+    // Batched import progress tracking
+    public $isImporting = false;
+    public $importProgress = 0;
+    public $importTotal = 0;
+    public $importProcessed = 0;
+    public $importCreated = 0;
+    public $importUpdated = 0;
+    public $currentBatchIndex = 0;
+
     // Search, sort, pagination
     public $search = '';
     public $sortField = 'company_name';
@@ -193,8 +202,20 @@ class ClientManagement extends Component
     public function openImportModal()
     {
         $this->reset(['csvFile', 'importData', 'importErrors', 'importNewCount', 'importUpdateCount', 'importErrorCount']);
+        $this->resetImportProgress();
         $this->showImportPreview = false;
         $this->showImportModal = true;
+    }
+
+    protected function resetImportProgress()
+    {
+        $this->isImporting = false;
+        $this->importProgress = 0;
+        $this->importTotal = 0;
+        $this->importProcessed = 0;
+        $this->importCreated = 0;
+        $this->importUpdated = 0;
+        $this->currentBatchIndex = 0;
     }
 
     public function createClient()
@@ -368,6 +389,9 @@ class ClientManagement extends Component
             return;
         }
 
+        // Pre-fetch all existing account numbers for efficient lookup
+        $existingClients = Client::pluck('id', 'account_number')->toArray();
+
         $rowNumber = 1;
         while (($row = fgetcsv($handle)) !== false) {
             $rowNumber++;
@@ -426,17 +450,12 @@ class ClientManagement extends Component
                 continue;
             }
 
-            // Check if this is an update or new record
+            // Check if this is an update or new record using pre-fetched data
             $isUpdate = false;
-            if (!empty($data['account_number'])) {
-                $existingClient = Client::where('account_number', $data['account_number'])->first();
-                if ($existingClient) {
-                    $isUpdate = true;
-                    $data['existing_id'] = $existingClient->id;
-                    $this->importUpdateCount++;
-                } else {
-                    $this->importNewCount++;
-                }
+            if (!empty($data['account_number']) && isset($existingClients[$data['account_number']])) {
+                $isUpdate = true;
+                $data['existing_id'] = $existingClients[$data['account_number']];
+                $this->importUpdateCount++;
             } else {
                 $this->importNewCount++;
             }
@@ -457,10 +476,36 @@ class ClientManagement extends Component
             return;
         }
 
-        $created = 0;
-        $updated = 0;
+        // Initialize progress tracking
+        $this->importTotal = count($this->importData);
+        $this->importProcessed = 0;
+        $this->importCreated = 0;
+        $this->importUpdated = 0;
+        $this->currentBatchIndex = 0;
+        $this->isImporting = true;
+        $this->importProgress = 0;
 
-        foreach ($this->importData as $data) {
+        // Start processing first batch
+        $this->processNextBatch();
+    }
+
+    public function processNextBatch()
+    {
+        if (!$this->isImporting) {
+            return;
+        }
+
+        $batchSize = 25;
+        $startIndex = $this->currentBatchIndex * $batchSize;
+        $batch = array_slice($this->importData, $startIndex, $batchSize);
+
+        if (empty($batch)) {
+            // All batches processed - complete the import
+            $this->completeImport();
+            return;
+        }
+
+        foreach ($batch as $data) {
             // Prepare the data for database
             $clientData = [
                 'company_name' => $data['company_name'],
@@ -494,28 +539,51 @@ class ClientManagement extends Component
                 if ($client) {
                     $clientData['updated_by_id'] = Auth::id();
                     $client->update($clientData);
-                    $updated++;
+                    $this->importUpdated++;
                 }
             } else {
                 // Create new client
                 $clientData['status'] = 'active';
                 $clientData['created_by_id'] = Auth::id();
                 Client::create($clientData);
-                $created++;
+                $this->importCreated++;
             }
+
+            $this->importProcessed++;
         }
+
+        // Update progress
+        $this->importProgress = round(($this->importProcessed / $this->importTotal) * 100);
+        $this->currentBatchIndex++;
+
+        // Check if there are more batches
+        if ($this->importProcessed < $this->importTotal) {
+            // Dispatch next batch processing (allows UI to update)
+            $this->dispatch('process-next-batch');
+        } else {
+            $this->completeImport();
+        }
+    }
+
+    protected function completeImport()
+    {
+        $created = $this->importCreated;
+        $updated = $this->importUpdated;
 
         $this->showImportModal = false;
         $this->showImportPreview = false;
         $this->reset(['csvFile', 'importData', 'importErrors', 'importNewCount', 'importUpdateCount', 'importErrorCount']);
+        $this->resetImportProgress();
 
         session()->flash('success', "Import completed: {$created} clients created, {$updated} clients updated.");
     }
 
     public function cancelImport()
     {
+        $this->isImporting = false;
         $this->showImportPreview = false;
         $this->reset(['csvFile', 'importData', 'importErrors', 'importNewCount', 'importUpdateCount', 'importErrorCount']);
+        $this->resetImportProgress();
     }
 
     public function downloadTemplate()
