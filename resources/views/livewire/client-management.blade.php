@@ -588,10 +588,16 @@
                                 <span class="label-text-alt text-success">✓ File selected: {{ $csvFile->getClientOriginalName() }}</span>
                             </label>
                         @endif
+                        <div wire:loading wire:target="csvFile" class="label">
+                            <span class="label-text-alt">
+                                <span class="loading loading-spinner loading-sm"></span>
+                                Uploading file...
+                            </span>
+                        </div>
                     </div>
 
                     @if($isProcessing)
-                        <div class="space-y-2">
+                        <div class="space-y-2" wire:poll.500ms>
                             <div class="flex justify-between text-sm">
                                 <span>{{ $progressMessage }}</span>
                                 <span>{{ $progressCurrent }} / {{ $progressTotal }}</span>
@@ -693,7 +699,7 @@
                     </div>
 
                     @if($isProcessing)
-                        <div class="space-y-2">
+                        <div class="space-y-2" wire:poll.500ms>
                             <div class="flex justify-between text-sm">
                                 <span>{{ $progressMessage }}</span>
                                 <span>{{ $progressCurrent }} / {{ $progressTotal }}</span>
