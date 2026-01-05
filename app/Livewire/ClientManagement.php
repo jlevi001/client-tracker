@@ -438,15 +438,33 @@ class ClientManagement extends Component
 
     /**
      * Generate unique account number checking both database and current batch
+     * Uses first 4 letters of first word + first 4 letters of second word
+     * Example: "Arkansas Man Camp" -> "ARKAMANC"
      */
     private function generateUniqueAccountNumber($companyName, $alreadyGenerated = [])
     {
         // Remove special characters and convert to uppercase
-        $cleanName = preg_replace('/[^A-Za-z0-9]/', '', $companyName);
-        $cleanName = strtoupper($cleanName);
+        $cleanName = preg_replace('/[^A-Za-z0-9\s]/', '', $companyName);
+        $cleanName = strtoupper(trim($cleanName));
         
-        // Get first 8 characters
-        $baseNumber = substr($cleanName, 0, 8);
+        // Split into words
+        $words = preg_split('/\s+/', $cleanName);
+        $words = array_filter($words); // Remove empty elements
+        
+        $baseNumber = '';
+        
+        if (count($words) >= 2) {
+            // Use first 4 letters of first word + first 4 letters of second word
+            $firstWord = substr($words[0], 0, 4);
+            $secondWord = substr($words[1], 0, 4);
+            $baseNumber = $firstWord . $secondWord;
+        } else if (count($words) === 1) {
+            // Single word - use first 8 characters
+            $baseNumber = substr($words[0], 0, 8);
+        } else {
+            // Fallback - just use first 8 characters of cleaned name
+            $baseNumber = substr(preg_replace('/[^A-Za-z0-9]/', '', $cleanName), 0, 8);
+        }
         
         // Pad with zeros if less than 8 characters
         $baseNumber = str_pad($baseNumber, 8, '0', STR_PAD_RIGHT);
@@ -459,6 +477,7 @@ class ClientManagement extends Component
             Client::where('account_number', $accountNumber)->exists() || 
             in_array($accountNumber, $alreadyGenerated)
         ) {
+            // Add numeric suffix to the 8-character base
             $accountNumber = $baseNumber . $suffix;
             $suffix++;
         }
