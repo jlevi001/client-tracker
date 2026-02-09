@@ -192,7 +192,7 @@
                         <label class="label">
                             <span class="label-text">Account Number</span>
                         </label>
-                        <input type="text" value="{{ $account_number }}" class="input input-bordered" disabled />
+                        <input type="text" value="{{ $account_number }}" class="input input-bordered w-full" disabled />
                         <label class="label">
                             <span class="label-text-alt">Account numbers cannot be changed</span>
                         </label>
@@ -207,7 +207,7 @@
                         <label class="label">
                             <span class="label-text">Company Name <span class="text-error">*</span></span>
                         </label>
-                        <input type="text" wire:model="company_name" class="input input-bordered @error('company_name') input-error @enderror" />
+                        <input type="text" wire:model="company_name" class="input input-bordered w-full @error('company_name') input-error @enderror" />
                         @error('company_name')
                             <label class="label">
                                 <span class="label-text-alt text-error">{{ $message }}</span>
@@ -219,14 +219,14 @@
                         <label class="label">
                             <span class="label-text">Trading Name (DBA)</span>
                         </label>
-                        <input type="text" wire:model="trading_name" class="input input-bordered" />
+                        <input type="text" wire:model="trading_name" class="input input-bordered w-full" />
                     </div>
 
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Website</span>
                         </label>
-                        <input type="url" wire:model="website" class="input input-bordered @error('website') input-error @enderror" placeholder="https://" />
+                        <input type="url" wire:model="website" class="input input-bordered w-full @error('website') input-error @enderror" placeholder="https://" />
                         @error('website')
                             <label class="label">
                                 <span class="label-text-alt text-error">{{ $message }}</span>
@@ -238,7 +238,7 @@
                         <label class="label">
                             <span class="label-text">Email</span>
                         </label>
-                        <input type="email" wire:model="email" class="input input-bordered @error('email') input-error @enderror" />
+                        <input type="email" wire:model="email" class="input input-bordered w-full @error('email') input-error @enderror" />
                         @error('email')
                             <label class="label">
                                 <span class="label-text-alt text-error">{{ $message }}</span>
@@ -250,7 +250,7 @@
                         <label class="label">
                             <span class="label-text">Office Phone</span>
                         </label>
-                        <input type="tel" wire:model="phone" class="input input-bordered" placeholder="+1 214 555 1234" />
+                        <input type="tel" wire:model="phone" class="input input-bordered w-full" placeholder="+1 214 555 1234" />
                         <label class="label">
                             <span class="label-text-alt">Format: +1 XXX XXX XXXX</span>
                         </label>
@@ -260,7 +260,7 @@
                         <label class="label">
                             <span class="label-text">Mobile Phone</span>
                         </label>
-                        <input type="tel" wire:model="mobile" class="input input-bordered" placeholder="+1 214 555 1234" />
+                        <input type="tel" wire:model="mobile" class="input input-bordered w-full" placeholder="+1 214 555 1234" />
                         <label class="label">
                             <span class="label-text-alt">Format: +1 XXX XXX XXXX</span>
                         </label>
@@ -290,7 +290,7 @@
                         <label class="label">
                             <span class="label-text">Payment Terms <span class="text-error">*</span></span>
                         </label>
-                        <select wire:model="payment_terms" class="select select-bordered">
+                        <select wire:model="payment_terms" class="select select-bordered w-full">
                             <option value="net15">Net 15</option>
                             <option value="net30">Net 30</option>
                             <option value="net45">Net 45</option>
@@ -303,19 +303,19 @@
                         <label class="label">
                             <span class="label-text">Tax ID</span>
                         </label>
-                        <input type="text" wire:model="tax_id" class="input input-bordered" placeholder="XX-XXXXXXX" />
+                        <input type="text" wire:model="tax_id" class="input input-bordered w-full" placeholder="XX-XXXXXXX" />
                     </div>
                 </div>
 
                 <!-- Hosting & Domain Information -->
-                <div class="divider">Hosting & Domain Information</div>
+                <div class="divider">Hosting, Domain, & Software Information</div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Hosting Provider</span>
                         </label>
-                        <select wire:model="hosting_provider" class="select select-bordered">
+                        <select wire:model="hosting_provider" class="select select-bordered w-full">
                             @foreach($hostingProviders as $value => $label)
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
@@ -346,7 +346,7 @@
                         <label class="label">
                             <span class="label-text">Domain Registrar</span>
                         </label>
-                        <select wire:model="domain_registrar" class="select select-bordered">
+                        <select wire:model="domain_registrar" class="select select-bordered w-full">
                             @foreach($domainRegistrars as $value => $label)
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
@@ -358,13 +358,13 @@
                             <label class="label">
                                 <span class="label-text">Other Registrar Name</span>
                             </label>
-                            <input type="text" wire:model="domain_registrar_other" class="input input-bordered" placeholder="Enter registrar name" />
+                            <input type="text" wire:model="domain_registrar_other" class="input input-bordered w-full" placeholder="Enter registrar name" />
                         </div>
                     @endif
 
                     <div class="form-control md:col-span-2">
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" wire:model.live="dns_managed_elsewhere" class="checkbox checkbox-primary" />
+                            <input type="checkbox" wire:model.live="dns_managed_elsewhere" class="toggle toggle-primary" />
                             <span class="label-text">DNS Managed Elsewhere</span>
                         </label>
                     </div>
@@ -374,9 +374,34 @@
                             <label class="label">
                                 <span class="label-text">DNS Provider</span>
                             </label>
-                            <input type="text" wire:model="dns_provider" class="input input-bordered" placeholder="e.g., Cloudflare, Route53" />
+                            <input type="text" wire:model="dns_provider" class="input input-bordered w-full" placeholder="e.g., Cloudflare, Route53" />
                         </div>
                     @endif
+
+                    <div class="form-control md:col-span-2">
+                        <label class="label">
+                            <span class="label-text">Client Software</span>
+                        </label>
+                        <textarea wire:model="client_software" class="textarea textarea-bordered w-full" rows="2" placeholder="e.g., Microsoft 365, Adobe CC, QuickBooks"></textarea>
+                        <label class="label">
+                            <span class="label-text-alt">Comma-separated list of software paid for by Lingo</span>
+                        </label>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Monthly Software Cost</span>
+                        </label>
+                        <label class="input-group">
+                            <span>$</span>
+                            <input type="number" step="0.01" wire:model="software_cost" class="input input-bordered flex-1 @error('software_cost') input-error @enderror" placeholder="0.00" />
+                        </label>
+                        @error('software_cost')
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ $message }}</span>
+                            </label>
+                        @enderror
+                    </div>
                 </div>
 
                 <!-- Address -->
@@ -387,28 +412,28 @@
                         <label class="label">
                             <span class="label-text">Address Line 1</span>
                         </label>
-                        <input type="text" wire:model="address_line_1" class="input input-bordered" />
+                        <input type="text" wire:model="address_line_1" class="input input-bordered w-full" />
                     </div>
 
                     <div class="form-control md:col-span-2">
                         <label class="label">
                             <span class="label-text">Address Line 2</span>
                         </label>
-                        <input type="text" wire:model="address_line_2" class="input input-bordered" />
+                        <input type="text" wire:model="address_line_2" class="input input-bordered w-full" />
                     </div>
 
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">City</span>
                         </label>
-                        <input type="text" wire:model="city" class="input input-bordered" />
+                        <input type="text" wire:model="city" class="input input-bordered w-full" />
                     </div>
 
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">State/Province</span>
                         </label>
-                        <input type="text" wire:model="state" class="input input-bordered" placeholder="Texas or TX" />
+                        <input type="text" wire:model="state" class="input input-bordered w-full" placeholder="Texas or TX" />
                         <label class="label">
                             <span class="label-text-alt">Full name or abbreviation accepted</span>
                         </label>
@@ -418,14 +443,14 @@
                         <label class="label">
                             <span class="label-text">ZIP/Postal Code</span>
                         </label>
-                        <input type="text" wire:model="zip_code" class="input input-bordered" />
+                        <input type="text" wire:model="zip_code" class="input input-bordered w-full" />
                     </div>
 
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Country</span>
                         </label>
-                        <input type="text" wire:model="country" class="input input-bordered" />
+                        <input type="text" wire:model="country" class="input input-bordered w-full" />
                     </div>
                 </div>
 
@@ -434,7 +459,7 @@
 
                 <div class="form-control">
                     <label class="label cursor-pointer justify-start gap-2">
-                        <input type="checkbox" wire:model.live="billing_address_same" class="checkbox checkbox-primary" />
+                        <input type="checkbox" wire:model.live="billing_address_same" class="toggle toggle-primary" />
                         <span class="label-text">Same as main address</span>
                     </label>
                 </div>
@@ -445,42 +470,42 @@
                             <label class="label">
                                 <span class="label-text">Billing Address Line 1</span>
                             </label>
-                            <input type="text" wire:model="billing_address_line_1" class="input input-bordered" />
+                            <input type="text" wire:model="billing_address_line_1" class="input input-bordered w-full" />
                         </div>
 
                         <div class="form-control md:col-span-2">
                             <label class="label">
                                 <span class="label-text">Billing Address Line 2</span>
                             </label>
-                            <input type="text" wire:model="billing_address_line_2" class="input input-bordered" />
+                            <input type="text" wire:model="billing_address_line_2" class="input input-bordered w-full" />
                         </div>
 
                         <div class="form-control">
                             <label class="label">
                                 <span class="label-text">Billing City</span>
                             </label>
-                            <input type="text" wire:model="billing_city" class="input input-bordered" />
+                            <input type="text" wire:model="billing_city" class="input input-bordered w-full" />
                         </div>
 
                         <div class="form-control">
                             <label class="label">
                                 <span class="label-text">Billing State/Province</span>
                             </label>
-                            <input type="text" wire:model="billing_state" class="input input-bordered" />
+                            <input type="text" wire:model="billing_state" class="input input-bordered w-full" />
                         </div>
 
                         <div class="form-control">
                             <label class="label">
                                 <span class="label-text">Billing ZIP/Postal Code</span>
                             </label>
-                            <input type="text" wire:model="billing_zip_code" class="input input-bordered" />
+                            <input type="text" wire:model="billing_zip_code" class="input input-bordered w-full" />
                         </div>
 
                         <div class="form-control">
                             <label class="label">
                                 <span class="label-text">Billing Country</span>
                             </label>
-                            <input type="text" wire:model="billing_country" class="input input-bordered" />
+                            <input type="text" wire:model="billing_country" class="input input-bordered w-full" />
                         </div>
                     </div>
                 @endif
@@ -492,7 +517,7 @@
                     <label class="label">
                         <span class="label-text">Status <span class="text-error">*</span></span>
                     </label>
-                    <select wire:model="status" class="select select-bordered">
+                    <select wire:model="status" class="select select-bordered w-full">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                         <option value="suspended">Suspended</option>
@@ -503,7 +528,7 @@
                     <label class="label">
                         <span class="label-text">Notes</span>
                     </label>
-                    <textarea wire:model="notes" class="textarea textarea-bordered" rows="3"></textarea>
+                    <textarea wire:model="notes" class="textarea textarea-bordered w-full" rows="3"></textarea>
                 </div>
 
                 <!-- Modal Actions -->

@@ -60,6 +60,8 @@ class ClientManagement extends Component
     public $domain_registrar_other;
     public $dns_managed_elsewhere = false;
     public $dns_provider;
+    public $client_software;
+    public $software_cost;
 
     // CSV Import
     public $csvFile;
@@ -114,6 +116,8 @@ class ClientManagement extends Component
             'domain_registrar_other' => 'nullable|string|max:100',
             'dns_managed_elsewhere' => 'boolean',
             'dns_provider' => 'nullable|string|max:100',
+            'client_software' => 'nullable|string',
+            'software_cost' => 'nullable|numeric|min:0|max:99999.99',
         ];
     }
 
@@ -204,7 +208,9 @@ class ClientManagement extends Component
         $this->domain_registrar_other = $client->domain_registrar_other;
         $this->dns_managed_elsewhere = $client->dns_managed_elsewhere;
         $this->dns_provider = $client->dns_provider;
-        
+        $this->client_software = $client->client_software;
+        $this->software_cost = $client->software_cost;
+
         $this->showEditModal = true;
     }
 
@@ -250,6 +256,8 @@ class ClientManagement extends Component
                 'domain_registrar_other' => $this->domain_registrar_other,
                 'dns_managed_elsewhere' => $this->dns_managed_elsewhere,
                 'dns_provider' => $this->dns_provider,
+                'client_software' => $this->client_software,
+                'software_cost' => $this->software_cost,
             ];
 
             if ($this->clientId) {
@@ -696,6 +704,8 @@ class ClientManagement extends Component
             'domain_registrar_other',
             'dns_managed_elsewhere',
             'dns_provider',
+            'client_software',
+            'software_cost',
         ]);
         
         $this->country = 'United States';

@@ -47,6 +47,8 @@ class Client extends Model
         'domain_registrar_other',
         'dns_managed_elsewhere',
         'dns_provider',
+        'client_software',
+        'software_cost',
         'created_by_id',
         'updated_by_id',
     ];
@@ -60,6 +62,7 @@ class Client extends Model
         'billing_address_same' => 'boolean',
         'dns_managed_elsewhere' => 'boolean',
         'default_hourly_rate' => 'decimal:2',
+        'software_cost' => 'decimal:2',
     ];
 
     /**
