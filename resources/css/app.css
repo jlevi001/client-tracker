@@ -129,6 +129,11 @@
   }
 }
 
+/* Toggle OFF state contrast fix — daisyUI's default is near-invisible on dark backgrounds */
+.toggle {
+  --tglbg: #4b5563;
+}
+
 /* Custom component styles that DON'T use @apply with daisyUI */
 @layer components {
   /* Add any custom component classes here using only Tailwind utilities */
