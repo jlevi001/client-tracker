@@ -215,9 +215,8 @@
                         <span class="font-semibold">Company Information</span>
                         <div class="flex items-center gap-3">
                             <span x-show="!sections.company" class="text-sm text-base-content/50 truncate max-w-xs">{{ $company_name ?: 'Not filled in' }}</span>
-                            <svg class="w-5 h-5 transition-transform duration-200" :class="!sections.company ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
+                            <svg x-show="sections.company" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <svg x-show="!sections.company" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
                         </div>
                     </button>
                     <div x-show="sections.company"
@@ -272,9 +271,8 @@
                             <span x-show="!sections.billing" class="text-sm text-base-content/50">
                                 ${{ $default_hourly_rate }}/hr &middot; {{ $payment_terms ? str_replace('_', ' ', $payment_terms) : '' }}
                             </span>
-                            <svg class="w-5 h-5 transition-transform duration-200" :class="!sections.billing ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
+                            <svg x-show="sections.billing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <svg x-show="!sections.billing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
                         </div>
                     </button>
                     <div x-show="sections.billing"
@@ -322,9 +320,8 @@
                             <span x-show="!sections.address" class="text-sm text-base-content/50 truncate max-w-xs">
                                 {{ $city ? $city.($state ? ', '.$state : '') : 'Not set' }}
                             </span>
-                            <svg class="w-5 h-5 transition-transform duration-200" :class="!sections.address ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
+                            <svg x-show="sections.address" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <svg x-show="!sections.address" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
                         </div>
                     </button>
                     <div x-show="sections.address"
@@ -375,9 +372,8 @@
                             <span x-show="!sections.billingAddr" class="text-sm text-base-content/50">
                                 {{ $billing_address_same ? 'Same as main address' : ($billing_city ? $billing_city.($billing_state ? ', '.$billing_state : '') : 'Not set') }}
                             </span>
-                            <svg class="w-5 h-5 transition-transform duration-200" :class="!sections.billingAddr ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
+                            <svg x-show="sections.billingAddr" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <svg x-show="!sections.billingAddr" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
                         </div>
                     </button>
                     <div x-show="sections.billingAddr"
@@ -435,9 +431,8 @@
                             <span x-show="!sections.hosting" class="text-sm text-base-content/50 truncate max-w-xs">
                                 {{ $hosting_provider ? ucfirst($hosting_provider) : 'Not set' }}
                             </span>
-                            <svg class="w-5 h-5 transition-transform duration-200" :class="!sections.hosting ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
+                            <svg x-show="sections.hosting" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <svg x-show="!sections.hosting" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
                         </div>
                     </button>
                     <div x-show="sections.hosting"
@@ -525,9 +520,8 @@
                         <span class="font-semibold">Additional Information</span>
                         <div class="flex items-center gap-3">
                             <span x-show="!sections.additional" class="text-sm text-base-content/50">{{ ucfirst($status ?? 'active') }}</span>
-                            <svg class="w-5 h-5 transition-transform duration-200" :class="!sections.additional ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
+                            <svg x-show="sections.additional" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <svg x-show="!sections.additional" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
                         </div>
                     </button>
                     <div x-show="sections.additional"
