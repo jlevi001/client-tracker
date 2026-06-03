@@ -33,8 +33,8 @@ module.exports = {
           "primary-focus": "#4f46e5",    // Indigo-700
           "primary-content": "#ffffff",   // White text on primary
           
-          "secondary": "#8b5cf6",         // Purple-600
-          "secondary-focus": "#7c3aed",  // Purple-700
+          "secondary": "#FF5600",         // Lingo orange
+          "secondary-focus": "#cc4400",  // Darker orange for focus/hover
           "secondary-content": "#ffffff", // White text on secondary
           
           "accent": "#10b981",            // Green-600
