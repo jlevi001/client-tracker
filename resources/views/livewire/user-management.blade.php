@@ -20,17 +20,21 @@
 
     <!-- Header with Search and Add Button -->
     <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div class="w-full sm:w-1/3">
-            <input wire:model.live="search" 
-       			type="search" 
-       			placeholder="Search users..." 
+        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <input wire:model.live="search"
+       			type="search"
+       			placeholder="Search users..."
        			autocomplete="off"
        			data-lpignore="true"
        			data-1p-ignore
        			data-form-type="other"
-       			class="input input-bordered w-full">
+       			class="input input-bordered w-full sm:w-64">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" wire:model.live="showInactive" class="checkbox checkbox-sm" />
+                <span class="text-sm">Show inactive</span>
+            </label>
         </div>
-        <button wire:click="openCreateModal" 
+        <button wire:click="openCreateModal"
                 class="btn btn-primary w-full sm:w-auto">
             Add New User
         </button>
@@ -74,6 +78,7 @@
                                 @endif
                             </div>
                         </th>
+                        <th>Status</th>
                         <th>Role</th>
                         <th wire:click="sortBy('employment_start_date')" class="cursor-pointer hover:bg-base-300">
                             <div class="flex items-center gap-1">
@@ -113,6 +118,13 @@
                             </td>
                             <td>{{ $user->email }}</td>
                             <td>
+                                @if($user->is_active)
+                                    <span class="badge badge-success badge-sm">Active</span>
+                                @else
+                                    <span class="badge badge-error badge-sm">Inactive</span>
+                                @endif
+                            </td>
+                            <td>
                                 @if($user->roles->isNotEmpty())
                                     <span class="badge 
                                         @if($user->roles->first()->name === 'Admin') badge-error
@@ -149,7 +161,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center">
+                            <td colspan="6" class="text-center">
                                 <div class="py-8 text-base-content/50">
                                     No users found.
                                 </div>
@@ -366,30 +378,59 @@
                         @enderror
                     </div>
                 </div>
-<div class="form-control w-full">
-    <label class="label">
-        <span class="label-text">Employment Start Date</span>
-    </label>
-    @if(auth()->user()->hasRole('Admin'))
-        <input type="date" wire:model="employmentStartDate" class="input input-bordered w-full @error('employmentStartDate') input-error @enderror" />
-        @error('employmentStartDate')
-            <label class="label">
-                <span class="label-text-alt text-error">{{ $message }}</span>
-            </label>
-        @enderror
-    @else
-        {{-- Non-admins see read-only display --}}
-        <div class="px-3 py-2 bg-base-300 rounded-md">
-            @if($employmentStartDate)
-                {{ \Carbon\Carbon::parse($employmentStartDate)->format('M d, Y') }}
-            @else
-                <span class="text-base-content/50">Not set</span>
-            @endif
-        </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="form-control w-full">
         <label class="label">
-            <span class="label-text-alt text-base-content/50">Only administrators can edit this field</span>
+            <span class="label-text">Employment Start Date</span>
         </label>
-    @endif
+        @if(auth()->user()->hasRole('Admin'))
+            <input type="date" wire:model="employmentStartDate" class="input input-bordered w-full @error('employmentStartDate') input-error @enderror" />
+            @error('employmentStartDate')
+                <label class="label">
+                    <span class="label-text-alt text-error">{{ $message }}</span>
+                </label>
+            @enderror
+        @else
+            <div class="px-3 py-2 bg-base-300 rounded-md">
+                @if($employmentStartDate)
+                    {{ \Carbon\Carbon::parse($employmentStartDate)->format('M d, Y') }}
+                @else
+                    <span class="text-base-content/50">Not set</span>
+                @endif
+            </div>
+            <label class="label">
+                <span class="label-text-alt text-base-content/50">Only administrators can edit this field</span>
+            </label>
+        @endif
+    </div>
+
+    <div class="form-control w-full">
+        <label class="label">
+            <span class="label-text">Employment End Date</span>
+        </label>
+        @if(auth()->user()->hasRole('Admin'))
+            <input type="date" wire:model="employmentEndDate" class="input input-bordered w-full @error('employmentEndDate') input-error @enderror" />
+            @error('employmentEndDate')
+                <label class="label">
+                    <span class="label-text-alt text-error">{{ $message }}</span>
+                </label>
+            @enderror
+            <label class="label">
+                <span class="label-text-alt text-base-content/50">Set this date to mark the employee as inactive</span>
+            </label>
+        @else
+            <div class="px-3 py-2 bg-base-300 rounded-md">
+                @if($employmentEndDate)
+                    {{ \Carbon\Carbon::parse($employmentEndDate)->format('M d, Y') }}
+                @else
+                    <span class="text-base-content/50">Not set</span>
+                @endif
+            </div>
+            <label class="label">
+                <span class="label-text-alt text-base-content/50">Only administrators can edit this field</span>
+            </label>
+        @endif
+    </div>
 </div>
                 <!-- Wage Information Section with Visibility Toggle -->
                 <div class="divider">Wage Information</div>

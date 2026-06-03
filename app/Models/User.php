@@ -31,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'employment_start_date',
+        'employment_end_date',
     ];
 
     /**
@@ -54,6 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'employment_start_date' => 'date',
+        'employment_end_date' => 'date',
     ];
 
     /**
@@ -202,6 +204,25 @@ class User extends Authenticatable implements MustVerifyEmail
                     'end_date' => null
                 ]);
             }
+        }
+    }
+
+    /**
+     * Whether the employee is currently active (no end date, or end date in the future)
+     */
+    public function getIsActiveAttribute(): bool
+    {
+        return is_null($this->employment_end_date) || $this->employment_end_date->isFuture();
+    }
+
+    /**
+     * Close the current wage record when an employee leaves
+     */
+    public function closeCurrentWage(string $endDate): void
+    {
+        $currentWage = $this->currentWage;
+        if ($currentWage) {
+            $currentWage->update(['end_date' => $endDate]);
         }
     }
 

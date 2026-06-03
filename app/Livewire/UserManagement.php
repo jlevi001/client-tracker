@@ -50,6 +50,8 @@ class UserManagement extends Component
     public $search = '';
     public $sortField = 'name';
     public $sortDirection = 'asc';
+    public $showInactive = false;
+    public $employmentEndDate;
 	
 	public function mount()
     {
@@ -126,6 +128,7 @@ class UserManagement extends Component
         $this->email = $user->email;
         $this->selectedRole = $user->roles->first()?->name;
         $this->employmentStartDate = $user->employment_start_date?->format('Y-m-d');
+        $this->employmentEndDate = $user->employment_end_date?->format('Y-m-d');
         $this->password = '';
         $this->password_confirmation = '';
         
@@ -353,6 +356,7 @@ class UserManagement extends Component
             'name' => $this->name,
             'email' => $this->email,
             'employment_start_date' => $this->employmentStartDate,
+            'employment_end_date' => $this->employmentEndDate ?: null,
         ];
 
         if (!empty($this->password)) {
@@ -362,9 +366,14 @@ class UserManagement extends Component
         $user->update($updateData);
         $user->syncRoles([$this->selectedRole]);
 
+        // Close the current wage record if an employment end date is set
+        if ($this->employmentEndDate) {
+            $user->closeCurrentWage($this->employmentEndDate);
+        }
+
         $this->showEditModal = false;
         $this->reset(['userId', 'name', 'email', 'password', 'password_confirmation', 'selectedRole',
-                      'employmentStartDate', 'wageType', 'wageRate', 'wageStartDate', 'wageNotes',
+                      'employmentStartDate', 'employmentEndDate', 'wageType', 'wageRate', 'wageStartDate', 'wageNotes',
                       'newWageType', 'newWageRate', 'newWageStartDate', 'newWageNotes']);
         
         session()->flash('success', 'User updated successfully.');
@@ -395,6 +404,12 @@ class UserManagement extends Component
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('email', 'like', '%' . $this->search . '%');
+            })
+            ->when(!$this->showInactive, function ($query) {
+                $query->where(function ($q) {
+                    $q->whereNull('employment_end_date')
+                      ->orWhere('employment_end_date', '>', now());
+                });
             })
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate(10);
