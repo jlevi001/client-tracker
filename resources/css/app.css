@@ -129,10 +129,56 @@
   }
 }
 
-/* Toggle OFF state contrast fix — daisyUI's default is near-invisible on dark backgrounds */
+/* iOS-style toggle — overrides daisyUI v5 toggle entirely */
 .toggle {
-  --tglbg: #4b5563;
+  --toggle-h: 1.5rem;
+  --toggle-w: 2.75rem;
+  --thumb-size: calc(var(--toggle-h) - 4px);
+  appearance: none;
+  -webkit-appearance: none;
+  width: var(--toggle-w);
+  height: var(--toggle-h);
+  min-height: unset;
+  border-radius: 9999px;
+  background-color: #6b7280;
+  background-image: none !important;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  vertical-align: middle;
+  border: none;
+  box-shadow: none;
 }
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  background: #ffffff;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: left 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+}
+
+.toggle:checked {
+  background-color: #6366f1;
+  background-image: none !important;
+}
+
+.toggle:checked::after {
+  left: calc(var(--toggle-w) - var(--thumb-size) - 2px);
+}
+
+.toggle-primary:checked  { background-color: #6366f1; }
+.toggle-secondary:checked { background-color: #FF5600; }
+.toggle-accent:checked   { background-color: #10b981; }
+.toggle-success:checked  { background-color: #10b981; }
+.toggle-warning:checked  { background-color: #f59e0b; }
+.toggle-error:checked    { background-color: #ef4444; }
 
 /* Custom component styles that DON'T use @apply with daisyUI */
 @layer components {
