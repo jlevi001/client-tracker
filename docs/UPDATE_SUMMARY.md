@@ -1,3 +1,31 @@
+# Update Summary - June 2026
+
+## Changes Completed June 3, 2026
+
+### 1. Disabled Self-Registration
+- Removed Register button from welcome page
+- `/register` route now redirects to `/login`
+- Files: `resources/views/welcome.blade.php`, `routes/web.php`
+
+### 2. Fixed Wage History End Date Bug
+- Wages were being assigned end dates in reverse order due to a conflicting `orderBy` in the `wageHistory()` relationship
+- Fixed with `reorder()` in `User::recalculateWageEndDates()`
+- Added `wages:recalculate` artisan command to repair existing data
+- Files: `app/Models/User.php`, `app/Console/Commands/RecalculateWageEndDates.php`
+
+### 3. Inactive Employee Tracking
+- New `employment_end_date` field on users table
+- Setting this date marks an employee inactive and closes their current wage record
+- User list now shows Active/Inactive badges with a "Show inactive" filter
+- Edit modal has Employment End Date field (admin only)
+- Files: `database/migrations/2026_06_03_195000_add_employment_end_date_to_users_table.php`, `app/Models/User.php`, `app/Livewire/UserManagement.php`, `resources/views/livewire/user-management.blade.php`
+
+### 4. Documentation Consolidated
+- All docs from external `Lingo-Client-Tracker-Docs` folder and `Time Tracker\Docs` merged into `docs/` (version-controlled)
+- External folders deleted — `docs/` is now the single source of truth
+
+---
+
 # Documentation Update Summary - January 2025
 
 ## 📦 Files to Push to GitHub

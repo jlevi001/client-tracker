@@ -597,3 +597,22 @@ Before submitting any component:
 - âœ… Corrected Livewire component path from `/app/Http/Livewire/` to `/app/Livewire/`
 - âœ… Added explicit list of UI libraries NOT to use
 - âœ… Updated all component listings to show complete migration status
+---
+
+## Change Log - June 2026
+
+### Disabled Self-Registration
+- Removed Register button from `welcome.blade.php`
+- Added redirect from `/register` to `/login` in `routes/web.php`
+- Users can no longer self-register; all accounts must be created by an admin
+
+### Fixed Wage History End Date Bug
+- **Root cause**: `wageHistory()` relationship has a default `orderBy('start_date', 'desc')`. Chaining `->orderBy('start_date', 'asc')` in `recalculateWageEndDates()` added a second sort rather than replacing it — causing wages to be processed newest-first and end dates assigned backwards.
+- **Fix**: Changed `orderBy()` to `reorder()` in `User::recalculateWageEndDates()` to clear the relationship's default ordering before applying ASC.
+- Added `wages:recalculate` artisan command (`app/Console/Commands/RecalculateWageEndDates.php`) to fix existing corrupted records.
+
+### Added Inactive Employee Tracking
+- **Migration**: Added `employment_end_date` (date, nullable) to `users` table
+- **User model**: Added `isActive` accessor and `closeCurrentWage($endDate)` method
+- **UserManagement Livewire**: Added `employmentEndDate` property, `showInactive` filter; `updateUser()` auto-closes wage when end date is set
+- **UI**: Active/Inactive badge in user list, "Show inactive" checkbox filter, Employment End Date field in Edit modal (admin only, alongside Start Date)

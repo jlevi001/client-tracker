@@ -1,6 +1,6 @@
 # Current Database Tables
 
-**Last Updated**: February 9, 2026
+**Last Updated**: June 3, 2026
 **Database**: fmayejttab (MySQL 8)
 
 ---
@@ -134,8 +134,7 @@ Core user table with authentication and profile fields.
 - email (varchar 255, unique)
 - email_verified_at (timestamp, nullable)
 - employment_start_date (date, nullable)
-- hourly_wage (decimal 8,2, nullable)
-- annual_salary (decimal 10,2, nullable)
+- employment_end_date (date, nullable) -- Set when employee leaves; drives Active/Inactive status
 - password (varchar 255)
 - two_factor_secret (text, nullable)
 - two_factor_recovery_codes (text, nullable)
@@ -303,6 +302,7 @@ The following tables are planned for the Client Management system:
 | 8 | 2025_01_10_000001_create_wage_histories_table | â€” |
 | 9 | 2025_01_04_000001_create_clients_table | Jan 4, 2026 |
 | 10 | 2026_02_09_000001_add_software_fields_to_clients_table | Feb 9, 2026 |
+| 11 | 2026_06_03_195000_add_employment_end_date_to_users_table | Jun 3, 2026 |
 
 ---
 
@@ -320,5 +320,7 @@ The following tables are planned for the Client Management system:
 - Next: Phase 2 - Contract Management (contracts table, contract_service_type pivot table)
 
 ---
+
+- Phase 2 (Jun 3, 2026): Added `employment_end_date` to users table for inactive employee tracking. Setting this date marks the user inactive and auto-closes their current wage record.
 
 *Last SQL dump: February 9, 2026*
