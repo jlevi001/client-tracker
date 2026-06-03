@@ -170,15 +170,27 @@
 
     <!-- Add/Edit Client Modal -->
     <div class="modal {{ $showAddModal || $showEditModal ? 'modal-open' : '' }}">
-        <div class="modal-box max-w-4xl">
+        <div class="modal-box max-w-5xl"
+             x-data="{
+                sections: {
+                    company:  true,
+                    billing:  true,
+                    address:  false,
+                    billingAddr: false,
+                    hosting:  false,
+                    additional: true
+                }
+             }">
+
             <h3 class="font-bold text-lg mb-4">
                 {{ $clientId ? 'Edit Client' : 'Add New Client' }}
             </h3>
 
-            <form wire:submit.prevent="save" class="space-y-4">
+            <form wire:submit.prevent="save" class="space-y-3">
+
                 <!-- Account Number Preview (Add only) -->
                 @if(!$clientId && $company_name)
-                    <div class="alert alert-info">
+                    <div class="alert">
                         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
@@ -189,346 +201,356 @@
                 <!-- Account Number (Read-only for edit) -->
                 @if($clientId)
                     <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Account Number</span>
-                        </label>
+                        <label class="label"><span class="label-text">Account Number</span></label>
                         <input type="text" value="{{ $account_number }}" class="input input-bordered w-full" disabled />
-                        <label class="label">
-                            <span class="label-text-alt">Account numbers cannot be changed</span>
-                        </label>
+                        <label class="label"><span class="label-text-alt">Account numbers cannot be changed</span></label>
                     </div>
                 @endif
 
-                <!-- Company Information -->
-                <div class="divider">Company Information</div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Company Name <span class="text-error">*</span></span>
-                        </label>
-                        <input type="text" wire:model="company_name" class="input input-bordered w-full @error('company_name') input-error @enderror" />
-                        @error('company_name')
-                            <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
-                            </label>
-                        @enderror
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Trading Name (DBA)</span>
-                        </label>
-                        <input type="text" wire:model="trading_name" class="input input-bordered w-full" />
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Website</span>
-                        </label>
-                        <input type="url" wire:model="website" class="input input-bordered w-full @error('website') input-error @enderror" placeholder="https://" />
-                        @error('website')
-                            <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
-                            </label>
-                        @enderror
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Email</span>
-                        </label>
-                        <input type="email" wire:model="email" class="input input-bordered w-full @error('email') input-error @enderror" />
-                        @error('email')
-                            <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
-                            </label>
-                        @enderror
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Office Phone</span>
-                        </label>
-                        <input type="tel" wire:model="phone" class="input input-bordered w-full" placeholder="+1 214 555 1234" />
-                        <label class="label">
-                            <span class="label-text-alt">Format: +1 XXX XXX XXXX</span>
-                        </label>
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Mobile Phone</span>
-                        </label>
-                        <input type="tel" wire:model="mobile" class="input input-bordered w-full" placeholder="+1 214 555 1234" />
-                        <label class="label">
-                            <span class="label-text-alt">Format: +1 XXX XXX XXXX</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Billing Settings -->
-                <div class="divider">Billing Settings</div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Default Hourly Rate <span class="text-error">*</span></span>
-                        </label>
-                        <label class="input-group">
-                            <span>$</span>
-                            <input type="number" step="0.01" wire:model="default_hourly_rate" class="input input-bordered flex-1 @error('default_hourly_rate') input-error @enderror" />
-                        </label>
-                        @error('default_hourly_rate')
-                            <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
-                            </label>
-                        @enderror
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Payment Terms <span class="text-error">*</span></span>
-                        </label>
-                        <select wire:model="payment_terms" class="select select-bordered w-full">
-                            <option value="net15">Net 15</option>
-                            <option value="net30">Net 30</option>
-                            <option value="net45">Net 45</option>
-                            <option value="net60">Net 60</option>
-                            <option value="due_on_receipt">Due on Receipt</option>
-                        </select>
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Tax ID</span>
-                        </label>
-                        <input type="text" wire:model="tax_id" class="input input-bordered w-full" placeholder="XX-XXXXXXX" />
-                    </div>
-                </div>
-
-                <!-- Hosting & Domain Information -->
-                <div class="divider">Hosting, Domain, & Software Information</div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Hosting Provider</span>
-                        </label>
-                        <select wire:model="hosting_provider" class="select select-bordered w-full">
-                            @foreach($hostingProviders as $value => $label)
-                                <option value="{{ $value }}">{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Hosting Managed By</span>
-                        </label>
-                        <div class="flex gap-4 mt-2">
-                            <label class="label cursor-pointer gap-2">
-                                <input type="radio" wire:model="hosting_managed_by" value="lingo" class="radio radio-primary" />
-                                <span class="label-text">Lingo</span>
-                            </label>
-                            <label class="label cursor-pointer gap-2">
-                                <input type="radio" wire:model="hosting_managed_by" value="client" class="radio radio-primary" />
-                                <span class="label-text">Client</span>
-                            </label>
-                            <label class="label cursor-pointer gap-2">
-                                <input type="radio" wire:model="hosting_managed_by" value="" class="radio radio-primary" />
-                                <span class="label-text">Not Set</span>
-                            </label>
+                {{-- ── Company Information ── --}}
+                <div class="rounded-lg overflow-hidden border border-base-300">
+                    <button type="button"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-base-300 hover:bg-base-300/70 transition-colors select-none"
+                            @click="sections.company = !sections.company">
+                        <span class="font-semibold">Company Information</span>
+                        <div class="flex items-center gap-3">
+                            <span x-show="!sections.company" class="text-sm text-base-content/50 truncate max-w-xs">{{ $company_name ?: 'Not filled in' }}</span>
+                            <svg class="w-5 h-5 transition-transform duration-200" :class="sections.company ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </button>
+                    <div x-show="sections.company"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-2"
+                         class="p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Company Name <span class="text-error">*</span></span></label>
+                                <input type="text" wire:model="company_name" class="input input-bordered w-full @error('company_name') input-error @enderror" />
+                                @error('company_name')<label class="label"><span class="label-text-alt text-error">{{ $message }}</span></label>@enderror
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Trading Name (DBA)</span></label>
+                                <input type="text" wire:model="trading_name" class="input input-bordered w-full" />
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Website</span></label>
+                                <input type="url" wire:model="website" class="input input-bordered w-full @error('website') input-error @enderror" placeholder="https://" />
+                                @error('website')<label class="label"><span class="label-text-alt text-error">{{ $message }}</span></label>@enderror
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Email</span></label>
+                                <input type="email" wire:model="email" class="input input-bordered w-full @error('email') input-error @enderror" />
+                                @error('email')<label class="label"><span class="label-text-alt text-error">{{ $message }}</span></label>@enderror
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Office Phone</span></label>
+                                <input type="tel" wire:model="phone" class="input input-bordered w-full" placeholder="+1 214 555 1234" />
+                                <label class="label"><span class="label-text-alt">Format: +1 XXX XXX XXXX</span></label>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Mobile Phone</span></label>
+                                <input type="tel" wire:model="mobile" class="input input-bordered w-full" placeholder="+1 214 555 1234" />
+                                <label class="label"><span class="label-text-alt">Format: +1 XXX XXX XXXX</span></label>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Domain Registrar</span>
-                        </label>
-                        <select wire:model="domain_registrar" class="select select-bordered w-full">
-                            @foreach($domainRegistrars as $value => $label)
-                                <option value="{{ $value }}">{{ $label }}</option>
-                            @endforeach
-                        </select>
+                {{-- ── Billing Settings ── --}}
+                <div class="rounded-lg overflow-hidden border border-base-300">
+                    <button type="button"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-base-300 hover:bg-base-300/70 transition-colors select-none"
+                            @click="sections.billing = !sections.billing">
+                        <span class="font-semibold">Billing Settings</span>
+                        <div class="flex items-center gap-3">
+                            <span x-show="!sections.billing" class="text-sm text-base-content/50">
+                                ${{ $default_hourly_rate }}/hr &middot; {{ $payment_terms ? str_replace('_', ' ', $payment_terms) : '' }}
+                            </span>
+                            <svg class="w-5 h-5 transition-transform duration-200" :class="sections.billing ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </button>
+                    <div x-show="sections.billing"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-2"
+                         class="p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Default Hourly Rate <span class="text-error">*</span></span></label>
+                                <label class="input-group">
+                                    <span>$</span>
+                                    <input type="number" step="0.01" wire:model="default_hourly_rate" class="input input-bordered flex-1 @error('default_hourly_rate') input-error @enderror" />
+                                </label>
+                                @error('default_hourly_rate')<label class="label"><span class="label-text-alt text-error">{{ $message }}</span></label>@enderror
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Payment Terms <span class="text-error">*</span></span></label>
+                                <select wire:model="payment_terms" class="select select-bordered w-full">
+                                    <option value="net15">Net 15</option>
+                                    <option value="net30">Net 30</option>
+                                    <option value="net45">Net 45</option>
+                                    <option value="net60">Net 60</option>
+                                    <option value="due_on_receipt">Due on Receipt</option>
+                                </select>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Tax ID</span></label>
+                                <input type="text" wire:model="tax_id" class="input input-bordered w-full" placeholder="XX-XXXXXXX" />
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-                    @if($domain_registrar === 'other')
+                {{-- ── Address Information ── --}}
+                <div class="rounded-lg overflow-hidden border border-base-300">
+                    <button type="button"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-base-300 hover:bg-base-300/70 transition-colors select-none"
+                            @click="sections.address = !sections.address">
+                        <span class="font-semibold">Address Information</span>
+                        <div class="flex items-center gap-3">
+                            <span x-show="!sections.address" class="text-sm text-base-content/50 truncate max-w-xs">
+                                {{ $city ? $city.($state ? ', '.$state : '') : 'Not set' }}
+                            </span>
+                            <svg class="w-5 h-5 transition-transform duration-200" :class="sections.address ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </button>
+                    <div x-show="sections.address"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-2"
+                         class="p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="form-control md:col-span-2">
+                                <label class="label"><span class="label-text">Address Line 1</span></label>
+                                <input type="text" wire:model="address_line_1" class="input input-bordered w-full" />
+                            </div>
+                            <div class="form-control md:col-span-2">
+                                <label class="label"><span class="label-text">Address Line 2</span></label>
+                                <input type="text" wire:model="address_line_2" class="input input-bordered w-full" />
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">City</span></label>
+                                <input type="text" wire:model="city" class="input input-bordered w-full" />
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">State/Province</span></label>
+                                <input type="text" wire:model="state" class="input input-bordered w-full" placeholder="Texas or TX" />
+                                <label class="label"><span class="label-text-alt">Full name or abbreviation accepted</span></label>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">ZIP/Postal Code</span></label>
+                                <input type="text" wire:model="zip_code" class="input input-bordered w-full" />
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Country</span></label>
+                                <input type="text" wire:model="country" class="input input-bordered w-full" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ── Billing Address ── --}}
+                <div class="rounded-lg overflow-hidden border border-base-300">
+                    <button type="button"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-base-300 hover:bg-base-300/70 transition-colors select-none"
+                            @click="sections.billingAddr = !sections.billingAddr">
+                        <span class="font-semibold">Billing Address</span>
+                        <div class="flex items-center gap-3">
+                            <span x-show="!sections.billingAddr" class="text-sm text-base-content/50">
+                                {{ $billing_address_same ? 'Same as main address' : ($billing_city ? $billing_city.($billing_state ? ', '.$billing_state : '') : 'Not set') }}
+                            </span>
+                            <svg class="w-5 h-5 transition-transform duration-200" :class="sections.billingAddr ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </button>
+                    <div x-show="sections.billingAddr"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-2"
+                         class="p-4 space-y-4">
                         <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">Other Registrar Name</span>
+                            <label class="label cursor-pointer justify-start gap-2">
+                                <input type="checkbox" wire:model.live="billing_address_same" class="toggle toggle-primary" />
+                                <span class="label-text">Same as main address</span>
                             </label>
-                            <input type="text" wire:model="domain_registrar_other" class="input input-bordered w-full" placeholder="Enter registrar name" />
                         </div>
-                    @endif
-
-                    <div class="form-control md:col-span-2">
-                        <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" wire:model.live="dns_managed_elsewhere" class="toggle toggle-primary" />
-                            <span class="label-text">DNS Managed Elsewhere</span>
-                        </label>
-                    </div>
-
-                    @if($dns_managed_elsewhere)
-                        <div class="form-control md:col-span-2">
-                            <label class="label">
-                                <span class="label-text">DNS Provider</span>
-                            </label>
-                            <input type="text" wire:model="dns_provider" class="input input-bordered w-full" placeholder="e.g., Cloudflare, Route53" />
-                        </div>
-                    @endif
-
-                    <div class="form-control md:col-span-2">
-                        <label class="label">
-                            <span class="label-text">Client Software</span>
-                        </label>
-                        <textarea wire:model="client_software" class="textarea textarea-bordered w-full" rows="2" placeholder="e.g., Microsoft 365, Adobe CC, QuickBooks"></textarea>
-                        <label class="label">
-                            <span class="label-text-alt">Comma-separated list of software paid for by Lingo</span>
-                        </label>
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Monthly Software Cost</span>
-                        </label>
-                        <label class="input-group">
-                            <span>$</span>
-                            <input type="number" step="0.01" wire:model="software_cost" class="input input-bordered flex-1 @error('software_cost') input-error @enderror" placeholder="0.00" />
-                        </label>
-                        @error('software_cost')
-                            <label class="label">
-                                <span class="label-text-alt text-error">{{ $message }}</span>
-                            </label>
-                        @enderror
+                        @if(!$billing_address_same)
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="form-control md:col-span-2">
+                                    <label class="label"><span class="label-text">Billing Address Line 1</span></label>
+                                    <input type="text" wire:model="billing_address_line_1" class="input input-bordered w-full" />
+                                </div>
+                                <div class="form-control md:col-span-2">
+                                    <label class="label"><span class="label-text">Billing Address Line 2</span></label>
+                                    <input type="text" wire:model="billing_address_line_2" class="input input-bordered w-full" />
+                                </div>
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text">Billing City</span></label>
+                                    <input type="text" wire:model="billing_city" class="input input-bordered w-full" />
+                                </div>
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text">Billing State/Province</span></label>
+                                    <input type="text" wire:model="billing_state" class="input input-bordered w-full" />
+                                </div>
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text">Billing ZIP/Postal Code</span></label>
+                                    <input type="text" wire:model="billing_zip_code" class="input input-bordered w-full" />
+                                </div>
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text">Billing Country</span></label>
+                                    <input type="text" wire:model="billing_country" class="input input-bordered w-full" />
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
-                <!-- Address -->
-                <div class="divider">Address Information</div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="form-control md:col-span-2">
-                        <label class="label">
-                            <span class="label-text">Address Line 1</span>
-                        </label>
-                        <input type="text" wire:model="address_line_1" class="input input-bordered w-full" />
-                    </div>
-
-                    <div class="form-control md:col-span-2">
-                        <label class="label">
-                            <span class="label-text">Address Line 2</span>
-                        </label>
-                        <input type="text" wire:model="address_line_2" class="input input-bordered w-full" />
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">City</span>
-                        </label>
-                        <input type="text" wire:model="city" class="input input-bordered w-full" />
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">State/Province</span>
-                        </label>
-                        <input type="text" wire:model="state" class="input input-bordered w-full" placeholder="Texas or TX" />
-                        <label class="label">
-                            <span class="label-text-alt">Full name or abbreviation accepted</span>
-                        </label>
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">ZIP/Postal Code</span>
-                        </label>
-                        <input type="text" wire:model="zip_code" class="input input-bordered w-full" />
-                    </div>
-
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Country</span>
-                        </label>
-                        <input type="text" wire:model="country" class="input input-bordered w-full" />
+                {{-- ── Hosting, Domain & Software ── --}}
+                <div class="rounded-lg overflow-hidden border border-base-300">
+                    <button type="button"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-base-300 hover:bg-base-300/70 transition-colors select-none"
+                            @click="sections.hosting = !sections.hosting">
+                        <span class="font-semibold">Hosting, Domain & Software</span>
+                        <div class="flex items-center gap-3">
+                            <span x-show="!sections.hosting" class="text-sm text-base-content/50 truncate max-w-xs">
+                                {{ $hosting_provider ? ucfirst($hosting_provider) : 'Not set' }}
+                            </span>
+                            <svg class="w-5 h-5 transition-transform duration-200" :class="sections.hosting ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </button>
+                    <div x-show="sections.hosting"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-2"
+                         class="p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Hosting Provider</span></label>
+                                <select wire:model="hosting_provider" class="select select-bordered w-full">
+                                    @foreach($hostingProviders as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Hosting Managed By</span></label>
+                                <div class="flex gap-4 mt-2">
+                                    <label class="label cursor-pointer gap-2">
+                                        <input type="radio" wire:model="hosting_managed_by" value="lingo" class="radio radio-primary" />
+                                        <span class="label-text">Lingo</span>
+                                    </label>
+                                    <label class="label cursor-pointer gap-2">
+                                        <input type="radio" wire:model="hosting_managed_by" value="client" class="radio radio-primary" />
+                                        <span class="label-text">Client</span>
+                                    </label>
+                                    <label class="label cursor-pointer gap-2">
+                                        <input type="radio" wire:model="hosting_managed_by" value="" class="radio radio-primary" />
+                                        <span class="label-text">Not Set</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Domain Registrar</span></label>
+                                <select wire:model="domain_registrar" class="select select-bordered w-full">
+                                    @foreach($domainRegistrars as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @if($domain_registrar === 'other')
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text">Other Registrar Name</span></label>
+                                    <input type="text" wire:model="domain_registrar_other" class="input input-bordered w-full" placeholder="Enter registrar name" />
+                                </div>
+                            @endif
+                            <div class="form-control md:col-span-2">
+                                <label class="label cursor-pointer justify-start gap-2">
+                                    <input type="checkbox" wire:model.live="dns_managed_elsewhere" class="toggle toggle-primary" />
+                                    <span class="label-text">DNS Managed Elsewhere</span>
+                                </label>
+                            </div>
+                            @if($dns_managed_elsewhere)
+                                <div class="form-control md:col-span-2">
+                                    <label class="label"><span class="label-text">DNS Provider</span></label>
+                                    <input type="text" wire:model="dns_provider" class="input input-bordered w-full" placeholder="e.g., Cloudflare, Route53" />
+                                </div>
+                            @endif
+                            <div class="form-control md:col-span-2">
+                                <label class="label"><span class="label-text">Client Software</span></label>
+                                <textarea wire:model="client_software" class="textarea textarea-bordered w-full" rows="2" placeholder="e.g., Microsoft 365, Adobe CC, QuickBooks"></textarea>
+                                <label class="label"><span class="label-text-alt">Comma-separated list of software paid for by Lingo</span></label>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text">Monthly Software Cost</span></label>
+                                <label class="input-group">
+                                    <span>$</span>
+                                    <input type="number" step="0.01" wire:model="software_cost" class="input input-bordered flex-1 @error('software_cost') input-error @enderror" placeholder="0.00" />
+                                </label>
+                                @error('software_cost')<label class="label"><span class="label-text-alt text-error">{{ $message }}</span></label>@enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Billing Address -->
-                <div class="divider">Billing Address</div>
-
-                <div class="form-control">
-                    <label class="label cursor-pointer justify-start gap-2">
-                        <input type="checkbox" wire:model.live="billing_address_same" class="toggle toggle-primary" />
-                        <span class="label-text">Same as main address</span>
-                    </label>
-                </div>
-
-                @if(!$billing_address_same)
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="form-control md:col-span-2">
-                            <label class="label">
-                                <span class="label-text">Billing Address Line 1</span>
-                            </label>
-                            <input type="text" wire:model="billing_address_line_1" class="input input-bordered w-full" />
+                {{-- ── Additional Information ── --}}
+                <div class="rounded-lg overflow-hidden border border-base-300">
+                    <button type="button"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-base-300 hover:bg-base-300/70 transition-colors select-none"
+                            @click="sections.additional = !sections.additional">
+                        <span class="font-semibold">Additional Information</span>
+                        <div class="flex items-center gap-3">
+                            <span x-show="!sections.additional" class="text-sm text-base-content/50">{{ ucfirst($status ?? 'active') }}</span>
+                            <svg class="w-5 h-5 transition-transform duration-200" :class="sections.additional ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
                         </div>
-
-                        <div class="form-control md:col-span-2">
-                            <label class="label">
-                                <span class="label-text">Billing Address Line 2</span>
-                            </label>
-                            <input type="text" wire:model="billing_address_line_2" class="input input-bordered w-full" />
-                        </div>
-
+                    </button>
+                    <div x-show="sections.additional"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-2"
+                         class="p-4 space-y-4">
                         <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">Billing City</span>
-                            </label>
-                            <input type="text" wire:model="billing_city" class="input input-bordered w-full" />
+                            <label class="label"><span class="label-text">Status <span class="text-error">*</span></span></label>
+                            <select wire:model="status" class="select select-bordered w-full">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
                         </div>
-
                         <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">Billing State/Province</span>
-                            </label>
-                            <input type="text" wire:model="billing_state" class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">Billing ZIP/Postal Code</span>
-                            </label>
-                            <input type="text" wire:model="billing_zip_code" class="input input-bordered w-full" />
-                        </div>
-
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">Billing Country</span>
-                            </label>
-                            <input type="text" wire:model="billing_country" class="input input-bordered w-full" />
+                            <label class="label"><span class="label-text">Notes</span></label>
+                            <textarea wire:model="notes" class="textarea textarea-bordered w-full" rows="3"></textarea>
                         </div>
                     </div>
-                @endif
-
-                <!-- Status & Notes -->
-                <div class="divider">Additional Information</div>
-
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Status <span class="text-error">*</span></span>
-                    </label>
-                    <select wire:model="status" class="select select-bordered w-full">
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="suspended">Suspended</option>
-                    </select>
-                </div>
-
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Notes</span>
-                    </label>
-                    <textarea wire:model="notes" class="textarea textarea-bordered w-full" rows="3"></textarea>
                 </div>
 
                 <!-- Modal Actions -->
@@ -539,12 +561,11 @@
                         <button type="button" wire:click="closeEditModal" class="btn btn-ghost">Cancel</button>
                     @endif
                     <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" wire:target="save">
-                        <span wire:loading.remove wire:target="save">
-                            {{ $clientId ? 'Update Client' : 'Create Client' }}
-                        </span>
+                        <span wire:loading.remove wire:target="save">{{ $clientId ? 'Update Client' : 'Create Client' }}</span>
                         <span wire:loading wire:target="save" class="loading loading-spinner loading-sm"></span>
                     </button>
                 </div>
+
             </form>
         </div>
         <form method="dialog" class="modal-backdrop">
