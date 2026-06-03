@@ -175,8 +175,9 @@ class User extends Authenticatable implements MustVerifyEmail
     public function recalculateWageEndDates()
     {
         // Get all wages ordered by start_date ascending
+        // reorder() clears the relationship's default DESC ordering before applying ASC
         $wages = $this->wageHistory()
-            ->orderBy('start_date', 'asc')
+            ->reorder('start_date', 'asc')
             ->get();
 
         if ($wages->isEmpty()) {
