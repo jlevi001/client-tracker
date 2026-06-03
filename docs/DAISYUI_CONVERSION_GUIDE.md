@@ -1,6 +1,6 @@
 # daisyUI Conversion Guide - Complete Reference
 
-## 📋 Table of Contents
+## ðŸ“‹ Table of Contents
 1. [Quick Reference](#quick-reference)
 2. [Component Conversions](#component-conversions)
 3. [Color System](#color-system)
@@ -25,7 +25,7 @@
 ### Buttons
 
 ```html
-<!-- ❌ OLD: Primary Button -->
+<!-- âŒ OLD: Primary Button -->
 <button class="px-4 py-2 bg-indigo-600 text-white rounded-md 
                hover:bg-indigo-700 focus:outline-none focus:ring-2 
                focus:ring-indigo-500 focus:ring-offset-2 
@@ -33,54 +33,54 @@
     Save Changes
 </button>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <button class="btn btn-primary">
     Save Changes
 </button>
 
-<!-- ❌ OLD: Secondary Button -->
+<!-- âŒ OLD: Secondary Button -->
 <button class="px-4 py-2 bg-gray-700 text-gray-300 rounded-md 
                hover:bg-gray-600 focus:outline-none focus:ring-2 
                focus:ring-gray-500">
     Cancel
 </button>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <button class="btn btn-ghost">
     Cancel
 </button>
 
-<!-- ❌ OLD: Danger Button -->
+<!-- âŒ OLD: Danger Button -->
 <button class="px-4 py-2 bg-red-600 text-white rounded-md 
                hover:bg-red-700 focus:outline-none focus:ring-2 
                focus:ring-red-500">
     Delete
 </button>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <button class="btn btn-error">
     Delete
 </button>
 
-<!-- ❌ OLD: Icon Button -->
+<!-- âŒ OLD: Icon Button -->
 <button class="p-2 rounded-full bg-gray-700 hover:bg-gray-600 
                focus:outline-none focus:ring-2 focus:ring-gray-500">
     <svg class="w-5 h-5">...</svg>
 </button>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <button class="btn btn-circle btn-ghost">
     <svg class="w-5 h-5">...</svg>
 </button>
 
-<!-- ❌ OLD: Loading Button -->
+<!-- âŒ OLD: Loading Button -->
 <button class="px-4 py-2 bg-indigo-600 text-white rounded-md 
                opacity-50 cursor-not-allowed" disabled>
     <svg class="animate-spin h-5 w-5 mr-3 inline">...</svg>
     Processing...
 </button>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <button class="btn btn-primary" disabled>
     <span class="loading loading-spinner"></span>
     Processing...
@@ -106,17 +106,17 @@
 ### Form Inputs
 
 ```html
-<!-- ❌ OLD: Text Input -->
+<!-- âŒ OLD: Text Input -->
 <input type="text" 
        class="w-full px-3 py-2 bg-gray-700 border border-gray-600 
               rounded-md text-white placeholder-gray-400 
               focus:bg-gray-600 focus:border-indigo-500 
               focus:ring-1 focus:ring-indigo-500">
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <input type="text" class="input input-bordered w-full">
 
-<!-- ❌ OLD: Input with Label and Error -->
+<!-- âŒ OLD: Input with Label and Error -->
 <div class="mb-4">
     <label class="block text-sm font-medium text-gray-300 mb-1">
         Email Address
@@ -127,7 +127,7 @@
     <p class="mt-1 text-sm text-red-500">Please enter a valid email</p>
 </div>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <div class="form-control w-full">
     <label class="label">
         <span class="label-text">Email Address</span>
@@ -138,45 +138,45 @@
     </label>
 </div>
 
-<!-- ❌ OLD: Select Dropdown -->
+<!-- âŒ OLD: Select Dropdown -->
 <select class="w-full px-3 py-2 bg-gray-700 border border-gray-600 
                rounded-md text-white focus:border-indigo-500">
     <option>Option 1</option>
     <option>Option 2</option>
 </select>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <select class="select select-bordered w-full">
     <option disabled selected>Choose an option</option>
     <option>Option 1</option>
     <option>Option 2</option>
 </select>
 
-<!-- ❌ OLD: Textarea -->
+<!-- âŒ OLD: Textarea -->
 <textarea class="w-full px-3 py-2 bg-gray-700 border border-gray-600 
                  rounded-md text-white placeholder-gray-400 
                  focus:border-indigo-500" rows="4"></textarea>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <textarea class="textarea textarea-bordered w-full" rows="4"></textarea>
 
-<!-- ❌ OLD: Checkbox -->
+<!-- âŒ OLD: Checkbox -->
 <input type="checkbox" 
        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 
               bg-gray-700 border-gray-600 rounded">
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <input type="checkbox" class="checkbox checkbox-primary">
 
-<!-- ❌ OLD: Radio Button -->
+<!-- âŒ OLD: Radio Button -->
 <input type="radio" 
        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 
               bg-gray-700 border-gray-600">
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <input type="radio" class="radio radio-primary">
 
-<!-- ❌ OLD: Toggle Switch -->
+<!-- âŒ OLD: Toggle Switch -->
 <button type="button" 
         class="relative inline-flex h-6 w-11 items-center 
                rounded-full bg-gray-700 transition-colors 
@@ -185,7 +185,7 @@
                  bg-white transition-transform translate-x-1"></span>
 </button>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <input type="checkbox" class="toggle toggle-primary">
 
 <!-- Input Sizes -->
@@ -198,7 +198,7 @@
 ### Cards & Containers
 
 ```html
-<!-- ❌ OLD: Basic Card -->
+<!-- âŒ OLD: Basic Card -->
 <div class="bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700">
     <h3 class="text-lg font-semibold text-white mb-2">Card Title</h3>
     <p class="text-gray-300">Card content goes here</p>
@@ -208,7 +208,7 @@
     </div>
 </div>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <div class="card bg-base-200 shadow-xl">
     <div class="card-body">
         <h2 class="card-title">Card Title</h2>
@@ -220,7 +220,7 @@
     </div>
 </div>
 
-<!-- ❌ OLD: Card with Image -->
+<!-- âŒ OLD: Card with Image -->
 <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
     <img src="..." class="w-full h-48 object-cover">
     <div class="p-6">
@@ -229,7 +229,7 @@
     </div>
 </div>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <div class="card bg-base-200 shadow-xl">
     <figure><img src="..." alt="Image" /></figure>
     <div class="card-body">
@@ -258,7 +258,7 @@
 ### Tables
 
 ```html
-<!-- ❌ OLD: Data Table -->
+<!-- âŒ OLD: Data Table -->
 <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-700">
         <thead class="bg-gray-800">
@@ -286,7 +286,7 @@
     </table>
 </div>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <div class="overflow-x-auto">
     <table class="table table-zebra">
         <thead>
@@ -314,7 +314,7 @@
 ### Modals
 
 ```html
-<!-- ❌ OLD: Modal -->
+<!-- âŒ OLD: Modal -->
 <div class="fixed inset-0 z-50 overflow-y-auto" x-show="showModal">
     <div class="flex min-h-screen items-center justify-center">
         <div class="fixed inset-0 bg-black bg-opacity-50"></div>
@@ -333,7 +333,7 @@
     </div>
 </div>
 
-<!-- ✅ NEW: daisyUI (with Livewire) -->
+<!-- âœ… NEW: daisyUI (with Livewire) -->
 <div class="modal @if($showModal) modal-open @endif">
     <div class="modal-box">
         <h3 class="font-bold text-lg">Modal Title</h3>
@@ -352,7 +352,7 @@
     </form>
 </div>
 
-<!-- ✅ NEW: daisyUI (with Alpine.js) -->
+<!-- âœ… NEW: daisyUI (with Alpine.js) -->
 <div x-data="{ open: false }">
     <button @click="open = true" class="btn btn-primary">Open Modal</button>
     
@@ -375,13 +375,13 @@
 ### Alerts & Notifications
 
 ```html
-<!-- ❌ OLD: Success Alert -->
+<!-- âŒ OLD: Success Alert -->
 <div class="bg-green-900 border-l-4 border-green-500 text-green-200 p-4 rounded">
     <p class="font-bold">Success!</p>
     <p>Your changes have been saved.</p>
 </div>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <div class="alert alert-success">
     <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -389,13 +389,13 @@
     <span>Your changes have been saved.</span>
 </div>
 
-<!-- ❌ OLD: Error Alert -->
+<!-- âŒ OLD: Error Alert -->
 <div class="bg-red-900 border-l-4 border-red-500 text-red-200 p-4 rounded">
     <p class="font-bold">Error!</p>
     <p>Something went wrong.</p>
 </div>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <div class="alert alert-error">
     <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -414,22 +414,22 @@
 ### Badges & Tags
 
 ```html
-<!-- ❌ OLD: Status Badge -->
+<!-- âŒ OLD: Status Badge -->
 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full 
              text-xs font-medium bg-green-900 text-green-200">
     Active
 </span>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <span class="badge badge-success">Active</span>
 
-<!-- ❌ OLD: Role Badge -->
+<!-- âŒ OLD: Role Badge -->
 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full 
              text-xs font-medium bg-indigo-900 text-indigo-200">
     Admin
 </span>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <span class="badge badge-primary">Admin</span>
 
 <!-- Badge Variants -->
@@ -452,23 +452,23 @@
 ### Loading States
 
 ```html
-<!-- ❌ OLD: Loading Spinner -->
+<!-- âŒ OLD: Loading Spinner -->
 <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 </svg>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <span class="loading loading-spinner loading-md"></span>
 
-<!-- ❌ OLD: Loading Dots -->
+<!-- âŒ OLD: Loading Dots -->
 <div class="flex space-x-1">
     <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
     <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
     <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
 </div>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <span class="loading loading-dots loading-md"></span>
 
 <!-- Loading Types -->
@@ -483,7 +483,7 @@
 ### Navigation
 
 ```html
-<!-- ❌ OLD: Tabs -->
+<!-- âŒ OLD: Tabs -->
 <div class="border-b border-gray-700">
     <nav class="flex space-x-8">
         <a class="border-b-2 border-indigo-500 px-1 py-4 text-sm 
@@ -498,7 +498,7 @@
     </nav>
 </div>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <div class="tabs tabs-boxed">
     <a class="tab tab-active">Tab 1</a>
     <a class="tab">Tab 2</a>
@@ -511,7 +511,7 @@
 <div class="tabs tabs-bordered">Bordered</div>
 <div class="tabs tabs-lifted">Lifted</div>
 
-<!-- ❌ OLD: Breadcrumbs -->
+<!-- âŒ OLD: Breadcrumbs -->
 <nav class="flex" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-1">
         <li class="inline-flex items-center">
@@ -532,7 +532,7 @@
     </ol>
 </nav>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <div class="text-sm breadcrumbs">
     <ul>
         <li><a>Home</a></li>
@@ -541,7 +541,7 @@
     </ul>
 </div>
 
-<!-- ❌ OLD: Pagination -->
+<!-- âŒ OLD: Pagination -->
 <div class="flex items-center justify-between">
     <button class="px-4 py-2 text-sm font-medium text-gray-400 
                    bg-gray-800 rounded-md hover:bg-gray-700">
@@ -554,13 +554,13 @@
     </button>
 </div>
 
-<!-- ✅ NEW: daisyUI -->
+<!-- âœ… NEW: daisyUI -->
 <div class="join">
-    <button class="join-item btn">«</button>
+    <button class="join-item btn">Â«</button>
     <button class="join-item btn">Page 1</button>
     <button class="join-item btn btn-active">Page 2</button>
     <button class="join-item btn">Page 3</button>
-    <button class="join-item btn">»</button>
+    <button class="join-item btn">Â»</button>
 </div>
 ```
 
@@ -800,12 +800,12 @@ public function closeModal()
 When migrating a component:
 
 ### 1. Identify Component Type
-- [ ] Is it a button? → Use `btn btn-[variant]`
-- [ ] Is it an input? → Use `input input-bordered`
-- [ ] Is it a card? → Use `card bg-base-200`
-- [ ] Is it a modal? → Use `modal modal-box`
-- [ ] Is it a table? → Use `table`
-- [ ] Is it an alert? → Use `alert alert-[type]`
+- [ ] Is it a button? â†’ Use `btn btn-[variant]`
+- [ ] Is it an input? â†’ Use `input input-bordered`
+- [ ] Is it a card? â†’ Use `card bg-base-200`
+- [ ] Is it a modal? â†’ Use `modal modal-box`
+- [ ] Is it a table? â†’ Use `table`
+- [ ] Is it an alert? â†’ Use `alert alert-[type]`
 
 ### 2. Replace Colors
 - [ ] Replace `bg-gray-XXX` with `bg-base-100/200/300`
@@ -834,43 +834,43 @@ When migrating a component:
 
 ## Common Pitfalls
 
-### ❌ DON'T Mix Systems
+### âŒ DON'T Mix Systems
 ```html
 <!-- WRONG: Mixing daisyUI with raw Tailwind colors -->
 <button class="btn btn-primary bg-blue-600">
 ```
 
-### ❌ DON'T Override Theme Colors
+### âŒ DON'T Override Theme Colors
 ```html
 <!-- WRONG: Overriding theme colors -->
 <div class="card bg-gray-800">
 ```
 
-### ❌ DON'T Forget Mobile
+### âŒ DON'T Forget Mobile
 ```html
 <!-- WRONG: Not mobile responsive -->
 <button class="btn btn-primary w-96">
 ```
 
-### ❌ DON'T Use Inline Styles
+### âŒ DON'T Use Inline Styles
 ```html
 <!-- WRONG: Inline styles -->
 <div style="background-color: #1f2937">
 ```
 
-### ✅ DO Use Theme Variables
+### âœ… DO Use Theme Variables
 ```html
 <!-- RIGHT: Using theme variables -->
 <div class="card bg-base-200">
 ```
 
-### ✅ DO Test Responsiveness
+### âœ… DO Test Responsiveness
 ```html
 <!-- RIGHT: Mobile responsive -->
 <button class="btn btn-primary w-full sm:w-auto">
 ```
 
-### ✅ DO Use Semantic Classes
+### âœ… DO Use Semantic Classes
 ```html
 <!-- RIGHT: Semantic component classes -->
 <div class="alert alert-success">

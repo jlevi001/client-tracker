@@ -1,10 +1,10 @@
 # AI Assistant Instructions for Lingo Client Tracker - COMPREHENSIVE VERSION
 
-## 🎯 PROJECT STATUS: daisyUI Migration 100% Complete! ✅
+## ðŸŽ¯ PROJECT STATUS: daisyUI Migration 100% Complete! âœ…
 
 As of January 2025, the application has successfully completed a comprehensive migration from raw Tailwind utilities to daisyUI semantic components. This migration is **100% complete**.
 
-## ✅ FULLY MIGRATED COMPONENTS
+## âœ… FULLY MIGRATED COMPONENTS
 
 ### All Core Components (100% Complete)
 - **All Button Components**: Using `btn btn-[variant]` classes
@@ -19,62 +19,62 @@ As of January 2025, the application has successfully completed a comprehensive m
 
 ### Specific Files Migrated:
 #### Components (`/resources/views/components/`)
-- ✅ `button.blade.php` - Using `btn btn-primary`
-- ✅ `secondary-button.blade.php` - Using `btn btn-ghost`
-- ✅ `danger-button.blade.php` - Using `btn btn-error`
-- ✅ `dark-button.blade.php` - Flexible variant system
-- ✅ `input.blade.php` - Using `input input-bordered`
-- ✅ `checkbox.blade.php` - Using `checkbox checkbox-primary`
-- ✅ `select.blade.php` - Using `select select-bordered`
-- ✅ `textarea.blade.php` - Using `textarea textarea-bordered`
-- ✅ `toggle.blade.php` - Using `toggle toggle-primary`
-- ✅ `radio.blade.php` - Using `radio radio-primary`
-- ✅ `form-control.blade.php` - Complete form field wrapper
-- ✅ `modal.blade.php` - Base modal with daisyUI
-- ✅ `dialog-modal.blade.php` - Structured modal
-- ✅ `confirmation-modal.blade.php` - Confirmation dialogs
-- ✅ `confirms-password.blade.php` - Password confirmation
-- ✅ `validation-errors.blade.php` - Using `alert alert-error`
-- ✅ `action-message.blade.php` - Using `alert alert-success`
-- ✅ `banner.blade.php` - Alert-based notifications
-- ✅ `section-title.blade.php` - Clean section headers
-- ✅ `section-border.blade.php` - Using `divider`
-- ✅ `form-section.blade.php` - Card-based forms
-- ✅ `action-section.blade.php` - Card-based actions
+- âœ… `button.blade.php` - Using `btn btn-primary`
+- âœ… `secondary-button.blade.php` - Using `btn btn-ghost`
+- âœ… `danger-button.blade.php` - Using `btn btn-error`
+- âœ… `dark-button.blade.php` - Flexible variant system
+- âœ… `input.blade.php` - Using `input input-bordered`
+- âœ… `checkbox.blade.php` - Using `checkbox checkbox-primary`
+- âœ… `select.blade.php` - Using `select select-bordered`
+- âœ… `textarea.blade.php` - Using `textarea textarea-bordered`
+- âœ… `toggle.blade.php` - Using `toggle toggle-primary`
+- âœ… `radio.blade.php` - Using `radio radio-primary`
+- âœ… `form-control.blade.php` - Complete form field wrapper
+- âœ… `modal.blade.php` - Base modal with daisyUI
+- âœ… `dialog-modal.blade.php` - Structured modal
+- âœ… `confirmation-modal.blade.php` - Confirmation dialogs
+- âœ… `confirms-password.blade.php` - Password confirmation
+- âœ… `validation-errors.blade.php` - Using `alert alert-error`
+- âœ… `action-message.blade.php` - Using `alert alert-success`
+- âœ… `banner.blade.php` - Alert-based notifications
+- âœ… `section-title.blade.php` - Clean section headers
+- âœ… `section-border.blade.php` - Using `divider`
+- âœ… `form-section.blade.php` - Card-based forms
+- âœ… `action-section.blade.php` - Card-based actions
 
 #### Authentication Views (`/resources/views/auth/`)
-- ✅ `login.blade.php`
-- ✅ `register.blade.php`
-- ✅ `forgot-password.blade.php`
-- ✅ `reset-password.blade.php`
-- ✅ `verify-email.blade.php`
-- ✅ `confirm-password.blade.php`
-- ✅ `two-factor-challenge.blade.php`
+- âœ… `login.blade.php`
+- âœ… `register.blade.php`
+- âœ… `forgot-password.blade.php`
+- âœ… `reset-password.blade.php`
+- âœ… `verify-email.blade.php`
+- âœ… `confirm-password.blade.php`
+- âœ… `two-factor-challenge.blade.php`
 
 #### Profile Views (`/resources/views/profile/`)
-- ✅ `update-profile-information-form.blade.php`
-- ✅ `update-password-form.blade.php`
-- ✅ `two-factor-authentication-form.blade.php` (QR code background fixed)
-- ✅ `logout-other-browser-sessions-form.blade.php`
-- ✅ `delete-user-form.blade.php`
+- âœ… `update-profile-information-form.blade.php`
+- âœ… `update-password-form.blade.php`
+- âœ… `two-factor-authentication-form.blade.php` (QR code background fixed)
+- âœ… `logout-other-browser-sessions-form.blade.php`
+- âœ… `delete-user-form.blade.php`
 
 #### API Views (`/resources/views/api/`)
-- ✅ `api-token-manager.blade.php`
+- âœ… `api-token-manager.blade.php`
 
 #### Livewire Components (`/resources/views/livewire/`)
-- ✅ `user-management.blade.php` - Complete table and modals
+- âœ… `user-management.blade.php` - Complete table and modals
 
 #### Navigation & Layout
-- ✅ `navigation-menu.blade.php` - Responsive drawer navigation
-- ✅ `app.blade.php` - Base layout
-- ✅ `guest.blade.php` - Guest layout
-- ✅ `welcome.blade.php` - Welcome page with hero section
-- ✅ `dashboard.blade.php` - Dashboard layout
+- âœ… `navigation-menu.blade.php` - Responsive drawer navigation
+- âœ… `app.blade.php` - Base layout
+- âœ… `guest.blade.php` - Guest layout
+- âœ… `welcome.blade.php` - Welcome page with hero section
+- âœ… `dashboard.blade.php` - Dashboard layout
 
 #### User Views (`/resources/views/users/`)
-- ✅ `index.blade.php` - User management page
+- âœ… `index.blade.php` - User management page
 
-## 🚀 Technology Stack (Current)
+## ðŸš€ Technology Stack (Current)
 - **Backend**: Laravel 12.x, PHP 8.2+
 - **Frontend**: Livewire 3, Alpine.js
 - **Styling**: Tailwind CSS 3.4.0 with **daisyUI 5.0.50** (PRIMARY UI FRAMEWORK)
@@ -83,7 +83,7 @@ As of January 2025, the application has successfully completed a comprehensive m
 - **Permissions**: Spatie Laravel-Permission
 - **Build Tool**: Vite
 
-## 📋 COMPONENT REFERENCE GUIDE
+## ðŸ“‹ COMPONENT REFERENCE GUIDE
 
 ### Button Components
 ```blade
@@ -245,7 +245,7 @@ As of January 2025, the application has successfully completed a comprehensive m
 <span class="loading loading-bars loading-sm"></span>
 ```
 
-## 🎨 daisyUI Theme Configuration
+## ðŸŽ¨ daisyUI Theme Configuration
 
 The application uses a custom dark theme configured in `tailwind.config.js`:
 
@@ -280,7 +280,7 @@ module.exports = {
 }
 ```
 
-## 📱 Mobile Responsiveness Patterns
+## ðŸ“± Mobile Responsiveness Patterns
 
 All components MUST be mobile-responsive. Standard patterns:
 
@@ -311,66 +311,66 @@ All components MUST be mobile-responsive. Standard patterns:
 </div>
 ```
 
-## ⚠️ CRITICAL RULES
+## âš ï¸ CRITICAL RULES
 
 ### ALWAYS Use daisyUI for:
-- ✅ **All buttons** → `btn btn-[variant]`
-- ✅ **All form inputs** → `input input-bordered`
-- ✅ **All cards** → `card bg-base-200`
-- ✅ **All modals** → `modal modal-box`
-- ✅ **All tables** → `table table-zebra`
-- ✅ **All alerts** → `alert alert-[type]`
-- ✅ **All badges** → `badge badge-[variant]`
-- ✅ **All loading states** → `loading loading-[type]`
-- ✅ **All tabs** → `tabs tabs-boxed`
-- ✅ **All tooltips** → `tooltip`
-- ✅ **All dropdowns** → `dropdown`
+- âœ… **All buttons** â†’ `btn btn-[variant]`
+- âœ… **All form inputs** â†’ `input input-bordered`
+- âœ… **All cards** â†’ `card bg-base-200`
+- âœ… **All modals** â†’ `modal modal-box`
+- âœ… **All tables** â†’ `table table-zebra`
+- âœ… **All alerts** â†’ `alert alert-[type]`
+- âœ… **All badges** â†’ `badge badge-[variant]`
+- âœ… **All loading states** â†’ `loading loading-[type]`
+- âœ… **All tabs** â†’ `tabs tabs-boxed`
+- âœ… **All tooltips** â†’ `tooltip`
+- âœ… **All dropdowns** â†’ `dropdown`
 
 ### ONLY Use Tailwind Utilities for:
-- ✅ **Layout** → `flex`, `grid`, `container`
-- ✅ **Spacing** → `p-4`, `m-2`, `gap-4`, `space-y-4`
-- ✅ **Responsive design** → `sm:`, `md:`, `lg:`, `xl:`
-- ✅ **Width/Height** → `w-full`, `h-10`, `max-w-md`
-- ✅ **Text utilities** → `text-sm`, `font-bold`, `text-center`
-- ✅ **Positioning** → `absolute`, `relative`, `z-10`
+- âœ… **Layout** â†’ `flex`, `grid`, `container`
+- âœ… **Spacing** â†’ `p-4`, `m-2`, `gap-4`, `space-y-4`
+- âœ… **Responsive design** â†’ `sm:`, `md:`, `lg:`, `xl:`
+- âœ… **Width/Height** â†’ `w-full`, `h-10`, `max-w-md`
+- âœ… **Text utilities** â†’ `text-sm`, `font-bold`, `text-center`
+- âœ… **Positioning** â†’ `absolute`, `relative`, `z-10`
 
 ### NEVER Do This:
 ```html
-<!-- ❌ WRONG: Raw Tailwind for components -->
+<!-- âŒ WRONG: Raw Tailwind for components -->
 <button class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
 
-<!-- ❌ WRONG: Overriding daisyUI colors -->
+<!-- âŒ WRONG: Overriding daisyUI colors -->
 <button class="btn btn-primary bg-blue-500">
 
-<!-- ❌ WRONG: Raw colors for backgrounds -->
+<!-- âŒ WRONG: Raw colors for backgrounds -->
 <div class="bg-gray-800 p-4">
 
-<!-- ❌ WRONG: Manual form styling -->
+<!-- âŒ WRONG: Manual form styling -->
 <input class="px-3 py-2 bg-gray-700 border border-gray-600">
 
-<!-- ❌ WRONG: Hard-coded white backgrounds -->
+<!-- âŒ WRONG: Hard-coded white backgrounds -->
 <div class="bg-white">
 ```
 
 ### ALWAYS Do This:
 ```html
-<!-- ✅ RIGHT: daisyUI components -->
+<!-- âœ… RIGHT: daisyUI components -->
 <button class="btn btn-primary">
 
-<!-- ✅ RIGHT: Theme-aware backgrounds -->
+<!-- âœ… RIGHT: Theme-aware backgrounds -->
 <div class="bg-base-200 p-4">
 
-<!-- ✅ RIGHT: daisyUI form inputs -->
+<!-- âœ… RIGHT: daisyUI form inputs -->
 <input class="input input-bordered w-full">
 
-<!-- ✅ RIGHT: Combine daisyUI with layout utilities -->
+<!-- âœ… RIGHT: Combine daisyUI with layout utilities -->
 <button class="btn btn-primary w-full sm:w-auto">
 
-<!-- ✅ RIGHT: Theme-aware contrast backgrounds -->
+<!-- âœ… RIGHT: Theme-aware contrast backgrounds -->
 <div class="bg-base-100 rounded-lg">
 ```
 
-## 🔄 Livewire Integration Patterns
+## ðŸ”„ Livewire Integration Patterns
 
 ### Form with Real-time Validation
 ```blade
@@ -433,16 +433,16 @@ public function closeModal()
 </div>
 ```
 
-## 📂 File Structure Standards
+## ðŸ“‚ File Structure Standards
 
 When creating new files:
-1. **Components** → `/resources/views/components/[component-name].blade.php`
-2. **Livewire Components** → `/app/Livewire/[ComponentName].php` (Note: Livewire 3 path - no Http directory)
-3. **Livewire Views** → `/resources/views/livewire/[component-name].blade.php`
-4. **Layouts** → `/resources/views/layouts/[layout-name].blade.php`
-5. **Pages** → `/resources/views/[page-name].blade.php`
+1. **Components** â†’ `/resources/views/components/[component-name].blade.php`
+2. **Livewire Components** â†’ `/app/Livewire/[ComponentName].php` (Note: Livewire 3 path - no Http directory)
+3. **Livewire Views** â†’ `/resources/views/livewire/[component-name].blade.php`
+4. **Layouts** â†’ `/resources/views/layouts/[layout-name].blade.php`
+5. **Pages** â†’ `/resources/views/[page-name].blade.php`
 
-## ❌ UI Libraries NOT Used
+## âŒ UI Libraries NOT Used
 The following libraries were considered but are NOT part of this project:
 - **WireUI** - Conflicts with daisyUI component classes
 - **FilamentPHP** - Has its own UI system incompatible with daisyUI
@@ -451,7 +451,7 @@ The following libraries were considered but are NOT part of this project:
 
 For file uploads, if FilePond is needed, it must be custom-styled to match the daisyUI dark theme.
 
-## ✅ Quality Checklist
+## âœ… Quality Checklist
 
 Before submitting any component:
 - [ ] Uses daisyUI component classes (no raw Tailwind for components)
@@ -465,33 +465,33 @@ Before submitting any component:
 - [ ] Livewire integration tested (if applicable)
 - [ ] Alpine.js interactions working (if applicable)
 
-## 🚫 Common Mistakes to Avoid
+## ðŸš« Common Mistakes to Avoid
 
-1. **Using `bg-gray-XXX`** → Use `bg-base-100/200/300` instead
-2. **Using `text-white`** → Use `text-base-content` instead
-3. **Using `text-gray-400`** → Use `text-base-content/70` instead
-4. **Using `bg-white`** → Use `bg-base-100` or appropriate theme color
-5. **Long Tailwind utility chains** → Use daisyUI component classes
-6. **Inline styles** → Use Tailwind/daisyUI classes
-7. **Forgetting mobile responsiveness** → Always test on small screens
-8. **Not using form-control wrapper** → Always wrap form fields properly
-9. **Hardcoding colors** → Use theme variables
-10. **Not including loading states** → Always show loading feedback
-11. **Ignoring error states** → Always handle and display errors
-12. **Using conflicting UI libraries** → daisyUI only
+1. **Using `bg-gray-XXX`** â†’ Use `bg-base-100/200/300` instead
+2. **Using `text-white`** â†’ Use `text-base-content` instead
+3. **Using `text-gray-400`** â†’ Use `text-base-content/70` instead
+4. **Using `bg-white`** â†’ Use `bg-base-100` or appropriate theme color
+5. **Long Tailwind utility chains** â†’ Use daisyUI component classes
+6. **Inline styles** â†’ Use Tailwind/daisyUI classes
+7. **Forgetting mobile responsiveness** â†’ Always test on small screens
+8. **Not using form-control wrapper** â†’ Always wrap form fields properly
+9. **Hardcoding colors** â†’ Use theme variables
+10. **Not including loading states** â†’ Always show loading feedback
+11. **Ignoring error states** â†’ Always handle and display errors
+12. **Using conflicting UI libraries** â†’ daisyUI only
 
-## 🎯 Development Workflow
+## ðŸŽ¯ Development Workflow
 
-1. **Check if component exists** → Reuse existing components
-2. **Use daisyUI first** → Check daisyUI docs for component
-3. **Use existing patterns** → Follow established patterns in codebase
-4. **Test responsiveness** → Check all breakpoints
-5. **Verify dark theme** → Ensure proper theme variables used
-6. **Add loading states** → Include for all async operations
-7. **Handle errors** → Display user-friendly error messages
-8. **Document usage** → Add comments for complex components
+1. **Check if component exists** â†’ Reuse existing components
+2. **Use daisyUI first** â†’ Check daisyUI docs for component
+3. **Use existing patterns** â†’ Follow established patterns in codebase
+4. **Test responsiveness** â†’ Check all breakpoints
+5. **Verify dark theme** â†’ Ensure proper theme variables used
+6. **Add loading states** â†’ Include for all async operations
+7. **Handle errors** â†’ Display user-friendly error messages
+8. **Document usage** â†’ Add comments for complex components
 
-## 📚 Resources
+## ðŸ“š Resources
 
 - **daisyUI Documentation**: [https://daisyui.com](https://daisyui.com)
 - **Component Examples**: `/resources/views/components/`
@@ -501,7 +501,7 @@ Before submitting any component:
 - **Livewire Docs**: [https://livewire.laravel.com](https://livewire.laravel.com)
 - **Alpine.js Docs**: [https://alpinejs.dev](https://alpinejs.dev)
 
-## 🎯 Quick Copy-Paste Templates
+## ðŸŽ¯ Quick Copy-Paste Templates
 
 ### Basic Page Template
 ```blade
@@ -573,7 +573,7 @@ Before submitting any component:
 </div>
 ```
 
-## 🏁 FINAL REMINDERS
+## ðŸ FINAL REMINDERS
 
 1. **daisyUI is FULLY INTEGRATED** - Use it for everything component-related
 2. **Dark theme is MANDATORY** - Never use light backgrounds or hard-coded colors
@@ -588,12 +588,12 @@ Before submitting any component:
 
 **Remember**: The migration to daisyUI is 100% complete. Maintain the standards that have been established and continue using semantic component classes for all new development. Do not introduce any conflicting UI libraries.
 
-## 📝 Change Log
+## ðŸ“ Change Log
 
 ### January 2025 - Migration Complete
-- ✅ Fixed QR code background in two-factor authentication form (changed from `bg-white` to `bg-base-100`)
-- ✅ Updated project status to 100% migration complete
-- ✅ Removed references to conflicting UI libraries (WireUI, FilamentPHP, PowerGrid)
-- ✅ Corrected Livewire component path from `/app/Http/Livewire/` to `/app/Livewire/`
-- ✅ Added explicit list of UI libraries NOT to use
-- ✅ Updated all component listings to show complete migration status
+- âœ… Fixed QR code background in two-factor authentication form (changed from `bg-white` to `bg-base-100`)
+- âœ… Updated project status to 100% migration complete
+- âœ… Removed references to conflicting UI libraries (WireUI, FilamentPHP, PowerGrid)
+- âœ… Corrected Livewire component path from `/app/Http/Livewire/` to `/app/Livewire/`
+- âœ… Added explicit list of UI libraries NOT to use
+- âœ… Updated all component listings to show complete migration status
