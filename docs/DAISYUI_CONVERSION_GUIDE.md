@@ -566,24 +566,57 @@
 
 ## Color System
 
+> **daisyUI v5 Note**: This project uses daisyUI **5.x**. CSS variable names changed significantly from v4. The old short names (`--p`, `--s`, `--b1`, etc.) no longer work. Use the full names listed below.
+
 ### Theme Variable Mapping
 
-| Purpose | Raw Tailwind | daisyUI Variable | CSS Variable |
-|---------|-------------|------------------|--------------|
-| **Main Background** | `bg-gray-800` | `bg-base-100` | `--b1` |
-| **Card Background** | `bg-gray-900` | `bg-base-200` | `--b2` |
-| **Darker Background** | `bg-gray-950` | `bg-base-300` | `--b3` |
-| **Main Text** | `text-white` | `text-base-content` | `--bc` |
-| **Muted Text** | `text-gray-400` | `text-base-content/70` | `--bc` with opacity |
-| **Primary Color** | `bg-indigo-600` | `bg-primary` | `--p` |
-| **Primary Text** | `text-indigo-600` | `text-primary` | `--p` |
-| **Secondary Color** | `bg-purple-600` | `bg-secondary` | `--s` |
-| **Accent Color** | `bg-green-600` | `bg-accent` | `--a` |
-| **Success** | `bg-green-500` | `bg-success` | `--su` |
-| **Warning** | `bg-yellow-500` | `bg-warning` | `--wa` |
-| **Error** | `bg-red-500` | `bg-error` | `--er` |
-| **Info** | `bg-blue-500` | `bg-info` | `--in` |
-| **Border** | `border-gray-700` | `border-base-300` | `--b3` |
+| Purpose | Raw Tailwind | daisyUI Class | CSS Variable (v5) |
+|---------|-------------|---------------|-------------------|
+| **Main Background** | `bg-gray-800` | `bg-base-100` | `--color-base-100` |
+| **Card Background** | `bg-gray-900` | `bg-base-200` | `--color-base-200` |
+| **Darker Background** | `bg-gray-950` | `bg-base-300` | `--color-base-300` |
+| **Main Text** | `text-white` | `text-base-content` | `--color-base-content` |
+| **Muted Text** | `text-gray-400` | `text-base-content/70` | `--color-base-content` with opacity |
+| **Primary Color** | `bg-indigo-600` | `bg-primary` | `--color-primary` |
+| **Primary Text** | `text-indigo-600` | `text-primary` | `--color-primary` |
+| **Secondary Color** | `bg-orange-600` | `bg-secondary` | `--color-secondary` |
+| **Accent Color** | `bg-green-600` | `bg-accent` | `--color-accent` |
+| **Success** | `bg-green-500` | `bg-success` | `--color-success` |
+| **Warning** | `bg-yellow-500` | `bg-warning` | `--color-warning` |
+| **Error** | `bg-red-500` | `bg-error` | `--color-error` |
+| **Info** | `bg-blue-500` | `bg-info` | `--color-info` |
+| **Border** | `border-gray-700` | `border-base-300` | `--color-base-300` |
+
+### Customising Theme Colors in v5
+
+**Important**: `tailwind.config.js` color values are ignored by daisyUI v5. All color overrides must be set as CSS variables in `resources/css/app.css` on the `[data-theme="dark"]` selector.
+
+Colors must use **oklch format**. Use [oklch.com](https://oklch.com) to convert hex → oklch.
+
+```css
+/* resources/css/app.css */
+[data-theme="dark"] {
+  --color-primary:           oklch(60% 0.22 264);   /* indigo #6366f1 */
+  --color-primary-content:   oklch(98% 0 0);
+  --color-secondary:         oklch(62.4% 0.224 35.7); /* orange #FF5600 */
+  --color-secondary-content: oklch(98% 0 0);
+  --color-accent:            oklch(62% 0.17 162);   /* green #10b981 */
+  --color-accent-content:    oklch(98% 0 0);
+  --color-info:              oklch(60% 0.188 264.5); /* blue #3b82f6 */
+  --color-info-content:      oklch(98% 0 0);
+  --color-success:           oklch(62% 0.17 162);   /* green #10b981 */
+  --color-success-content:   oklch(98% 0 0);
+  --color-warning:           oklch(75% 0.18 75);    /* amber #f59e0b */
+  --color-warning-content:   oklch(20% 0 0);
+  --color-error:             oklch(62% 0.22 25);    /* red #ef4444 */
+  --color-error-content:     oklch(98% 0 0);
+}
+```
+
+After any change to `app.css`, rebuild assets on the server:
+```bash
+npm run build
+```
 
 ### Using Theme Colors
 
@@ -874,6 +907,35 @@ When migrating a component:
 ```html
 <!-- RIGHT: Semantic component classes -->
 <div class="alert alert-success">
+```
+
+### DON'T Set Colors in tailwind.config.js (daisyUI v5)
+```js
+// WRONG: daisyUI v5 ignores these hex values entirely
+daisyui: { themes: [{ dark: { "secondary": "#FF5600" } }] }  // silently ignored
+```
+
+### DON'T Use v4 CSS Variable Names
+```css
+/* WRONG: v4 short names no longer exist in v5 */
+.x { color: var(--p); }    /* was primary */
+.x { color: var(--s); }    /* was secondary */
+.x { background: var(--b1); } /* was base-100 */
+```
+
+### DO Set Colors via CSS Variables in app.css (v5)
+```css
+/* RIGHT: override in resources/css/app.css */
+[data-theme="dark"] {
+  --color-secondary: oklch(62.4% 0.224 35.7); /* #FF5600 */
+}
+```
+
+### DO Use v5 CSS Variable Names
+```css
+/* RIGHT: full v5 variable names */
+.x { color: var(--color-primary); }
+.x { background: var(--color-base-100); }
 ```
 
 ## Quick Reference Tables
