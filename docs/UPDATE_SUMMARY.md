@@ -1,6 +1,40 @@
 # Update Summary - June 2026
 
-## Changes Completed June 3, 2026
+## Changes Completed June 3, 2026 (Session 2)
+
+### 5. Client Form — Collapsible Sections & Wider Modal
+- Modal widened from `max-w-4xl` to `max-w-5xl`
+- Six sections wrapped in Alpine.js collapsible panels with up/down chevron icons
+- Default open: Company Information, Billing Settings, Additional Information
+- Default collapsed: Address Information, Billing Address, Hosting/Domain & Software
+- Each collapsed header shows a summary of key data (e.g. city/state, hosting provider)
+- Files: `resources/views/livewire/client-management.blade.php`
+
+### 6. daisyUI v5 Color Overrides
+- Secondary color changed to `#FF5600` (Lingo orange)
+- Info color fixed from cyan to `#3b82f6` (blue)
+- All color overrides must go in `resources/css/app.css` under `[data-theme="dark"]` using oklch format — `tailwind.config.js` is ignored by daisyUI v5
+- Files: `resources/css/app.css`
+
+### 7. iOS-Style Toggle
+- Replaced daisyUI default toggle with clean iOS-style CSS override
+- Gray OFF state, primary color ON state, white circular thumb, no checkmark
+- Files: `resources/css/app.css`
+
+### 8. Wage Info Alert Contrast Fix
+- Changed `alert alert-info` to plain `alert` in user management wage section
+- Eliminates bright cyan background that made content hard to read
+- Files: `resources/views/livewire/user-management.blade.php`
+
+### 9. daisyUI Conversion Guide Updated for v5
+- Updated CSS variable names from v4 short form to v5 full form
+- Added color customisation section explaining `app.css` override approach
+- Added v5-specific pitfalls section
+- Files: `docs/DAISYUI_CONVERSION_GUIDE.md`
+
+---
+
+## Changes Completed June 3, 2026 (Session 1)
 
 ### 1. Disabled Self-Registration
 - Removed Register button from welcome page
