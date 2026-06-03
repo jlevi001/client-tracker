@@ -6,6 +6,12 @@
     display: none;
 }
 
+/* daisyUI v5 ignores tailwind.config.js color overrides — must use CSS variables directly */
+[data-theme="dark"] {
+  --color-secondary: oklch(62.4% 0.224 35.7);   /* #FF5600 Lingo orange */
+  --color-secondary-content: oklch(98% 0 0);     /* white text on orange */
+}
+
 /* Typography - using regular Tailwind utilities only */
 @layer base {
   h1 { @apply text-4xl font-bold mb-4; }
