@@ -10,6 +10,8 @@
 [data-theme="dark"] {
   --color-secondary: oklch(62.4% 0.224 35.7);   /* #FF5600 Lingo orange */
   --color-secondary-content: oklch(98% 0 0);     /* white text on orange */
+  --color-info: oklch(60% 0.188 264.5);          /* #3b82f6 blue-500 */
+  --color-info-content: oklch(98% 0 0);          /* white text on info */
 }
 
 /* Typography - using regular Tailwind utilities only */
