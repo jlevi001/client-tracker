@@ -1,7 +1,7 @@
 # Client Management Goals and Progress
 
 **Document Created**: January 4, 2026
-**Last Updated**: February 9, 2026 (Phase 1C Complete)
+**Last Updated**: June 7, 2026 (Contract spec locked — ready to build Phase 2)
 **Status**: [DONE] Phase 1A Complete | [DONE] Phase 1B Complete | [DONE] Phase 1C Complete | Ready for Phase 2
 **Priority**: High
 
@@ -127,16 +127,22 @@ This document reflects the finalized architecture and requirements as discussed 
 | BILLING RATE LOGIC                                              |
 +-----------------------------------------------------------------+
 |                                                                 |
-| Time logged WITHOUT contract:                                   |
-|   -> Bill at CLIENT'S default hourly rate                       |
+| Time logged WITHOUT contract ("Non-contract labor"):            |
+|   -> Bill at CLIENT'S default hourly rate (fully billable)      |
+|   -> Appears in billing email as non-contract line items        |
 |                                                                 |
-| Time logged WITH contract (within allocation):                  |
-|   -> Bill at CONTRACT discounted rate                           |
-|   -> If no discount set -> use client's default rate            |
+| Time logged WITH contract (within monthly allocation):          |
+|   -> Covered by the contract's flat monthly fee                 |
+|   -> No extra charge                                            |
 |                                                                 |
 | Time logged WITH contract (overage):                            |
-|   -> Bill at CONTRACT discounted rate (same as within alloc)    |
-|   -> If no discount set -> use client's default rate            |
+|   -> Bill at CONTRACT overage rate (discounted_hourly_rate)     |
+|   -> If no overage rate set -> use client's default rate        |
+|   -> Billed on 1st of following month                           |
+|                                                                 |
+| Hours are tracked PER CONTRACT CATEGORY:                        |
+|   -> WEB hours only count against a WEB contract                |
+|   -> IT hours with no IT contract = 100% non-contract labor     |
 |                                                                 |
 +-----------------------------------------------------------------+
 ```
@@ -144,27 +150,26 @@ This document reflects the finalized architecture and requirements as discussed 
 ### Time Logging Flow
 
 ```
-Employee starts timer
+Employee opens Time Tracker
  |
  v
  Select Client
  |
- +---> Client has NO active contracts
+ v
+ Select Contract (or "Non-contract labor")
+ |
+ +---> Contract selected
  |     |
  |     v
- |     Log time at client's default rate
- |     (No contract association)
+ |     Log time -> tracked against contract allocation
+ |     Hours within allotment: covered by flat fee
+ |     Hours exceeding allotment: flagged as overage
  |
- +---> Client HAS active contracts
+ +---> "Non-contract labor" selected
        |
        v
-       System prompts: "Log against contract?"
-       |
-       +---> Yes -> Select contract -> Log at contract rate
-       |     (track against allocation)
-       |
-       +---> No -> Log at client's default rate
-             (No contract association)
+       Log time -> billed at client's default hourly rate
+       Appears in billing email as non-contract line item
 ```
 
 ### Entity Relationships
@@ -173,39 +178,36 @@ Employee starts timer
 CLIENT (Company)
  |
  +-- default_hourly_rate: $130.00 (editable per client)
- |
- +-- Hosting Info:
- |    +-- hosting_provider: "Bluehost", "GoDaddy", "Cloudways", etc.
- |    +-- hosting_managed_by: "lingo", "client", or null
- |
- +-- Domain Info:
- |    +-- domain_registrar: "GoDaddy", "Namecheap", "Cloudflare", etc.
- |    +-- domain_registrar_other: (if "Other" selected)
- |    +-- dns_managed_elsewhere: true/false
- |    +-- dns_provider: (if DNS elsewhere)
- |
- +-- Has Active Contract? (visual indicator, derived from contracts)
+ +-- status: derived (active = has active contract) or manually suspended
  |
  +-- CONTRACTS (0 to many)
  |    |
+ |    +-- contract_number: "LINGOTEC-CON-001" (sequential per client)
  |    +-- name: "Digital Marketing Package" (custom, required)
- |    +-- discounted_hourly_rate: $100.00 (or null = use client rate)
+ |    +-- service_category: IT | WEB | MARKETING | OTHER
+ |    +-- project_manager_id -> assigned PM (receives renewal alerts)
+ |    +-- monthly_price: $500.00 (flat monthly fee)
+ |    +-- discounted_hourly_rate: $100.00 (overage rate, or null = default rate)
  |    +-- allotted_hours_monthly: 10 hours
- |    +-- start_date: determines anniversary for billing
- |    +-- end_date: auto-expire with notification
- |    +-- pdf_path: REQUIRED for contract to be active
- |    +-- status: active/inactive/expired
+ |    +-- contract_length_months: 12
+ |    +-- start_date / end_date
+ |    +-- auto_renew: true (default) — extends end_date +12 months automatically
+ |    +-- do_not_renew: false (PM sets true if client gives 30-day notice)
+ |    +-- renewal_notice_received_at: date client gave notice
+ |    +-- google_drive_url: link to signed contract document
+ |    +-- status: active | inactive | expired
  |    |
  |    +-- SERVICE TYPES (many-to-many, shown as tags)
- |         +-- SEO
- |         +-- Web Development
- |         +-- Social Media
+ |    |    +-- SEO, Web Development, Social Media, etc.
+ |    |
+ |    +-- WORK LOGS for this contract (labor notes)
+ |         +-- date, description, hours, employee
+ |         +-- Aggregated into billing email on 1st of month
  |
- +-- WORK LOGS (0 to many)
-      |
-      +-- Can be associated with a CONTRACT (tracks allocation)
-      |
-      +-- Can be CLIENT-ONLY (no contract, bills at client rate)
+ +-- WORK LOGS — Non-contract labor (contract_id = null)
+      +-- Billed at client's default hourly rate
+      +-- Included in billing email as non-contract section
+      +-- Tracked and reported same as contract labor
 ```
 
 ---
@@ -215,23 +217,29 @@ CLIENT (Company)
 ### Standard Rates
 - **System Default**: $130/hour (applied to new clients)
 - **Client Default**: Editable per client (inherits system default initially)
-- **Contract Discount**: Optional per contract (falls back to client default)
+- **Contract Flat Fee**: Monthly price charged regardless of hours used
+- **Overage Rate**: `discounted_hourly_rate` on the contract (falls back to client default if null)
 
-### Overage Calculation
-- Overages calculated on contract **anniversary date** (not calendar month)
-- Example: Contract started May 10th -> billing period is 10th to 9th of next month
-- Hours exceeding allocation billed at the contract's rate
+### Billing Period
+- **Reset Date**: 1st of each calendar month (not contract anniversary)
+- All contracts share the same billing period regardless of start date
+- Hours are tallied from the 1st through the last day of the month
 
 ### Billing Email Trigger
-- **When**: On contract anniversary date (completion of monthly period)
+- **When**: 1st of every month
 - **Where**: Email sent to `billing@itjames.support`
-- **Content**: Overage report for the completed period
-- **Only if**: Overage exists (no email if within allocation)
+- **Content**: For each client — flat monthly fee(s), overage hours and amounts, non-contract labor hours and amounts
+- **Always sent**: Billing email goes out on the 1st whether or not there is overage (flat fee is always billed)
+
+### Contract Status & Client Status
+- **Client status** is derived from contracts: client = active if they have at least one active contract
+- **Suspended** is a manual override for situations like payment hold
+- A client with no contracts defaults to inactive
 
 ### Reporting Requirements
 - Filter by: All clients OR selected clients
 - Date range: Current month OR custom date range
-- Shows: Hours worked, allocation, overage hours, overage amount, rate applied
+- Shows: Flat monthly fee, hours worked vs allocation, overage hours, overage amount, non-contract hours and cost
 
 ---
 
@@ -316,14 +324,20 @@ deleted_at TIMESTAMP NULL (soft deletes)
 CREATE TABLE contracts (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     client_id BIGINT UNSIGNED NOT NULL,
-    contract_number VARCHAR(50) NOT NULL UNIQUE,
-    name VARCHAR(255) NOT NULL, -- Custom display name (required)
-    discounted_hourly_rate DECIMAL(8,2) NULL, -- NULL = use client's default
+    project_manager_id BIGINT UNSIGNED NULL,        -- PM who receives renewal alerts
+    contract_number VARCHAR(50) NOT NULL UNIQUE,    -- LINGOTEC-CON-001 (sequential)
+    name VARCHAR(255) NOT NULL,                     -- Custom display name (required)
+    service_category ENUM('IT','WEB','MARKETING','OTHER') NOT NULL,
+    monthly_price DECIMAL(8,2) NOT NULL,            -- Flat monthly fee
+    discounted_hourly_rate DECIMAL(8,2) NULL,       -- Overage rate; NULL = use client default
     allotted_hours_monthly DECIMAL(6,2) NOT NULL,
-    start_date DATE NOT NULL, -- Anniversary date basis
-    end_date DATE NULL, -- Auto-expire when reached
-    auto_renew BOOLEAN DEFAULT FALSE,
-    pdf_path VARCHAR(500) NULL, -- REQUIRED for active status
+    contract_length_months INT NOT NULL DEFAULT 12,
+    start_date DATE NOT NULL,
+    end_date DATE NULL,
+    auto_renew BOOLEAN NOT NULL DEFAULT TRUE,       -- Extends end_date +12 months on expiry
+    do_not_renew BOOLEAN NOT NULL DEFAULT FALSE,    -- PM sets TRUE on 30-day client notice
+    renewal_notice_received_at DATE NULL,           -- Date client gave non-renewal notice
+    google_drive_url VARCHAR(500) NULL,             -- Link to signed contract on Google Drive
     status ENUM('active', 'inactive', 'expired') DEFAULT 'inactive',
     description TEXT NULL,
     notes TEXT NULL,
@@ -334,10 +348,12 @@ CREATE TABLE contracts (
     deleted_at TIMESTAMP NULL,
 
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
+    FOREIGN KEY (project_manager_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (created_by_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (updated_by_id) REFERENCES users(id) ON DELETE SET NULL,
 
     INDEX idx_client_id (client_id),
+    INDEX idx_project_manager_id (project_manager_id),
     INDEX idx_status (status),
     INDEX idx_end_date (end_date),
     UNIQUE INDEX idx_contract_number (contract_number)
@@ -426,36 +442,42 @@ CREATE TABLE work_logs (
 
 ---
 
-## File Storage Structure
+## Contract Document Storage
 
-Contract PDFs organized by client:
+Contract documents are stored on company Google Drive (not uploaded to the server).
 
-```
-storage/
-+-- app/
-    +-- clients/
-        +-- {ACCOUNT_NUMBER}/
-            +-- contracts/
-                +-- {contract_number}_2026.pdf
-                +-- {contract_number}_2025.pdf
-                +-- ...
-```
+**Workflow:**
+1. PM uploads the signed contract PDF to the appropriate Google Drive folder
+2. PM copies the shareable link and pastes it into the `google_drive_url` field on the contract record
+3. Anyone with access to the app can click the link to view the document
 
-**Example:**
-```
-storage/app/clients/LINGOTEC/contracts/
-+-- LINGOTEC-CON-001_2026.pdf
-+-- LINGOTEC-CON-002_2026.pdf
-```
+**Field:** `google_drive_url VARCHAR(500) NULL`
 
-**Access Rules:**
-- All authenticated users can view/download contract PDFs
-- Only admins can upload new contracts
-- Files served through Laravel route (not public directory)
+**UI Behavior:**
+- If URL is set: display a "View Contract" link that opens in a new tab
+- If URL is blank: display a muted placeholder ("No document linked")
+- Admins and PMs can edit the URL field at any time
+
+**No local file storage is needed for contracts.**
 
 ---
 
 ## Contract Lifecycle
+
+### Workflow Steps
+```
+1. Proposal sent to client (tracked manually or via notes)
+2. Contract created in app (status: inactive)
+3. Signed contract uploaded to Google Drive; URL added to contract record
+4. Contract activated (status: active)
+5. Monthly billing runs on 1st of each month
+6. 30 days before end_date: system emails PM ("Contract expiring in 30 days")
+7a. If auto_renew = TRUE and do_not_renew = FALSE:
+    -> end_date extended +12 months automatically on the expiry date
+7b. If do_not_renew = TRUE:
+    -> Contract expires on end_date (status: expired)
+    -> No auto-extension
+```
 
 ### Status Transitions
 ```
@@ -463,7 +485,7 @@ storage/app/clients/LINGOTEC/contracts/
    Create ------->|   INACTIVE     |<------ Deactivate manually
                   +-------+--------+
                           |
-                Upload PDF + Activate
+                      Activate
                           |
                           v
                   +----------------+
@@ -473,22 +495,33 @@ storage/app/clients/LINGOTEC/contracts/
             +-------------+-------------+
             |                           |
      End date reached          Manual deactivate
-            |                           |
-            v                           v
-   +----------------+         +----------------+
-   |    EXPIRED     |         |   INACTIVE     |
-   +----------------+         +----------------+
+     (do_not_renew=TRUE)                |
+            |                           v
+            |                  +----------------+
+            |                  |   INACTIVE     |
+            v                  +----------------+
+   +----------------+
+   |    EXPIRED     |
+   +----------------+
+
+   Auto-renew path (do_not_renew=FALSE):
+   end_date reached -> end_date += 12 months -> stays ACTIVE
 ```
 
-### Auto-Expiration
-- **Scheduled Job**: Runs daily to check for contracts past end_date
-- **Action**: Sets status to 'expired'
-- **Notification**: Admin notification listing upcoming expirations (7-day warning)
+### Auto-Renewal Logic
+- **Scheduled Job**: Runs daily to check contracts with `end_date = today`
+- **If `do_not_renew = FALSE`**: Push `end_date` forward 12 months; contract stays active; email PM to confirm
+- **If `do_not_renew = TRUE`**: Set status to `expired`; no extension
 
-### PDF Requirement
-- Contract **cannot** be set to 'active' without uploaded PDF
-- System enforces this at the model/controller level
-- UI shows clear message: "Upload contract PDF to activate"
+### 30-Day Renewal Warning
+- **Scheduled Job**: Runs daily; checks for contracts where `end_date = today + 30 days`
+- **Action**: Email sent to the contract's assigned `project_manager_id`
+- **Content**: "Contract [number] for [client] expires on [date]. Set 'Do Not Renew' to stop auto-renewal."
+
+### Client Gives Non-Renewal Notice
+1. PM opens the contract record
+2. PM sets `do_not_renew = TRUE` and fills in `renewal_notice_received_at` (date received)
+3. Contract continues to run until `end_date`, then expires — no further auto-extension
 
 ---
 
@@ -643,9 +676,9 @@ account_number,company_name,trading_name,email,phone,mobile,website,address_line
 ### Contact Display Rules
 ```
 Display Logic:
-1. If mobile exists -> show "m: +1 XXX XXX XXXX"
-2. Else if phone exists -> show "o: +1 XXX XXX XXXX"
-3. Else -> show "--"
+1. If mobile exists -> show "m: XXX-XXX-XXXX"
+2. Else if phone exists -> show "o: XXX-XXX-XXXX"
+3. Else -> show "—"
 ```
 
 ---
@@ -653,35 +686,41 @@ Display Logic:
 ## Development Roadmap
 
 ### Phase 2: Contract Management [NEXT] **NEXT UP!**
-**Goal**: Full contract lifecycle with PDF upload and client contacts
+**Goal**: Full contract lifecycle — Contracts section in top nav, contract link on client, calendar-month billing
 
-- [ ] **Migration**: Create `contracts` table
+- [ ] **Migration**: Create `contracts` table (see updated schema above)
 - [ ] **Migration**: Create `contract_service_type` pivot table
 - [ ] **Migration**: Create `client_contacts` table
-- [ ] **Model**: Create Contract model with relationships
-- [ ] **Model**: Create ClientContact model with relationships
-- [ ] **Livewire Component**: Create `ContractManagement.php`
+- [ ] **Model**: Create `Contract` model with relationships
+- [ ] **Model**: Create `ClientContact` model with relationships
+- [ ] **Livewire Component**: `ContractManagement.php` — top-level Contracts section (own nav item)
 - [ ] **Features - Contracts**:
-    - [ ] Contracts tab/section on client management
-    - [ ] Add Contract modal
-    - [ ] Edit Contract modal
-    - [ ] Contract status management (active/inactive/expired)
-    - [ ] Service types displayed as tags
-    - [ ] Contract number auto-generation (ACCOUNT-CON-SERVICE-YEAR)
-    - [ ] PDF upload functionality
-    - [ ] Multiple contracts per client (IT, WEB, MARKETING independently)
+    - [ ] Top-level "Contracts" nav item (its own section, not buried in Clients)
+    - [ ] Contract link/summary on client info panel (quick access from client view)
+    - [ ] Add / Edit / Delete contract modals
+    - [ ] Contract status management (active / inactive / expired)
+    - [ ] Service category field (IT | WEB | MARKETING | OTHER)
+    - [ ] Assigned project manager dropdown (users list)
+    - [ ] Monthly price (flat fee) field
+    - [ ] Overage rate field (optional)
+    - [ ] Sequential contract number auto-generation (`ACCOUNT-CON-001`)
+    - [ ] Google Drive URL field with "View Contract" link
+    - [ ] Multiple contracts per client tracked independently by category
+    - [ ] `auto_renew` toggle (default ON)
+    - [ ] `do_not_renew` toggle + `renewal_notice_received_at` date picker
+    - [ ] Service types displayed as tags (many-to-many)
     - [ ] Monthly hours allocation display
-    - [ ] Hours remaining in current period display
+    - [ ] Hours used in current calendar month (real-time)
 - [ ] **Features - Client Contacts**:
     - [ ] Contact list per client
     - [ ] Add/Edit/Delete contacts
     - [ ] Primary contact designation
     - [ ] Billing contact designation
-    - [ ] Invoice recipient flag
-- [ ] **Scheduled Job**: Daily contract expiration check
-- [ ] **Notification**: Admin alert for upcoming expirations (7-day warning)
+- [ ] **Scheduled Job**: Daily — 30-day renewal warning email to PM
+- [ ] **Scheduled Job**: Daily — auto-renew or expire contracts on end_date
+- [ ] **Scheduled Job**: Monthly (1st) — generate and send billing email to `billing@itjames.support`
 
-**Estimated Effort**: 3-4 days
+**Estimated Effort**: 4-5 days
 
 ---
 
@@ -733,15 +772,16 @@ Display Logic:
 **Estimated Effort**: 5-6 days
 
 ### Overall System Acceptance Criteria
-1. Time can be logged against clients with or without contracts
-2. Contracts track monthly hour allocations
-3. Overages are automatically detected
-4. Billing reports generated on contract anniversary
-5. Email notifications sent to billing system
-6. Reports can be filtered and exported
-7. All permissions properly enforced
-8. Contract PDFs required for activation
-9. Contract auto-expiration with admin notification
+1. Time can be logged against a specific contract or as non-contract labor
+2. Contracts track monthly hour allocations per service category
+3. Overages are automatically detected and flagged
+4. Billing email sent on 1st of each month to `billing@itjames.support`
+5. Billing email includes: flat fees, overages, and non-contract labor per client
+6. Contracts auto-renew (extend end_date +12 months) unless `do_not_renew = TRUE`
+7. PM receives 30-day renewal warning email before contract expires
+8. Reports can be filtered and exported
+9. All permissions properly enforced
+10. Client status derives from active contracts (suspended = manual override)
 
 ---
 
@@ -749,54 +789,45 @@ Display Logic:
 
 ### Contract Number Auto-Generation
 
-**Format:** `{ACCOUNT_NUMBER}-CON-{SERVICE}-{YEAR}`
+**Format:** Sequential per client — `{ACCOUNT_NUMBER}-CON-{NNN}`
 
 **Examples:**
-- Lingo Technologies + Web Dev + 2026 = `LINGOTEC-CON-WEB-2026`
-- ABC Company + IT Support + 2026 = `ABCCOMPA-CON-IT-2026`
-- Lingo Technologies + Marketing + 2026 = `LINGOTEC-CON-MARKETING-2026`
+- Lingo Technologies, 1st contract  = `LINGOTEC-CON-001`
+- Lingo Technologies, 2nd contract  = `LINGOTEC-CON-002`
+- ABC Company, 1st contract         = `ABCCOMPA-CON-001`
 
 **PHP Implementation (Contract model observer):**
 ```php
 public function creating(Contract $contract)
 {
     $accountNumber = $contract->client->account_number;
-    $service = $contract->service_category; // IT, WEB, MARKETING, OTHER
-    $year = Carbon::parse($contract->start_date)->year;
+    $count = Contract::where('client_id', $contract->client_id)->withTrashed()->count() + 1;
 
-    $contract->contract_number = "{$accountNumber}-CON-{$service}-{$year}";
+    $contract->contract_number = $accountNumber . '-CON-' . str_pad($count, 3, '0', STR_PAD_LEFT);
 }
 ```
 
-### Anniversary Date Handling
+### Calendar-Month Billing Period
 
 **Monthly Reset Logic:**
-- Contract starts May 24, 2025
-- First period: May 24 - June 23, 2025
-- Second period: June 24 - July 23, 2025
-- Continues monthly on the 24th
+- All contracts reset on the **1st of each calendar month**
+- Start date does not affect the billing period
+- Example: Contract starts May 24 → first full period is June 1–30
 
-**Month-End Edge Cases:**
-- If start date is 29, 30, or 31 use last valid day of shorter months
-- Example: January 31 contract
-    - February: Resets on 28th (or 29th in leap year)
-    - March: Resets on 31st
-    - April: Resets on 30th
-
-**PHP Implementation:**
+**Scheduled Job — 1st of Month:**
 ```php
-public function getNextAnniversaryDate($contractStartDate, $currentDate)
-{
-    $startDay = $contractStartDate->day;
-    $nextMonth = $currentDate->copy()->addMonth();
-
-    // Handle month-end edge cases
-    $lastDayOfNextMonth = $nextMonth->copy()->endOfMonth()->day;
-    $anniversaryDay = min($startDay, $lastDayOfNextMonth);
-
-    return $nextMonth->day($anniversaryDay);
-}
+// Runs on the 1st of each month
+// 1. Tally all work_logs for the previous calendar month per contract
+// 2. Calculate overage (hours used - allotted_hours_monthly)
+// 3. Generate billing email for each client with active contracts or non-contract labor
+// 4. Send to billing@itjames.support
 ```
+
+**Email Content:**
+- Client name, contract(s) with flat monthly fee
+- Overage hours + overage charge per contract (if any)
+- Non-contract labor hours + charge (if any)
+- Total amount due for the month
 
 ### Timer Interface Pattern (Phase 3 Reference)
 
@@ -841,35 +872,37 @@ public function getNextAnniversaryDate($contractStartDate, $currentDate)
 </div>
 ```
 
-### Contract Period Workflow
+### Monthly Billing Workflow
 
 ```
-Daily Scheduled Job
+Scheduled Job: Runs on 1st of each month
  |
  v
-Check for anniversary dates matching today
+For each client with active contracts or non-contract work last month:
  |
- +---> No matches --> Exit
+ +---> Per contract:
+ |     Sum work_logs for previous calendar month
+ |     Overage = MAX(0, hours_used - allotted_hours_monthly)
+ |     Overage charge = overage * (discounted_hourly_rate ?? client.default_hourly_rate)
+ |     Flat fee = contract.monthly_price
  |
- +---> Match found --> Create new period record
-       |
-       v
-       Set period_start = anniversary date
-       Set period_end = day before next anniversary
-       Set allocated_hours from contract
-       |
-       v
-       Sum work_logs for previous period
-       |
-       v
-       Calculate overage = MAX(0, used - allocated)
-       |
-       v
-       Apply overage rate, calculate total_overage_amount
-       |
-       +---> Overage > 0? --> Send email report
-       |                      Mark report_sent = true
-       +---> No overage --> Skip email
+ +---> Per client (non-contract labor):
+ |     Sum work_logs where contract_id IS NULL
+ |     Non-contract charge = hours * client.default_hourly_rate
+ |
+ +---> Build billing email:
+       Flat fees + overages + non-contract charges
+       Send to billing@itjames.support
+       Mark report_sent = true on period record
+
+Scheduled Job: Runs daily
+ |
+ +---> Check contracts where end_date = today + 30 days
+ |     Email assigned project_manager_id: "Contract expiring in 30 days"
+ |
+ +---> Check contracts where end_date = today
+       If do_not_renew = FALSE: extend end_date +12 months; email PM confirmation
+       If do_not_renew = TRUE:  set status = 'expired'
 ```
 
 ### Work Log Workflow
@@ -905,24 +938,27 @@ System checks: Does contract have allocation?
 ## Testing Checklist
 
 ### Functional Testing
-- [ ] Contract numbers generate in correct format
+- [ ] Contract numbers generate sequentially per client (ACCOUNT-CON-001, 002, etc.)
 - [ ] Timer calculates time correctly
 - [ ] Overage detection works when hours exceed allocation
-- [ ] Anniversary dates calculate properly across month boundaries
-- [ ] Month-end edge cases handled (29th, 30th, 31st)
-- [ ] Email notifications send on correct anniversary date
-- [ ] Multiple contracts per client track independently
+- [ ] Billing period resets on 1st of calendar month (not start date)
+- [ ] Email sent on 1st of month includes flat fees + overages + non-contract labor
+- [ ] Multiple contracts per client track independently by service category
+- [ ] do_not_renew flag prevents auto-extension on expiry
+- [ ] auto_renew extends end_date +12 months when contract expires
+- [ ] PM receives 30-day warning email before end_date
+- [ ] Client status = active when at least one contract is active
 
 ### Edge Cases to Test
 - [ ] Duplicate contract numbers handled gracefully
-- [ ] Multiple active contracts per client work independently
+- [ ] Multiple active contracts per client (different categories) work independently
 - [ ] Overlapping work log entries prevented
-- [ ] Anniversary on February 29th (leap year)
-- [ ] Contract started on 31st in months with fewer days
+- [ ] Non-contract labor billed at client default rate when no contract exists
+- [ ] IT hours logged by client with only a WEB contract → treated as non-contract labor
 - [ ] Timer session recovery after browser crash
-- [ ] Timezone handling for distributed teams
-- [ ] Zero-allocation contracts (pay-as-you-go)
-- [ ] Contract expiration during active period
+- [ ] Contract activated mid-month: first billing period = partial month
+- [ ] Contract with do_not_renew = TRUE expires cleanly without extension
+- [ ] Google Drive URL field: blank → shows "No document linked"; set → shows clickable link
 
 ---
 
@@ -960,6 +996,22 @@ System checks: Does contract have allocation?
 | Feb 9, 2026 | All form inputs use w-full | Consistent full-width rendering across all fields |
 | Feb 9, 2026 | Checkboxes converted to toggles | Better UX for boolean fields (daisyUI toggle) |
 | Feb 9, 2026 | Section header includes "Software" | Reflects expanded scope of hosting/domain/software section |
+| Jun 7, 2026 | Contract docs stored on Google Drive (URL only, no PDF upload) | Avoids server storage complexity; team already uses Google Drive |
+| Jun 7, 2026 | Billing resets on 1st of calendar month (not anniversary) | Simpler — all contracts bill on the same date each month |
+| Jun 7, 2026 | Billing email sent on 1st of month to billing@itjames.support | Integrates with existing ticketing/billing workflow |
+| Jun 7, 2026 | Contract pricing = flat monthly fee + optional overage rate | Clients pay a fixed amount; overages billed on top |
+| Jun 7, 2026 | Contract number format: ACCOUNT-CON-001 (sequential per client) | Simple, readable, no year/service in the number |
+| Jun 7, 2026 | Service category on contract: IT, WEB, MARKETING, OTHER | Hours only count against same-category contract |
+| Jun 7, 2026 | Contracts section is top-level nav item | Contracts are first-class, not nested under clients |
+| Jun 7, 2026 | Contract link also accessible from client info panel | PMs need quick access from the client view |
+| Jun 7, 2026 | auto_renew defaults to TRUE | Most contracts auto-renew; opt-out rather than opt-in |
+| Jun 7, 2026 | do_not_renew flag + renewal_notice_received_at date | PM records when client gives 30-day notice |
+| Jun 7, 2026 | PM assigned per contract; receives renewal warnings | Contract-level PM accountability for renewals |
+| Jun 7, 2026 | Contracts auto-extend end_date +12 months on expiry (if not flagged) | Reduces manual work; mirrors real-world auto-renewal |
+| Jun 7, 2026 | Suspended status remains as manual override | Useful for payment holds without ending the contract |
+| Jun 7, 2026 | Non-contract labor tracked same as contracted (time tracker, category, billing) | Ensures all billable hours are captured regardless of contract status |
+| Jun 7, 2026 | Client status derived from contracts (active = has active contract) | Status reflects commercial reality, not manual maintenance |
+| Jun 7, 2026 | Phone display format changed to XXX-XXX-XXXX (no country code) | US-only business; +1 prefix is noise |
 
 ---
 
@@ -1046,4 +1098,4 @@ System checks: Does contract have allocation?
 
 *This document should be updated as development progresses. Check off completed items and add notes about any deviations from the plan.*
 
-*Last Updated: February 11, 2026 - Reorganized: removed redundancy, grouped related sections. Phase 1 (A/B/C) 100% complete. Ready for Phase 2 (Contract Management).*
+*Last Updated: June 7, 2026 — Contract Management spec fully locked. Billing model updated to calendar-month (1st), Google Drive URLs replace PDF upload, sequential contract numbers, auto-renewal logic, PM notifications, non-contract labor architecture. Ready to build Phase 2.*
