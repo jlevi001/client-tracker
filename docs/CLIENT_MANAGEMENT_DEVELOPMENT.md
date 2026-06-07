@@ -694,7 +694,7 @@ The Client Management module will be considered complete when:
 - **Database Schema**: `/docs/DATABASE_SCHEMA.md`
 - **AI Instructions**: `/docs/ai-instructions.md`
 - **daisyUI Conversion Guide**: `/docs/DAISYUI_CONVERSION_GUIDE.md`
-- **Component Reference**: `/resources/views/components/COMPONENT_REFERENCE.md`
+- **Component Reference**: `/docs/COMPONENT_REFERENCE.md`
 - **User Management Reference**: `/resources/views/livewire/user-management.blade.php`
 
 ---

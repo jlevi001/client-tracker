@@ -8,7 +8,7 @@ Based on the comprehensive documentation we've created, here are the **must-have
    - This is your MOST IMPORTANT document
    - Contains all development guidelines, component patterns, and what's already migrated
    - Shows exactly HOW to write code for this project
-   - Includes the 95% migration status
+   - Migration is 100% complete — all components use daisyUI
 
 2. **`/docs/DAISYUI_CONVERSION_GUIDE.md`**
    - Shows before/after examples for every component type
@@ -17,7 +17,7 @@ Based on the comprehensive documentation we've created, here are the **must-have
 
 ### 📚 **Priority 2: Component Reference** (Include for Component Work)
 
-3. **`/resources/views/components/COMPONENT_REFERENCE.md`**
+3. **`/docs/COMPONENT_REFERENCE.md`**
    - Complete API documentation for all existing components
    - Shows how to USE the components that already exist
    - Prevents reinventing the wheel
@@ -47,7 +47,7 @@ I'm working on the Lingo Client Tracker project. Please review the attached docu
 
 Key points:
 - We use daisyUI semantic classes, NOT raw Tailwind utilities
-- 95% of components are already migrated
+- All components are already migrated (100% complete)
 - Dark theme only with base-100/200/300 colors
 - All components must be mobile responsive
 - Check existing components before creating new ones

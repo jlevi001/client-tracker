@@ -1,19 +1,10 @@
-## Project Standards for Lingo Client Tracker
+# Quick Reference
 
-ALWAYS:
-✅ Use daisyUI components (btn btn-primary)
-✅ Use theme colors (bg-base-100, text-base-content)
-✅ Make mobile responsive (w-full sm:w-auto)
-✅ Include loading states
-✅ Use existing components from /resources/views/components/
+This file is a pointer. All styling rules, component patterns, and quick-copy templates are in:
+→ [`ai-instructions.md`](ai-instructions.md)
 
-NEVER:
-❌ Use raw Tailwind for components (px-4 py-2 bg-indigo-600)
-❌ Use gray colors (bg-gray-800)
-❌ Hardcode colors
-❌ Forget mobile testing
-❌ Create new components without checking existing ones
+For detailed before/after conversion examples:
+→ [`DAISYUI_CONVERSION_GUIDE.md`](DAISYUI_CONVERSION_GUIDE.md)
 
-Components: Check /resources/views/components/
-Livewire: Check /resources/views/livewire/user-management.blade.php
-Theme: Dark only with daisyUI theme variables
+For component API documentation:
+→ [`COMPONENT_REFERENCE.md`](COMPONENT_REFERENCE.md)

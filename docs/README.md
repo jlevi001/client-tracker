@@ -185,23 +185,20 @@ Visit `http://localhost:8000` to view the application.
 
 The application uses an **exclusive dark theme** powered by daisyUI's theming system:
 
-### Theme Configuration (`tailwind.config.js`)
-```javascript
-daisyui: {
-  themes: [{
-    dark: {
-      "primary": "#6366f1",      // Indigo-600
-      "secondary": "#8b5cf6",     // Purple-600
-      "accent": "#10b981",        // Green-600
-      "base-100": "#1f2937",      // Gray-800 (main bg)
-      "base-200": "#111827",      // Gray-900 (cards)
-      "base-300": "#0f172a",      // Gray-950 (darkest)
-      "success": "#10b981",       // Green-500
-      "warning": "#f59e0b",       // Amber-500
-      "error": "#ef4444",         // Red-500
-      "info": "#3b82f6",          // Blue-500
-    }
-  }]
+### Theme Configuration
+
+> **⚠️ daisyUI v5**: Color values in `tailwind.config.js` are ignored. All colors are set in `resources/css/app.css` as CSS variables.
+
+```css
+/* resources/css/app.css */
+[data-theme="dark"] {
+  --color-primary:   oklch(60% 0.22 264);     /* indigo  #6366f1  */
+  --color-secondary: oklch(62.4% 0.224 35.7); /* Lingo orange #FF5600 */
+  --color-accent:    oklch(62% 0.17 162);     /* green   #10b981 */
+  --color-info:      oklch(60% 0.188 264.5);  /* blue    #3b82f6 */
+  --color-success:   oklch(62% 0.17 162);     /* green   #10b981 */
+  --color-warning:   oklch(75% 0.18 75);      /* amber   #f59e0b */
+  --color-error:     oklch(62% 0.22 25);      /* red     #ef4444 */
 }
 ```
 
@@ -398,7 +395,7 @@ APP_URL=https://your-domain.com
 - **AI Development Guide**: [`/docs/ai-instructions.md`](./docs/ai-instructions.md)
 - **daisyUI Conversion Guide**: [`/docs/DAISYUI_CONVERSION_GUIDE.md`](./docs/DAISYUI_CONVERSION_GUIDE.md)
 - **Migration Status**: [`/docs/MIGRATION_STATUS.md`](./docs/MIGRATION_STATUS.md)
-- **Component Reference**: [`/resources/views/components/COMPONENT_REFERENCE.md`](./resources/views/components/COMPONENT_REFERENCE.md)
+- **Component Reference**: [`/docs/COMPONENT_REFERENCE.md`](./COMPONENT_REFERENCE.md)
 
 ### External Resources
 - **daisyUI Documentation**: [https://daisyui.com](https://daisyui.com)

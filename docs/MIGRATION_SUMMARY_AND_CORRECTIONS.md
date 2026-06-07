@@ -35,7 +35,7 @@ This document summarizes the comprehensive daisyUI migration completed between S
 
 ### 4. New Documentation Created
 - ✅ **Migration Status** (`/docs/MIGRATION_STATUS.md`) - Detailed tracking of all migrated files
-- ✅ **Component Reference** (`/resources/views/components/COMPONENT_REFERENCE.md`) - Complete component API documentation
+- ✅ **Component Reference** (`/docs/COMPONENT_REFERENCE.md`) - Complete component API documentation
 - ✅ **This Summary** (`/docs/MIGRATION_SUMMARY_AND_CORRECTIONS.md`) - Migration overview and corrections
 
 ## ❌ Outdated Patterns Removed
@@ -115,24 +115,24 @@ Average Reduction                                  | 75%
 
 ## 🔧 Configuration Changes
 
-### Tailwind Configuration
+### Theme Configuration
+
+> **⚠️ daisyUI v5**: The `daisyui.themes` block in `tailwind.config.js` is **ignored** in v5. Colors must be CSS variables in `resources/css/app.css`.
+
+`tailwind.config.js` — plugins only, no color values:
 ```javascript
-// tailwind.config.js - ALREADY PERFECT, NO CHANGES NEEDED
 module.exports = {
-  plugins: [require('daisyui')],
-  daisyui: {
-    themes: [{
-      dark: {
-        "primary": "#6366f1",
-        "secondary": "#8b5cf6",
-        "accent": "#10b981",
-        "base-100": "#1f2937",
-        "base-200": "#111827",
-        "base-300": "#0f172a",
-        // ... rest of theme
-      }
-    }]
-  }
+  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography'), require('daisyui')],
+}
+```
+
+`resources/css/app.css` — all color overrides live here (see `DAISYUI_CONVERSION_GUIDE.md` for the full block):
+```css
+[data-theme="dark"] {
+  --color-primary:   oklch(60% 0.22 264);     /* indigo  #6366f1  */
+  --color-secondary: oklch(62.4% 0.224 35.7); /* Lingo orange #FF5600 */
+  --color-accent:    oklch(62% 0.17 162);     /* green   #10b981 */
+  --color-info:      oklch(60% 0.188 264.5);  /* blue    #3b82f6 */
 }
 ```
 
@@ -219,8 +219,8 @@ module.exports = {
 ### When Adding New Features
 1. Update `/docs/ai-instructions.md` with new patterns
 2. Add examples to `/docs/DAISYUI_CONVERSION_GUIDE.md`
-3. Update `/resources/views/components/COMPONENT_REFERENCE.md`
-4. Maintain `/docs/MIGRATION_STATUS.md` with progress
+3. Update `/docs/COMPONENT_REFERENCE.md`
+4. Update `/docs/UPDATE_SUMMARY.md` change log
 
 ## 🏆 Migration Achievements
 
@@ -228,7 +228,7 @@ module.exports = {
 1. **75% average code reduction** across all components
 2. **100% dark theme consistency** throughout application
 3. **100% mobile responsive** components
-4. **95% migration complete** with only SVG files remaining
+4. **100% migration complete** — all components fully migrated
 5. **40% faster development** with semantic components
 
 ### Developer Experience Improvements

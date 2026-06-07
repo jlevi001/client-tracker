@@ -55,7 +55,7 @@ Visit: http://localhost:8000
 
 Read these in order:
 1. **This Guide** - You are here! ✅
-2. **Component Reference** - `/resources/views/components/COMPONENT_REFERENCE.md`
+2. **Component Reference** - `/docs/COMPONENT_REFERENCE.md`
 3. **AI Instructions** - `/docs/ai-instructions.md` (if using AI assistants)
 4. **Conversion Guide** - `/docs/DAISYUI_CONVERSION_GUIDE.md` (for migrations)
 
@@ -265,7 +265,7 @@ Before committing code:
 
 ## 🆘 Getting Help
 
-1. **Component Usage**: See `/resources/views/components/COMPONENT_REFERENCE.md`
+1. **Component Usage**: See `/docs/COMPONENT_REFERENCE.md`
 2. **Migration Help**: See `/docs/DAISYUI_CONVERSION_GUIDE.md`
 3. **Project Status**: See `/docs/MIGRATION_STATUS.md`
 4. **GitHub Issues**: https://github.com/jlevi001/client-tracker/issues

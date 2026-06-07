@@ -247,7 +247,9 @@ As of January 2025, the application has successfully completed a comprehensive m
 
 ## ðŸŽ¨ daisyUI Theme Configuration
 
-The application uses a custom dark theme configured in `tailwind.config.js`:
+> **â ï¸ daisyUI v5**: Color values inside `tailwind.config.js` are **completely ignored** by daisyUI v5. All color overrides must be CSS variables in `resources/css/app.css` under `[data-theme="dark"]` using **oklch format**. The `tailwind.config.js` file is only used for content paths and plugin registration.
+
+### tailwind.config.js (plugins only — do NOT add colors here)
 
 ```javascript
 module.exports = {
@@ -258,27 +260,31 @@ module.exports = {
     './resources/views/**/*.blade.php',
   ],
   plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography'), require('daisyui')],
-  daisyui: {
-    themes: [
-      {
-        dark: {
-          "primary": "#6366f1",          // Indigo-600
-          "secondary": "#8b5cf6",         // Purple-600
-          "accent": "#10b981",            // Green-600
-          "neutral": "#374151",           // Gray-700
-          "base-100": "#1f2937",          // Gray-800 (main background)
-          "base-200": "#111827",          // Gray-900 (darker background)
-          "base-300": "#0f172a",          // Gray-950 (darkest)
-          "info": "#3b82f6",              // Blue-500
-          "success": "#10b981",           // Green-500
-          "warning": "#f59e0b",           // Amber-500
-          "error": "#ef4444",             // Red-500
-        }
-      }
-    ],
-  }
 }
 ```
+
+### resources/css/app.css (colors ARE set here)
+
+```css
+[data-theme="dark"] {
+  --color-primary:           oklch(60% 0.22 264);     /* indigo  #6366f1 */
+  --color-primary-content:   oklch(98% 0 0);
+  --color-secondary:         oklch(62.4% 0.224 35.7); /* Lingo orange #FF5600 */
+  --color-secondary-content: oklch(98% 0 0);
+  --color-accent:            oklch(62% 0.17 162);     /* green  #10b981 */
+  --color-accent-content:    oklch(98% 0 0);
+  --color-info:              oklch(60% 0.188 264.5);  /* blue   #3b82f6 */
+  --color-info-content:      oklch(98% 0 0);
+  --color-success:           oklch(62% 0.17 162);     /* green  #10b981 */
+  --color-success-content:   oklch(98% 0 0);
+  --color-warning:           oklch(75% 0.18 75);      /* amber  #f59e0b */
+  --color-warning-content:   oklch(20% 0 0);
+  --color-error:             oklch(62% 0.22 25);      /* red    #ef4444 */
+  --color-error-content:     oklch(98% 0 0);
+}
+```
+
+After any change to `app.css`, rebuild assets on the server: `npm run build`
 
 ## ðŸ“± Mobile Responsiveness Patterns
 
