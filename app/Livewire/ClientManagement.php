@@ -549,6 +549,8 @@ class ClientManagement extends Component
                         'domain_registrar_other' => $rowData['domain_registrar_other'] ?? null,
                         'dns_managed_elsewhere' => filter_var($rowData['dns_managed_elsewhere'] ?? false, FILTER_VALIDATE_BOOLEAN),
                         'dns_provider' => $rowData['dns_provider'] ?? null,
+                        'client_software' => $rowData['client_software'] ?? null,
+                        'software_cost' => !empty($rowData['software_cost']) ? $rowData['software_cost'] : null,
                     ];
 
                     if ($rowData['_action'] === 'update') {
@@ -621,6 +623,8 @@ class ClientManagement extends Component
             'domain_registrar_other',
             'dns_managed_elsewhere',
             'dns_provider',
+            'client_software',
+            'software_cost',
             'notes',
         ];
 
@@ -659,6 +663,8 @@ class ClientManagement extends Component
             '', // domain_registrar_other
             'false', // dns_managed_elsewhere
             '', // dns_provider
+            '', // client_software (comma-separated list of software paid by Lingo)
+            '', // software_cost (monthly cost, e.g. 49.99)
             'Example client record', // notes
         ];
         fputcsv($handle, $exampleRow);

@@ -587,7 +587,7 @@ Contract documents are stored on company Google Drive (not uploaded to the serve
 
 ### CSV Template Columns
 ```csv
-account_number,company_name,trading_name,email,phone,mobile,website,address_line_1,address_line_2,city,state,zip_code,country,billing_address_same,billing_address_line_1,billing_address_line_2,billing_city,billing_state,billing_zip_code,billing_country,payment_terms,tax_id,default_hourly_rate,hosting_provider,hosting_managed_by,domain_registrar,domain_registrar_other,dns_managed_elsewhere,dns_provider,notes
+account_number,company_name,trading_name,email,phone,mobile,website,address_line_1,address_line_2,city,state,zip_code,country,billing_address_same,billing_address_line_1,billing_address_line_2,billing_city,billing_state,billing_zip_code,billing_country,payment_terms,tax_id,default_hourly_rate,hosting_provider,hosting_managed_by,domain_registrar,domain_registrar_other,dns_managed_elsewhere,dns_provider,client_software,software_cost,notes
 ```
 
 ### Validation Rules
