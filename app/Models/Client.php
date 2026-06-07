@@ -243,11 +243,23 @@ class Client extends Model
     public function getFormattedContactAttribute(): string
     {
         if (!empty($this->mobile)) {
-            return 'm: ' . $this->mobile;
+            return 'm: ' . $this->formatPhone($this->mobile);
         } elseif (!empty($this->phone)) {
-            return 'o: ' . $this->phone;
+            return 'o: ' . $this->formatPhone($this->phone);
         }
         return '—';
+    }
+
+    private function formatPhone(string $number): string
+    {
+        $digits = preg_replace('/\D/', '', $number);
+        if (strlen($digits) === 11 && $digits[0] === '1') {
+            $digits = substr($digits, 1);
+        }
+        if (strlen($digits) === 10) {
+            return substr($digits, 0, 3) . '-' . substr($digits, 3, 3) . '-' . substr($digits, 6);
+        }
+        return $number;
     }
 
     /**
