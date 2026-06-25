@@ -144,7 +144,10 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Public registration disabled — new users are added manually by admins
+        // via the Users management screen (can:manage users). Re-enabling this
+        // would expose a public /register signup form.
+        // Features::registration(),
         Features::resetPasswords(),
         // Features::emailVerification(),
         Features::updateProfileInformation(),

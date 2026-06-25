@@ -1,5 +1,30 @@
 # Update Summary - June 2026
 
+## Changes Completed June 25, 2026 — Authentication Fixes
+
+### 1. Fixed login crash for unverified users ("Route [verification.notice] not defined")
+- `Features::emailVerification()` is intentionally disabled in `config/fortify.php`, so the `verification.notice` route does not exist. The `User` model still implemented `MustVerifyEmail` and protected routes still used the `verified` middleware, so any user with `email_verified_at = null` crashed on login.
+- Removed `implements MustVerifyEmail` from the `User` model and the `verified` middleware from the route group. All users can now log in.
+- Files: `app/Models/User.php`, `routes/web.php`
+
+### 2. Password reset email now sends (Gmail SMTP)
+- Production `.env` still pointed at the local `mailpit` dev catcher, so reset emails never went out. Configured Gmail SMTP (`smtp.gmail.com:465` SSL, app password) on the server.
+- Reminder: `.env` is gitignored and is NOT deployed by git push — it must be edited directly on the server (FTP/SSH) followed by `php artisan config:clear`.
+- Files: server `.env` only (not version-controlled)
+
+### 3. Fixed password reset link 404 (`/home` → `/dashboard`)
+- `RouteServiceProvider::HOME` was the Laravel default `/home`, but this app has no `/home` route (home is `/dashboard`, matching `config/fortify.php` `home`). The reset-password page is a guest-only route, so a logged-in user clicking the emailed link was redirected to `/home` → 404. (The reset form only shows when logged out.)
+- Changed `HOME` to `/dashboard`.
+- Files: `app/Providers/RouteServiceProvider.php`
+
+### 4. Public registration fully disabled (Fortify feature)
+- The June 3 change only hid the UI and redirected `/register`; Fortify's `registration()` feature was still enabled, so a direct POST to `/register` still created accounts — this allowed an unwanted random signup. Commented out `Features::registration()` in `config/fortify.php` to remove the registration routes entirely.
+- New users are added manually by admins via the Users management screen (`User::create` in `UserManagement`, gated by `can:manage users`) — independent of the Fortify registration feature.
+- Do NOT re-enable `Features::registration()`.
+- Files: `config/fortify.php`
+
+---
+
 ## Changes Completed June 3, 2026 (Session 2)
 
 ### 5. Client Form — Collapsible Sections & Wider Modal

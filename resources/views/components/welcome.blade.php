@@ -14,25 +14,25 @@
 </div>
 
 <div class="bg-base-200 bg-opacity-25 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 lg:p-8">
-    <!-- Documentation Section -->
-    <div class="card bg-base-100">
+    <!-- Media Engine Section -->
+    <div class="card bg-base-100 border border-secondary/40">
         <div class="card-body">
             <div class="flex items-center mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-6 h-6 stroke-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-6 h-6 stroke-secondary">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                 </svg>
-                <h2 class="card-title ml-3">
-                    <a href="https://laravel.com/docs">Documentation</a>
+                <h2 class="card-title ml-3 text-secondary">
+                    <a href="{{ url('/mediaengine') }}">Media Engine</a>
                 </h2>
             </div>
-            
+
             <p class="text-base-content/70 text-sm leading-relaxed">
-                Laravel has wonderful documentation covering every aspect of the framework. Whether you're new to the framework or have previous experience, we recommend reading all of the documentation from beginning to end.
+                Lingo's blog and social-media engine that speeds up finding trending, on-brand content for clients and internal use — with built-in scheduling and automated posting.
             </p>
 
             <div class="card-actions justify-start mt-4">
-                <a href="https://laravel.com/docs" class="btn btn-primary btn-sm">
-                    Explore the documentation
+                <a href="{{ url('/mediaengine') }}" class="btn btn-secondary btn-sm">
+                    Open Media Engine
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="ml-1 w-5 h-5 fill-current">
                         <path fill-rule="evenodd" d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z" clip-rule="evenodd" />
                     </svg>
