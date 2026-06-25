@@ -39,4 +39,11 @@ Route::middleware([
     Route::get('/clients', function () {
         return view('clients.index');
     })->name('clients.index')->middleware('can:manage users');
+
+    // Media Engine (Social Media / blog control panel). The Livewire component
+    // calls the n8n webhooks server-side (secret attached in PHP), so no public
+    // proxy routes are needed. Open to any logged-in user.
+    Route::get('/mediaengine', function () {
+        return view('mediaengine');
+    })->name('mediaengine');
 });

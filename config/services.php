@@ -31,4 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Media Engine control panel -> n8n proxy (MediaEngineController)
+    'n8n' => [
+        'base' => env('N8N_BASE', 'https://n8n.lingoit.net'),
+        'panel_secret' => env('N8N_PANEL_SECRET'),
+    ],
+
 ];
