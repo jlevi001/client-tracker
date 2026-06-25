@@ -6,8 +6,10 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
@@ -21,6 +23,26 @@ class FortifyServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Lock the application down to a single permitted account.
+        // Only this email address may authenticate; every other user
+        // (correct password or not) is rejected with the standard
+        // "These credentials do not match our records." message.
+        Fortify::authenticateUsing(function (Request $request) {
+            $allowedEmail = 'james@lingoit.net';
+
+            if (strtolower(trim((string) $request->email)) !== $allowedEmail) {
+                return null;
+            }
+
+            $user = User::where('email', $allowedEmail)->first();
+
+            if ($user && Hash::check((string) $request->password, $user->password)) {
+                return $user;
+            }
+
+            return null;
+        });
+
         // Tell Fortify which classes implement its contracts
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
