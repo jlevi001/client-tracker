@@ -144,8 +144,7 @@ return [
     */
 
     'features' => [
-        // Registration disabled — this is a single-user (locked-down) app.
-        // Features::registration(),
+        Features::registration(),
         Features::resetPasswords(),
         // Features::emailVerification(),
         Features::updateProfileInformation(),
