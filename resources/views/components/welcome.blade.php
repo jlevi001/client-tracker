@@ -41,6 +41,33 @@
         </div>
     </div>
 
+    <!-- Bulk Email Section -->
+    <div class="card bg-base-100 border border-secondary/40">
+        <div class="card-body">
+            <div class="flex items-center mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-6 h-6 stroke-secondary">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                </svg>
+                <h2 class="card-title ml-3 text-secondary">
+                    Bulk Email
+                </h2>
+            </div>
+
+            <p class="text-base-content/70 text-sm leading-relaxed">
+                Send a branded bulk email to your contacts by tag (Prospects, Staff, Customers, Test, or everyone). It sends <strong>as you</strong> — replies come straight back to you — with personalization and one-click unsubscribe built in.
+            </p>
+
+            <div class="card-actions justify-start mt-4">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('bulkEmailModal').showModal()">
+                    Open Bulk Email
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="ml-1 w-5 h-5 fill-current">
+                        <path fill-rule="evenodd" d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Laracasts Section -->
     <div class="card bg-base-100">
         <div class="card-body">
@@ -104,3 +131,18 @@
         </div>
     </div>
 </div>
+
+{{-- Bulk Email modal: loads the self-contained emailer form in an isolated iframe.
+     The iframe (/emailer/form) injects the logged-in user as the sender. --}}
+<style>
+    #bulkEmailModal{padding:0;border:none;background:transparent;max-width:none;max-height:none;}
+    #bulkEmailModal::backdrop{background:rgba(0,0,0,.6);}
+</style>
+<dialog id="bulkEmailModal">
+    <div style="position:relative;width:91vw;max-width:56rem;height:85vh;background:#0d1b2a;border-radius:12px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.55);">
+        <form method="dialog" style="margin:0;">
+            <button aria-label="Close" style="position:absolute;top:10px;right:10px;z-index:10;width:30px;height:30px;line-height:1;border-radius:9999px;border:none;background:rgba(0,0,0,.45);color:#fff;font-size:15px;cursor:pointer;">&times;</button>
+        </form>
+        <iframe src="{{ route('emailer.form') }}" title="Bulk Email" style="display:block;width:100%;height:100%;border:0;"></iframe>
+    </div>
+</dialog>

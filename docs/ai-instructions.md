@@ -622,3 +622,9 @@ Before submitting any component:
 - **User model**: Added `isActive` accessor and `closeCurrentWage($endDate)` method
 - **UserManagement Livewire**: Added `employmentEndDate` property, `showInactive` filter; `updateUser()` auto-closes wage when end date is set
 - **UI**: Active/Inactive badge in user list, "Show inactive" checkbox filter, Employment End Date field in Edit modal (admin only, alongside Start Date)
+
+## Change Log - June 2026 (cont.)
+
+### Added Bulk Email tool (dashboard) + the "HTML form in a modal" pattern
+- **Feature**: a **Bulk Email** card on the dashboard opens a modal with a self-contained emailer form (`resources/emailer/emailer.html`) served by the auth-gated route `GET /emailer/form` (name `emailer.form`). The route injects the logged-in user + an active-teammates "Send As" list, so an n8n workflow sends each campaign **as** the chosen user (their @lingoit.net address; replies route to them). Files: `resources/emailer/emailer.html`, `routes/web.php` (route), `resources/views/components/welcome.blade.php` (card + `<dialog>` modal/iframe).
+- **REUSABLE PATTERN — read [`/docs/EMBEDDING-HTML-FORMS-IN-MODALS.md`](./EMBEDDING-HTML-FORMS-IN-MODALS.md)** before adding any other framed HTML tool/form. It documents how to embed a standalone HTML form behind login in a modal (iframe isolation, server-side context injection, self-styled modal so **no `npm run build`** is needed for FTP deploys, serve from `resources/` not `public/`, etc.). We will do more of these — follow that guide.
