@@ -286,9 +286,9 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="form-control">
                                 <label class="label"><span class="label-text">Default Hourly Rate <span class="text-error">*</span></span></label>
-                                <label class="input-group">
-                                    <span>$</span>
-                                    <input type="number" step="0.01" wire:model="default_hourly_rate" class="input input-bordered flex-1 @error('default_hourly_rate') input-error @enderror" />
+                                <label class="input input-bordered flex items-center gap-2 w-full @error('default_hourly_rate') input-error @enderror">
+                                    <span class="opacity-70">$</span>
+                                    <input type="number" step="0.01" wire:model="default_hourly_rate" class="grow bg-transparent border-0 focus:outline-none p-0" />
                                 </label>
                                 @error('default_hourly_rate')<label class="label"><span class="label-text-alt text-error">{{ $message }}</span></label>@enderror
                             </div>
@@ -502,9 +502,9 @@
                             </div>
                             <div class="form-control">
                                 <label class="label"><span class="label-text">Monthly Software Cost</span></label>
-                                <label class="input-group">
-                                    <span>$</span>
-                                    <input type="number" step="0.01" wire:model="software_cost" class="input input-bordered flex-1 @error('software_cost') input-error @enderror" placeholder="0.00" />
+                                <label class="input input-bordered flex items-center gap-2 w-full @error('software_cost') input-error @enderror">
+                                    <span class="opacity-70">$</span>
+                                    <input type="number" step="0.01" wire:model="software_cost" class="grow bg-transparent border-0 focus:outline-none p-0" placeholder="0.00" />
                                 </label>
                                 @error('software_cost')<label class="label"><span class="label-text-alt text-error">{{ $message }}</span></label>@enderror
                             </div>

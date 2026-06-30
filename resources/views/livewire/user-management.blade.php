@@ -315,7 +315,7 @@
         </x-slot>
 
         <x-slot name="content">
-            <div class="space-y-6 max-h-[70vh] overflow-y-auto px-1">
+            <div class="space-y-6 max-h-[70vh] overflow-y-auto overflow-x-hidden px-1">
                 <!-- Basic Information Section -->
                 <div class="space-y-4">
                     <div class="form-control w-full">
@@ -384,7 +384,7 @@
             <span class="label-text">Employment Start Date</span>
         </label>
         @if(auth()->user()->hasRole('Admin'))
-            <input type="date" wire:model="employmentStartDate" class="input input-bordered w-full @error('employmentStartDate') input-error @enderror" />
+            <input type="date" wire:model="employmentStartDate" class="input input-bordered w-full min-w-0 @error('employmentStartDate') input-error @enderror" />
             @error('employmentStartDate')
                 <label class="label">
                     <span class="label-text-alt text-error">{{ $message }}</span>
@@ -409,7 +409,7 @@
             <span class="label-text">Employment End Date</span>
         </label>
         @if(auth()->user()->hasRole('Admin'))
-            <input type="date" wire:model="employmentEndDate" class="input input-bordered w-full @error('employmentEndDate') input-error @enderror" />
+            <input type="date" wire:model="employmentEndDate" class="input input-bordered w-full min-w-0 @error('employmentEndDate') input-error @enderror" />
             @error('employmentEndDate')
                 <label class="label">
                     <span class="label-text-alt text-error">{{ $message }}</span>
