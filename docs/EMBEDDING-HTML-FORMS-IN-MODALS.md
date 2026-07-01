@@ -55,6 +55,8 @@ A normal standalone HTML page. Two things make it "app-aware":
 
 The form posts directly to its n8n webhook (the webhook is open/internal, so there's no secret to hide). Edit this one file anytime — no build, no recompile.
 
+**Body editor (WYSIWYG).** The message body is a `contenteditable` div driven by a tiny `format(cmd, val)` helper that just calls `document.execCommand(cmd, ...)`. The toolbar exposes: Paragraph/H1–H3, **Bold/Italic/Underline**, bullet & numbered lists, **Left/Center/Right alignment** (`justifyLeft`/`justifyCenter`/`justifyRight`, added 2026-07-01), Link, and Clear. `execCommand` writes **inline styles** (e.g. `text-align:center`) onto the block, and the body is sent as `editor.innerHTML`, so all formatting — alignment included — survives into the delivered email. To add another button, add a `<button ... onclick="format('<execCommand>')">` in `.toolbar`; no other wiring is needed.
+
 ### 2. The route — `routes/web.php` (inside the `auth:sanctum` group)
 
 ```php
